@@ -1,0 +1,92 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+' Primary Actors
+actor "Non-Registered User" as Guest
+actor "Registered User" as User_Base
+actor "Registered User\n(Unverified / Restricted)" as User_Restricted
+actor "Registered User\n(Verified / Full Access)" as User_Verified
+
+' Actor Generalization (Inheritance)
+User_Restricted -up-|> User_Base
+User_Verified -up-|> User_Base
+
+' Secondary Actors (External Systems)
+actor "Google OAuth Provider" as Ext_Google << System >>
+actor "Email Service (SMTP)" as Ext_Email << System >>
+
+' Use cases
+rectangle "LuminaGrad Authentication System" {
+    
+    package "Standard Registration" {
+        usecase "Standard Registration" as UC_Register
+        usecase "Validate Username" as UC_CheckUsername
+        usecase "Create Unverified Account" as UC_CreateAccount
+        usecase "Send Activation Email" as UC_SendActivation
+        usecase "Auto-Login (Restricted)" as UC_AutoLogin
+    }
+    
+    package "Google OAuth" {
+        usecase "Continue with Google" as UC_Google
+        usecase "Provision Google Account" as UC_GoogleProvision
+        usecase "Extract Prefix & Handle Collision" as UC_ResolveUsername
+    }
+
+    package "Login & Session Management" {
+        usecase "Login via Email/Password" as UC_Login
+        usecase "Keep Me Logged In (Token)" as UC_RememberMe
+        usecase "Logout / Revoke Token" as UC_Logout
+    }
+
+    package "Account Recovery" {
+        usecase "Forgot Password" as UC_ForgotPassword
+        usecase "Send Reset Link" as UC_SendReset
+        usecase "Reset Password via Token" as UC_ResetPassword
+    }
+    
+    package "Verification" {
+        usecase "Click Activation Link" as UC_Verify
+        usecase "Upgrade to Full Access" as UC_UpgradeAccess
+        usecase "Resend Verification / Activation Link" as UC_ResendVerify
+    }
+}
+
+' Relationships
+
+' Standard Registration Includes
+UC_Register ..> UC_CheckUsername : <<include>>
+UC_Register ..> UC_CreateAccount : <<include>>
+UC_Register ..> UC_SendActivation : <<include>>
+UC_Register ..> UC_AutoLogin : <<include>>
+
+' OAuth & Password Recovery Extends
+UC_GoogleProvision .up.> UC_Google : <<extend>>
+UC_GoogleProvision ..> UC_ResolveUsername : <<include>>
+
+UC_RememberMe .up.> UC_Login : <<extend>>
+UC_ForgotPassword .up.> UC_Login : <<extend>>
+UC_ForgotPassword ..> UC_SendReset : <<include>>
+UC_ResetPassword .up.> UC_ForgotPassword : <<extend>>
+
+' Verification Includes
+UC_Verify ..> UC_UpgradeAccess : <<include>>
+
+' Primary Actor Connections
+Guest --> UC_Register
+Guest --> UC_Google
+
+User_Base --> UC_Login
+User_Base --> UC_Logout
+
+User_Restricted --> UC_Verify
+User_Restricted --> UC_ResendVerify
+
+' Secondary Actor Connections (System Integration)
+UC_Google --> Ext_Google
+UC_SendActivation --> Ext_Email
+UC_SendReset --> Ext_Email
+UC_ResendVerify --> Ext_Email
+
+@enduml

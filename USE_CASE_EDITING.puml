@@ -1,0 +1,88 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+' Actors
+actor "Desktop User" as User_Base
+actor "Unregistered User" as User_Unregistered
+actor "Registered User" as User_Registered
+
+' Inheritance
+User_Unregistered -up-|> User_Base
+User_Registered -up-|> User_Base
+
+rectangle "CinePress Desktop Application" {
+
+    package "Catalog Management" {
+        usecase "Create New Catalog" as UC_CreateCatalog
+        usecase "Select Existing Catalog" as UC_SelectCatalog
+        usecase "Delete Catalog" as UC_DeleteCatalog
+    }
+
+    package "File & Organization Module" {
+        usecase "Import Photos" as UC_ImportPhotos
+        usecase "Delete Photos" as UC_DeletePhotos
+        usecase "Rate Photos" as UC_RatePhotos
+        usecase "Sort into Folders" as UC_SortFolders
+        usecase "Export Physical Folder Hierarchy" as UC_ExportHierarchy
+        ' Export, the organized file system inside the catalog can be replacted onto your local destination 
+    }
+
+    package "Editing & RAW Processing Module" {
+        usecase "Navigate Media" as UC_NavMedia
+        usecase "Filter Carousel" as UC_FilterCarousel
+        usecase "View Decoded RAW" as UC_ViewRAW
+        usecase "Adjust Image Parameters" as UC_AdjustParams
+        usecase "Compare Before/After" as UC_Compare
+        usecase "Manage Local LUTs/Presets" as UC_ManageLUTs
+        usecase "Configure Per-Photo Export" as UC_ConfigPerPhoto
+    }
+
+    package "Export Engine" {
+        usecase "Configure Global Export" as UC_ConfigGlobal
+        usecase "Select Export Batch" as UC_SelectBatch
+        usecase "Execute Export" as UC_ExecuteExport
+        usecase "Cancel/Stop Export" as UC_CancelExport
+    }
+
+    package "Web Integration & Social Sharing" {
+        usecase "View Login/Register Prompt" as UC_ViewPrompt
+        usecase "Share LUT/Preset to Community" as UC_ShareLUT
+        usecase "Select Preview Image" as UC_SelectPreview
+    }
+}
+
+' Relationships
+UC_ConfigGlobal .up.> UC_ConfigPerPhoto : <<extend>>
+UC_ShareLUT ..> UC_SelectPreview : <<include>>
+
+' Base Actor Connections
+User_Base --> UC_CreateCatalog
+User_Base --> UC_SelectCatalog
+User_Base --> UC_DeleteCatalog
+
+User_Base --> UC_ImportPhotos
+User_Base --> UC_DeletePhotos
+User_Base --> UC_RatePhotos
+User_Base --> UC_SortFolders
+User_Base --> UC_ExportHierarchy
+
+User_Base --> UC_NavMedia
+User_Base --> UC_FilterCarousel
+User_Base --> UC_ViewRAW
+User_Base --> UC_AdjustParams
+User_Base --> UC_Compare
+User_Base --> UC_ManageLUTs
+User_Base --> UC_ConfigPerPhoto
+
+User_Base --> UC_ConfigGlobal
+User_Base --> UC_SelectBatch
+User_Base --> UC_ExecuteExport
+User_Base --> UC_CancelExport
+
+' Child Actor Connections
+User_Unregistered --> UC_ViewPrompt
+User_Registered --> UC_ShareLUT
+
+@enduml

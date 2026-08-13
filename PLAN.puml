@@ -1,0 +1,23 @@
+@startuml
+autonumber
+actor User
+participant "Angular SPA (WebView)" as Angular
+participant "JS-Java Bridge" as Bridge
+participant "JavaFX Editor Controller" as FX
+participant "LWJGL Pipeline Core" as Engine
+
+User -> Angular : Click "Apply Preset to Workspace"
+Angular -> Bridge : invokeNative("applyPreset", presetJsonData)
+Bridge -> FX : handlePresetApply(presetJson)
+activate FX
+FX -> FX : Parse parameters (Exposure, Wheels, Curves)
+FX -> Engine : Update Shader Uniform Constants
+activate Engine
+Engine -> Engine : Re-render FBO with new uniforms
+Engine --> FX : Frame Rendered Signal
+deactivate Engine
+FX --> Bridge : Return Success Status
+deactivate FX
+Bridge --> Angular : Callback Resolution
+Angular -> User : Display "Preset Applied" Toast Banner
+@enduml
