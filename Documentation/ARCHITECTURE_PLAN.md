@@ -16,8 +16,8 @@ hu.elte.ik.thesis.cinegrade
 │
 ├── app                              # APPLICATION LAYER — bootstrap, orchestrators, persistence
 │   ├── main                             # Application entry point & startup
-│   │   ├── App.java                         # extends Application — JavaFX main entry
-│   │   ├── Launcher.java                    # main() — workaround for JavaFX module system
+│   │   ├── hu.elte.ik.thesis.cinegrade.app.main.App.java                         # extends Application — JavaFX main entry
+│   │   ├── hu.elte.ik.thesis.cinegrade.app.main.Launcher.java                    # main() — workaround for JavaFX module system
 │   │   └── RequirementChecker.java          # Pre-flight: DLLs, tools, dirs, resources
 │   ├── managers                         # Business logic orchestrators (stateful singletons)
 │   │   ├── catalog                          # CatalogManager — create/open/delete/list catalogs
@@ -144,7 +144,7 @@ Runs **before** the JavaFX stage is shown. Checks:
 | 1 | `libraw.dll` exists at expected path & JNA can load it | FATAL → exit with error dialog |
 | 2 | `ffmpeg` / `ffprobe` reachable on system PATH (`ffmpeg -version`) | FATAL → exit |
 | 3 | `exiftool` reachable on system PATH (`exiftool -ver`) | FATAL → exit |
-| 4 | App data directory is writable (`~/.cinegrade/`) | FATAL → exit |
+| 4 | hu.elte.ik.thesis.cinegrade.app.main.App data directory is writable (`~/.cinegrade/`) | FATAL → exit |
 | 5 | Required resource files present (default thumbnails, GLSL shaders, default settings JSON) | FATAL → exit |
 | 6 | OpenGL 3.3+ context can be created (LWJGL check) | FATAL → exit |
 
@@ -346,7 +346,7 @@ StartScreen (no catalog open)
 
 ### 8.2 Settings Dialog (Modal)
 
-- **App Settings tab:** theme, default catalog location, thread pool size, recent catalogs limit
+- **hu.elte.ik.thesis.cinegrade.app.main.App Settings tab:** theme, default catalog location, thread pool size, recent catalogs limit
 - **LibRaw Settings tab:** demosaic algorithm, half-size decode toggle, white balance mode, output color space, output bit depth
 - **Keyboard Shortcuts tab:** (optional, stretch goal)
 

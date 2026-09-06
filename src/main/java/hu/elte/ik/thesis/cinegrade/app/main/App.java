@@ -1,3 +1,5 @@
+package hu.elte.ik.thesis.cinegrade.app.main;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -13,7 +15,7 @@ public class App extends Application{
         Scene scene = new Scene(label, 400, 300);
 
         // Set the title and scene for the primary stage
-        primaryStage.setTitle("My JavaFX App");
+        primaryStage.setTitle("My JavaFX hu.elte.ik.thesis.cinegrade.app.main.App");
         primaryStage.setScene(scene);
 
         // Show the primary stage

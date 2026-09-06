@@ -50,7 +50,7 @@
 4. **Export & Compression Engine:**
    - High-quality export engine supporting JPEG, PNG, TIFF, and WebP using **FFmpeg** / Java ImageIO.
 
-### 3.2 Social Platform (Angular Embedded Web App)
+### 3.2 Social Platform (Angular Embedded Web hu.elte.ik.thesis.cinegrade.app.main.App)
 1. **User Profiles & Personal Portfolios:**
    - Biography, profile picture, banner, social links, and organized highlight showcases.
 2. **Community Feed & Preset Sharing ("Instagram for LUTs"):**
@@ -157,7 +157,7 @@ ADMIN --> UC_Moderate
 ### 5.2 High-Level Architecture Component Diagram
 ```plantuml
 @startuml
-package "LuminaGrad Desktop App (JavaFX Host)" {
+package "LuminaGrad Desktop hu.elte.ik.thesis.cinegrade.app.main.App (JavaFX Host)" {
     [JavaFX UI Shell] --> [JS-Java Native Bridge]
     [JS-Java Native Bridge] --> [Embedded Chromium / WebEngine]
     
@@ -170,8 +170,8 @@ package "LuminaGrad Desktop App (JavaFX Host)" {
 }
 
 package "Web & Cloud Infrastructure" {
-    [Embedded Chromium / WebEngine] ..> [Angular Single Page App] : Renders UI
-    [Angular Single Page App] <--> [Spring Boot REST API] : HTTPS / JSON
+    [Embedded Chromium / WebEngine] ..> [Angular Single Page hu.elte.ik.thesis.cinegrade.app.main.App] : Renders UI
+    [Angular Single Page hu.elte.ik.thesis.cinegrade.app.main.App] <--> [Spring Boot REST API] : HTTPS / JSON
     [Spring Boot REST API] <--> [PostgreSQL Database] : JPA / Hibernate
     [Spring Boot REST API] <--> [S3 / Cloud Object Storage] : Image & LUT Files
 }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status="WARN" controls Log4j's OWN internal logging — only shows warnings about itself -->
+<Configuration status="WARN" name="CineGradeLogging">
+    <Properties>
+        <!-- Log file directory: set by LoggerSetup.init() via System.setProperty("cinegrade.log.dir", path) -->
+        <Property name="LOG_DIR">${sys:cinegrade.log.dir}</Property>
+
+        <Property name="FILE_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+
+        <Property name="CONSOLE_PATTERN">%d{HH:mm:ss.SSS} [%t] %highlight{%-5level}{FATAL=red blink, ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=white} %logger{36} - %msg%n</Property>
+    </Properties>
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="${CONSOLE_PATTERN}" />
+        </Console>
+
+        <RollingFile name="RollingFile"
+                     fileName="${LOG_DIR}/cinegrade-${date:yyyy-MM-dd-HH-mm-ss}.log"
+                     filePattern="${LOG_DIR}/cinegrade-%d{yyyy-MM-dd}-%i.log.gz"
+                     fileOwner="$cinegrade"
+                     filePermissions="rw-rw----">
+
+            <!-- I will set what goes to the file inside the LoggerUtils class, so I don't need to filter here. -->
+            <!--ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" /-->
+
+            <PatternLayout pattern="${FILE_PATTERN}" />
+
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5 MB" />
+                <OnStartTriggeringPolicy />
+            </Policies>
+
+            <DefaultRolloverStrategy max="20">
+                <Delete basePath="${LOG_DIR}" maxDepth="1">
+                    <IfFileName glob="cinegrade-*.log.gz" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile" />
+        </Root>
+    </Loggers>
+</Configuration>
