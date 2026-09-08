@@ -1,5 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 
+import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
 import java.nio.file.Path;
@@ -54,16 +55,23 @@ public class ExifToolCommandBuilder implements CommandBuilder {
     /**
      * Requests specific EXIF/XMP tags (e.g. "ISO", "Model", "FNumber").
      */
-    public ExifToolCommandBuilder addTag(String tag) {
-        if (tag != null && !tag.isBlank()) {
-            args.add("-" + tag.trim().replace("-", ""));
+    public ExifToolCommandBuilder addTag(ExifTag tag) {
+        if (tag != null) {
+            args.add(tag.getTagName());
         }
         return this;
     }
 
-    public ExifToolCommandBuilder addTags(List<String> tags) {
+    public ExifToolCommandBuilder addTags(List<ExifTag> tags) {
         if (tags != null) {
             tags.forEach(this::addTag);
+        }
+        return this;
+    }
+
+    public ExifToolCommandBuilder addTags(ExifTag... tags) {
+        for (ExifTag tag : tags){
+            addTag(tag);
         }
         return this;
     }
@@ -103,11 +111,11 @@ public class ExifToolCommandBuilder implements CommandBuilder {
     }
 
     public ArrayList<String> buildCommands() {
-        ArrayList<String> command = new ArrayList<>();
-        command.add(executable);
-        command.addAll(args);
-        command.addAll(files);
-        return command;
+        ArrayList<String> finalCommands = new ArrayList<>();
+        finalCommands.add(executable);
+        finalCommands.addAll(args);
+        finalCommands.addAll(files);
+        return finalCommands;
     }
 }
 

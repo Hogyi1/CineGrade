@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public final class ProcessRunner {
 
     private static final Logger logger = LogManager.getLogger(ProcessRunner.class);
-    public static ProcessResult run(List<String> commands, int timeOut, BooleanSupplier isCanceled) {
+    public static ProcessResult run(List<String> commands, int ms_timeOut, BooleanSupplier isCanceled) {
 
         Process p;
 
@@ -72,12 +72,12 @@ public final class ProcessRunner {
                 }
 
                 // Process timed out
-                if (System.currentTimeMillis() - now >= TimeUnit.SECONDS.toMillis(timeOut)) {
+                if (System.currentTimeMillis() - now >= TimeUnit.SECONDS.toMillis(ms_timeOut)) {
                     killProcessTree(p);
                     stderrFuture.cancel(true);
                     stdoutFuture.cancel(true);
-                    logger.debug("Process timed out after {} seconds", timeOut);
-                    return ProcessResult.fail(-5, "Process timed out after " + timeOut + " seconds");
+                    logger.debug("Process timed out after {} seconds", ms_timeOut);
+                    return ProcessResult.fail(-5, "Process timed out after " + ms_timeOut + " seconds");
                 }
             }
         } catch (Exception e) {
