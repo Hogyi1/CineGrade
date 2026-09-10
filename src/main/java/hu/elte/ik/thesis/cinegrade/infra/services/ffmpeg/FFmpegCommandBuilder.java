@@ -9,12 +9,18 @@ import java.util.List;
 
 public class FFmpegCommandBuilder implements CommandBuilder {
 
-    private String executable = "ffmpeg";
-    private Path output;
+    private final String FFPROBE_EXECUTABLE = "ffprobe";
+    private final String FFMPEG_EXECUTABLE = "ffmpeg";
+
+    private String executable = FFMPEG_EXECUTABLE;
     private final ArrayList<String> args = new ArrayList<>();
 
-    public FFmpegCommandBuilder addExecutablePath(String path) {
+    private void setExecutablePath(String path) {
         executable = path;
+    }
+
+    public FFmpegCommandBuilder versionInfo() {
+        args.add("-v");
         return this;
     }
 
@@ -167,8 +173,8 @@ public class FFmpegCommandBuilder implements CommandBuilder {
 
     // region OTHER OPTIONS
     // Validate command using ffprobe to check if the input file is valid
-    public FFmpegCommandBuilder validateCommand() throws IOException {
-        addExecutablePath("ffprobe");
+    public FFmpegCommandBuilder validateCommand() {
+        setExecutablePath(FFPROBE_EXECUTABLE);
         args.addAll(List.of(
                 "-hide_banner",
                 "-nostdin",
@@ -183,14 +189,20 @@ public class FFmpegCommandBuilder implements CommandBuilder {
         return this;
     }
 
+    public FFmpegCommandBuilder setFFprobeExecutable() {
+        setExecutablePath(FFPROBE_EXECUTABLE);
+        return this;
+    }
+
     public FFmpegCommandBuilder addInput(Path input) {
         args.add("-i");
-        args.add(input.toString());
+        args.add(input.toFile().getAbsolutePath());
         return this;
     }
 
     public FFmpegCommandBuilder addOutput(Path output) {
-        this.output = output;
+        args.add("-o");
+        args.add(output.toFile().getAbsolutePath());
         return this;
     }
 

@@ -76,6 +76,11 @@ public class ExifToolCommandBuilder implements CommandBuilder {
         return this;
     }
 
+    public ExifToolCommandBuilder versionInfo() {
+        args.add("-ver");
+        return this;
+    }
+
     /**
      * Sets or updates a tag value (e.g. tag="Rating", value=5 -> "-Rating=5").
      */
