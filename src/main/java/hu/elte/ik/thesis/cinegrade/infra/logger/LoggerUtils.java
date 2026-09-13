@@ -31,7 +31,7 @@ public class LoggerUtils {
 
     private static void setupBanner() {
         Logger logger = LogManager.getLogger(LoggerUtils.class);
-        SystemInfo info = SystemInfo.getInstance();
+        SystemInfo info = SystemInfo.INSTANCE;
         logger.info("Logger startup...\n");
         logger.info("=======================================");
         logger.info("        CineGrade Application          ");

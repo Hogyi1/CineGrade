@@ -14,6 +14,18 @@ public class CineGradeException extends RuntimeException {
         this.SEVERITY = errorCode.getSeverity();
     }
 
+    public CineGradeException(ErrorCode errorCode, Object... args){
+        super(errorCode.format(args));
+        this.ERROR_CODE = errorCode;
+        this.SEVERITY = errorCode.getSeverity();
+    }
+
+    public CineGradeException(ErrorCode errorCode, Throwable cause, Object... args){
+        super(errorCode.format(args), cause);
+        this.ERROR_CODE = errorCode;
+        this.SEVERITY = errorCode.getSeverity();
+    }
+
     public ErrorCode getErrorCode() {
         return ERROR_CODE;
     }

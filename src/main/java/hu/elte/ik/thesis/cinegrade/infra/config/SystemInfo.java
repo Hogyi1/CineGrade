@@ -3,46 +3,24 @@ package hu.elte.ik.thesis.cinegrade.infra.config;
 /**
  * Singleton class to hold system information.
  */
-public class SystemInfo{
+public enum SystemInfo {
 
-    private static final SystemInfo INSTANCE = new SystemInfo();
+    INSTANCE;
 
-    private final String osName;
-    private final String osVersion;
-    private final String osArch;
+    private final String osName = System.getProperty("os.name");
+    private final String osVersion = System.getProperty("os.version");
+    private final String osArch = System.getProperty("os.arch");
 
-    private final String javaVersion;
-    private final String javaVendor;
-    private final String javafxVersion;
+    private final String javaVersion = System.getProperty("java.version");
+    private final String javaVendor = System.getProperty("java.vendor");
+    private final String javafxVersion = System.getProperty("javafx.version");
 
-    private final int availableProcessors;
-    private final long maxMemoryBytes;
+    private final int availableProcessors = Runtime.getRuntime().availableProcessors();
+    private final long maxMemoryBytes = Runtime.getRuntime().maxMemory();
 
     private String gpuRenderer;
     private String gpuVendor;
     private String glVersion;
-
-    public SystemInfo() {
-        this.osName = System.getProperty("os.name");
-        this.osVersion = System.getProperty("os.version");
-        this.osArch = System.getProperty("os.arch");
-
-        this.javaVersion = System.getProperty("java.version");
-        this.javaVendor = System.getProperty("java.vendor");
-        this.javafxVersion = System.getProperty("javafx.version");
-
-        this.availableProcessors = Runtime.getRuntime().availableProcessors();
-        this.maxMemoryBytes = Runtime.getRuntime().maxMemory();
-
-        // TODO: populate GPU info later by RenderEngine
-        this.gpuRenderer = null;
-        this.gpuVendor = null;
-        this.glVersion = null;
-    }
-
-    public static SystemInfo getInstance() {
-        return INSTANCE;
-    }
 
     public String getOsName() {
         return osName;

@@ -86,6 +86,20 @@ public enum ErrorCode {
     RENDER_TARGET_READBACK_FAILED(5006, "Failed to read back rendered pixels from FBO to CPU buffer.", Severity.ERROR),
 
     // ==========================================
+    // 8000–8099: SQL Errors
+    // ==========================================
+    FAILED_TO_CREATE_INDEX(8001, "Failed to create index: %s", Severity.ERROR),
+    FAILED_TO_CREATE_TABLE(8002, "Failed to create table: %s", Severity.ERROR),
+    DB_CONNECTION_FAILED(8003, "Failed to establish database connection: %s", Severity.FATAL),
+    DB_EXECUTION_FAILED(8004, "Failed to execute database statement: %s", Severity.ERROR),
+    DB_TRANSACTION_FAILED(8005, "Database transaction failed: %s", Severity.ERROR),
+    DB_SCHEMA_INIT_FAILED(8006, "Failed to initialize database schema: %s", Severity.FATAL),
+    DB_CLOSE_FAILED(8007, "Failed to close database connection cleanly: %s", Severity.WARNING),
+    DB_RECORD_NOT_FOUND(8008, "Database record not found: %s", Severity.WARNING),
+    DB_LOCKED(8009, "Database is locked or busy: %s", Severity.ERROR),
+    DB_CORRUPTED(8010, "Database file is corrupted or unreadable: %s", Severity.FATAL),
+
+    // ==========================================
     // 9000–9099: Unexpected & General Errors
     // ==========================================
     UNKNOWN_ERROR(9000, "An unknown error occurred: %s", Severity.ERROR),
