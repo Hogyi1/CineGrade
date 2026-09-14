@@ -27,12 +27,13 @@ public class CatalogDatabase implements Database {
     }
 
     @Override
-    public synchronized void openConnection(Path path) {
+    public synchronized boolean openConnection(Path path) {
+        closeConnection();
+
         if (path == null) {
             throw new CineGradeException(ErrorCode.DB_CONNECTION_FAILED, "Catalog path cannot be null");
         }
 
-        closeConnection();
         catalogPath = path;
 
         try {
@@ -44,11 +45,10 @@ public class CatalogDatabase implements Database {
                 stmt.execute("PRAGMA foreign_keys = ON;");
             }
 
-            SchemaInitializer.initialize(connection);
+            CatalogSchemaInitializer.initialize(connection);
             logger.info("Catalog database opened and initialized successfully: {}", catalogPath);
-
+            return true;
         } catch (SQLException ex) {
-            logger.error("Failed to open catalog database: {}", catalogPath, ex);
             closeConnection();
             throw new CineGradeException(ErrorCode.DB_CONNECTION_FAILED, catalogPath);
         }
@@ -67,7 +67,6 @@ public class CatalogDatabase implements Database {
             connection.close();
             logger.info("Catalog database closed successfully");
         } catch (SQLException ex) {
-            logger.error("Failed to close catalog database cleanly: {}", catalogPath, ex);
             throw new CineGradeException(ErrorCode.DB_CLOSE_FAILED, catalogPath);
         } finally {
             connection = null;

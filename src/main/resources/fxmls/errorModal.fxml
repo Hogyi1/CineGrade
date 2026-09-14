@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="640.0" prefHeight="420.0" style="-fx-background-color: #d9d9d9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController">
+    <children>
+        <!-- Dark Top Title/Header Bar -->
+        <HBox alignment="CENTER_LEFT" prefHeight="36.0" style="-fx-background-color: #2b2b2b; -fx-border-color: #1e1e1e; -fx-border-width: 0 0 1 0;">
+            <padding>
+                <Insets left="15.0" right="15.0" />
+            </padding>
+            <children>
+                <Label text="CineGrade — Error" textFill="#cccccc">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+            </children>
+        </HBox>
+
+        <!-- Main Body Content -->
+        <VBox spacing="14.0" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets bottom="16.0" left="20.0" right="20.0" top="18.0" />
+            </padding>
+            <children>
+                <!-- Header with Red Circle Icon & Error Title -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0">
+                    <children>
+                        <!-- Red Circle with White X SVG -->
+                        <StackPane prefHeight="54.0" prefWidth="54.0">
+                            <children>
+                                <Circle fill="#e02424" radius="27.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                                <SVGPath content="M 19 6.41 L 17.59 5 L 12 10.59 L 6.41 5 L 5 6.41 L 10.59 12 L 5 17.59 L 6.41 19 L 12 13.41 L 17.59 19 L 19 17.59 L 13.41 12 Z" fill="WHITE" scaleX="1.2" scaleY="1.2" />
+                            </children>
+                        </StackPane>
+
+                        <!-- Error Header Labels -->
+                        <VBox alignment="CENTER_LEFT" spacing="4.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Oops something went wrong" textFill="#1a1a1a">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="errorLabel" text="LABEL WITH ERROR CODE AND NAME #1000" textFill="#333333">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- StackTrace / Details Area with Overlay Copy Tooltip -->
+                <StackPane VBox.vgrow="ALWAYS">
+                    <children>
+                        <TextArea fx:id="errorMsgArea" editable="false" wrapText="true" style="-fx-control-inner-background: #ffffff; -fx-background-color: #ffffff; -fx-border-color: #b0b0b0; -fx-border-radius: 2; -fx-font-family: 'Consolas', 'Courier New', monospace; -fx-font-size: 11.5px;" />
+                        <Label fx:id="copyLabel" mouseTransparent="true" text="Copied to clipboard!" visible="false" style="-fx-background-color: rgba(30, 30, 30, 0.85); -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 4; -fx-font-size: 11px;" StackPane.alignment="TOP_RIGHT">
+                            <StackPane.margin>
+                                <Insets right="14.0" top="10.0" />
+                            </StackPane.margin>
+                        </Label>
+                    </children>
+                </StackPane>
+
+                <!-- Bottom Action Buttons -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <Button fx:id="logButton" mnemonicParsing="false" prefHeight="32.0" prefWidth="105.0" style="-fx-background-color: #555555; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3; -fx-cursor: hand;" text="Open logs" />
+                        <Button fx:id="closeButton" mnemonicParsing="false" prefHeight="32.0" prefWidth="95.0" style="-fx-background-color: #555555; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3; -fx-cursor: hand;" text="Close" />
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Label text="Click text to copy" textFill="#777777">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>

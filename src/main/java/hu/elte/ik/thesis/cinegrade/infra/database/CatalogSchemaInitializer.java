@@ -9,11 +9,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class SchemaInitializer {
+public class CatalogSchemaInitializer {
 
-    private static final Logger logger = LogManager.getLogger(SchemaInitializer.class);
+    private static final Logger logger = LogManager.getLogger(CatalogSchemaInitializer.class);
 
-    private SchemaInitializer() {
+    private CatalogSchemaInitializer() {
     }
 
     private record SchemaEntity(String name, String sql) {}
@@ -141,7 +141,6 @@ public class SchemaInitializer {
             try {
                 executeStatement(connection, table.sql());
             } catch (SQLException ex) {
-                logger.error("Failed to create table: {}", table.name(), ex);
                 throw new CineGradeException(ErrorCode.FAILED_TO_CREATE_TABLE, ex, table.name());
             }
             logger.info("Table has successfully been created: {}", table.name());
@@ -153,7 +152,6 @@ public class SchemaInitializer {
             try {
                 executeStatement(connection, index.sql());
             } catch (SQLException ex) {
-                logger.error("Failed to create index: {}", index.name(), ex);
                 throw new CineGradeException(ErrorCode.FAILED_TO_CREATE_INDEX, ex, index.name());
             }
             logger.info("Index has successfully been created: {}", index.name());

@@ -1,5 +1,7 @@
 package hu.elte.ik.thesis.cinegrade.infra.database;
 
+import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
+import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,13 +27,13 @@ public class AppDatabase implements Database {
     }
 
     @Override
-    public synchronized void openConnection(Path path) {
+    public synchronized boolean openConnection(Path path) {
         closeConnection();
         this.appDbPath = path;
 
         if (appDbPath == null) {
             logger.warn("No path provided for AppDatabase");
-            return;
+            return false;
         }
 
         try {
@@ -45,9 +47,10 @@ public class AppDatabase implements Database {
 
             AppSchemaInitializer.initialize(connection);
             logger.info("App database opened and initialized successfully: {}", appDbPath);
+            return true;
         } catch (SQLException ex) {
-            logger.error("Failed to open app database: {}", appDbPath, ex);
             closeConnection();
+            throw new CineGradeException(ErrorCode.DB_CONNECTION_FAILED, ex, appDbPath);
         }
     }
 
@@ -64,7 +67,7 @@ public class AppDatabase implements Database {
             connection.close();
             logger.info("App database closed successfully");
         } catch (SQLException ex) {
-            logger.error("Failed to close app database cleanly: {}", appDbPath, ex);
+            throw new CineGradeException(ErrorCode.DB_CLOSE_FAILED, ex, appDbPath);
         } finally {
             connection = null;
             appDbPath = null;

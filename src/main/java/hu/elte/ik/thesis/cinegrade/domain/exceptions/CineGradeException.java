@@ -7,6 +7,7 @@ public class CineGradeException extends RuntimeException {
 
     private final ErrorCode ERROR_CODE;
     private final Severity SEVERITY;
+    private Throwable cause = null;
 
     public CineGradeException(ErrorCode errorCode) {
         super(errorCode.getMessage());
@@ -24,6 +25,7 @@ public class CineGradeException extends RuntimeException {
         super(errorCode.format(args), cause);
         this.ERROR_CODE = errorCode;
         this.SEVERITY = errorCode.getSeverity();
+        this.cause = cause;
     }
 
     public ErrorCode getErrorCode() {
@@ -41,4 +43,6 @@ public class CineGradeException extends RuntimeException {
     public int getErrorCodeValue() {
         return ERROR_CODE.getCode();
     }
+
+    public Throwable getCause() { return cause; }
 }

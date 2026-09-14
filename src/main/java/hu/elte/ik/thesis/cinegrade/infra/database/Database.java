@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 
 public interface Database extends AutoCloseable{
-    void openConnection(Path path);
+    boolean openConnection(Path path);
     void closeConnection();
     Connection getConnection();
 }

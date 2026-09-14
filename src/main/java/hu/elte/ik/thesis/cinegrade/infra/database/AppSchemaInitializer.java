@@ -72,8 +72,7 @@ public class AppSchemaInitializer {
             try {
                 executeStatement(connection, table.sql());
             } catch (SQLException ex) {
-                logger.error("Failed to create app table: {}", table.name(), ex);
-                throw new CineGradeException(ErrorCode.FAILED_TO_CREATE_TABLE);
+                throw new CineGradeException(ErrorCode.FAILED_TO_CREATE_TABLE, ex, table.name());
             }
             logger.info("App table has successfully been created: {}", table.name());
         }
@@ -84,8 +83,7 @@ public class AppSchemaInitializer {
             try {
                 executeStatement(connection, index.sql());
             } catch (SQLException ex) {
-                logger.error("Failed to create app index: {}", index.name(), ex);
-                throw new CineGradeException(ErrorCode.FAILED_TO_CREATE_INDEX);
+                throw new CineGradeException(ErrorCode.FAILED_TO_CREATE_INDEX, ex, index.name());
             }
             logger.info("App index has successfully been created: {}", index.name());
         }

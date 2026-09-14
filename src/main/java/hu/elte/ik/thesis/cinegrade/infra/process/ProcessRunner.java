@@ -28,8 +28,8 @@ public final class ProcessRunner {
         } catch (IOException e) {
             String cmd = String.join(" ", commands);
             String msg = "Failed to start process: " + cmd + "\n" + e.getMessage();
-            logger.error(msg);
-            return new ProcessResult(-10, "", msg);
+            logger.debug(msg);
+            return ProcessResult.fail(-10,  msg);
         }
 
         CompletableFuture<String> stdoutFuture = CompletableFuture.supplyAsync(() -> {
@@ -59,7 +59,7 @@ public final class ProcessRunner {
                     String stdout = stdoutFuture.join();
                     String stderr = stderrFuture.join();
                     logger.debug("Command finished with exit code {} in {} ms", exitCode, (System.currentTimeMillis() - now));
-                    return new ProcessResult(exitCode, stdout, stderr);
+                    return ProcessResult.success(exitCode, stdout);
                 }
 
                 // Process is canceled or interrupted
@@ -72,7 +72,7 @@ public final class ProcessRunner {
                 }
 
                 // Process timed out
-                if (System.currentTimeMillis() - now >= TimeUnit.SECONDS.toMillis(ms_timeOut)) {
+                if (System.currentTimeMillis() - now >= TimeUnit.MILLISECONDS.toMillis(ms_timeOut)) {
                     killProcessTree(p);
                     stderrFuture.cancel(true);
                     stdoutFuture.cancel(true);
@@ -84,7 +84,7 @@ public final class ProcessRunner {
             killProcessTree(p);
             stderrFuture.cancel(true);
             stdoutFuture.cancel(true);
-            logger.error("An unexpected error occurred while executing the process", e);
+            logger.debug("An unexpected error occurred while executing the process", e);
             return ProcessResult.fail(-1, "An unexpected error occurred");
         }
     }

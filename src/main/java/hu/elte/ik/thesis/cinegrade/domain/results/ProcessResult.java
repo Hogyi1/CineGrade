@@ -2,8 +2,8 @@ package hu.elte.ik.thesis.cinegrade.domain.results;
 
 public record ProcessResult(int exitCode, String stdout, String stderr) {
 
-    public static ProcessResult success(String stdout) {
-        return new ProcessResult(0, stdout, "");
+    public static ProcessResult success(int exitCode, String stdout) {
+        return new ProcessResult(exitCode, stdout, "");
     }
 
     public static ProcessResult fail(int exitCode, String stderr) {

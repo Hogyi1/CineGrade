@@ -1,4 +1,5 @@
 package hu.elte.ik.thesis.cinegrade.infra.logger;
+import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +25,7 @@ public class LoggerUtils {
     private static void setupLogDirectory() {
         String logDir = System.getProperty("cinegrade.log.dir");
         if (logDir == null || logDir.isEmpty()) {
-            logDir = System.getProperty("user.home") + "/.cinegrade/logs";
+            logDir = AppConfig.INSTANCE.getLogDirectory();
             System.setProperty("cinegrade.log.dir", logDir);
         }
     }
