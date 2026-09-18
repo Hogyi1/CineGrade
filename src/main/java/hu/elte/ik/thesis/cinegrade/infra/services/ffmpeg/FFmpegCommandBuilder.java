@@ -1,5 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg;
 
+import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
 import java.io.IOException;
@@ -9,8 +10,8 @@ import java.util.List;
 
 public class FFmpegCommandBuilder implements CommandBuilder {
 
-    private final String FFPROBE_EXECUTABLE = "ffprobe";
-    private final String FFMPEG_EXECUTABLE = "ffmpeg";
+    private final String FFPROBE_EXECUTABLE = NativeBinaryLocator.getExecutablePath("ffprobe").toString();
+    private final String FFMPEG_EXECUTABLE = NativeBinaryLocator.getExecutablePath("ffmpeg").toString();
 
     private String executable = FFMPEG_EXECUTABLE;
     private final ArrayList<String> args = new ArrayList<>();
@@ -20,7 +21,7 @@ public class FFmpegCommandBuilder implements CommandBuilder {
     }
 
     public FFmpegCommandBuilder versionInfo() {
-        args.add("-v");
+        args.add("-version");
         return this;
     }
 

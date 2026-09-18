@@ -16,7 +16,7 @@
         </Console>
 
         <RollingFile name="RollingFile"
-                     fileName="${LOG_DIR}/cinegrade-${date:yyyy-MM-dd-HH-mm-ss}-latest.log"
+                     fileName="${LOG_DIR}/cinegrade-${date:yyyy-MM-dd-HH-mm-ss}.log"
                      filePattern="${LOG_DIR}/cinegrade-%d{yyyy-MM-dd}-%i.log.gz"
                      fileOwner="$cinegrade"
                      filePermissions="rw-rw----">

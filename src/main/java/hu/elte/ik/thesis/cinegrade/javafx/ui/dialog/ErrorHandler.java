@@ -17,26 +17,41 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Date;
 import java.util.Queue;
 
-//TODO REVIEW CODE
-public class ErrorHandler {
+public class ErrorHandler implements Thread.UncaughtExceptionHandler {
 
     private static final ErrorHandler INSTANCE = new ErrorHandler();
     private static final Logger logger = LogManager.getLogger(ErrorHandler.class);
 
     private static final int MAX_QUEUE_SIZE = 5;
     private static final int MAX_VISIBLE_TOASTS = 3;
-
-    private record QueuedToast(String title, String message, Severity severity) {}
-
+    private static final int MAX_WAIT_TIME_IN_MILLIS = 500;
     private final Queue<QueuedToast> toastQueue = new ArrayDeque<>();
     private VBox toastContainer;
 
-    private ErrorHandler() {}
+    private ErrorHandler() {
+    }
 
     public static ErrorHandler getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        if (e instanceof CineGradeException cgex) {
+            handle(cgex);
+        } else if (e.getCause() instanceof CineGradeException cgex) {
+            handle(cgex);
+        } else {
+            handle(e);
+        }
+    }
+
+    public void install() {
+        Thread.setDefaultUncaughtExceptionHandler(INSTANCE);
+        Thread.currentThread().setUncaughtExceptionHandler(INSTANCE);
     }
 
     public void setToastContainer(VBox container) {
@@ -44,28 +59,33 @@ public class ErrorHandler {
     }
 
     public void handle(CineGradeException exception) {
-        logger.error("CineGradeException [{}]: {}", exception.getErrorCodeValue(), exception.
-                getErrorMessage(), exception);
+        logger.error("CineGradeException [{}]: {}", exception.getErrorCodeValue(), exception.getErrorMessage(), exception);
 
         switch (exception.getSeverity()) {
             case FATAL -> showModal(exception);
-            case ERROR, WARNING -> enqueueToast(
-                    "[%d] %s".formatted(exception.getErrorCodeValue(), exception.getSeverity()),
-                    exception.getErrorMessage(),
-                    exception.getSeverity()
-            );
+            case ERROR, WARNING ->
+                    enqueueToast("[%d] %s".formatted(exception.getErrorCodeValue(),
+                            exception.getSeverity()),
+                            exception.getErrorMessage(),
+                            exception.getSeverity());
         }
     }
 
-    public void handle(Exception exception) {
+    public void handle(Throwable exception) {
+        if (exception instanceof CineGradeException cgex) {
+            handle(cgex);
+            return;
+        }
+        if (exception.getCause() instanceof CineGradeException cgex) {
+            handle(cgex);
+            return;
+        }
         logger.error("Unhandled Exception: {}", exception.getMessage(), exception);
-        enqueueToast("Error", exception.getLocalizedMessage() != null ? exception.getLocalizedMessage()
-                : "Unexpected error", Severity.ERROR);
+        enqueueToast("Error",
+                exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "Unexpected error",
+                Severity.ERROR);
     }
 
-    // ==========================================
-    // Modal Handling (FATAL)
-    // ==========================================
     private void showModal(CineGradeException exception) {
         Platform.runLater(() -> {
             try {
@@ -77,25 +97,31 @@ public class ErrorHandler {
 
                 Stage modalStage = new Stage();
                 modalStage.initModality(Modality.APPLICATION_MODAL);
-                modalStage.initStyle(StageStyle.UNDECORATED);
+                modalStage.setTitle("CineGrade — Fatal Error");
+                modalStage.setResizable(false);
                 modalStage.setScene(new Scene(root));
 
-                Window activeWindow = Window.getWindows().stream().filter(Window::isShowing).
-                        findFirst().orElse(null);
+                Window activeWindow = Window.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
                 if (activeWindow != null) {
                     modalStage.initOwner(activeWindow);
+
+                    if (activeWindow.getScene() != null && activeWindow.getScene().getRoot() != null) {
+                        for (String styleClass : activeWindow.getScene().getRoot().getStyleClass()) {
+                            if (styleClass.startsWith("theme-")) {
+                                root.getStyleClass().add(styleClass);
+                            }
+                        }
+                    }
                 }
 
                 modalStage.showAndWait();
+                Platform.exit();
             } catch (IOException e) {
                 logger.error("Failed to load /fxmls/errorModal.fxml", e);
             }
         });
     }
 
-    // ==========================================
-    // Toast Queue Handling (ERROR / WARNING)
-    // ==========================================
     private synchronized void enqueueToast(String title, String message, Severity severity) {
         Platform.runLater(() -> {
             if (toastContainer == null) {
@@ -103,10 +129,10 @@ public class ErrorHandler {
                 return;
             }
 
-            if (toastQueue.size() >= MAX_QUEUE_SIZE) {
-                toastQueue.poll(); // Drop oldest waiting toast
+            if (toastQueue.size() >= MAX_QUEUE_SIZE && System.currentTimeMillis() - toastQueue.peek().pollTime >= MAX_WAIT_TIME_IN_MILLIS) {
+                toastQueue.poll();
             }
-            toastQueue.offer(new QueuedToast(title, message, severity));
+            toastQueue.offer(new QueuedToast(title, message, severity, System.currentTimeMillis()));
             processToastQueue();
         });
     }
@@ -134,6 +160,9 @@ public class ErrorHandler {
                 logger.error("Failed to load /fxmls/errorToast.fxml", e);
             }
         }
+    }
+
+    private record QueuedToast(String title, String message, Severity severity, long pollTime) {
     }
 }
 

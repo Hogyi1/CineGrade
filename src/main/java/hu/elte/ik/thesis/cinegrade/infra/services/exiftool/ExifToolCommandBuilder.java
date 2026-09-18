@@ -1,6 +1,7 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
+import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
 import java.nio.file.Path;
@@ -11,7 +12,7 @@ public class ExifToolCommandBuilder implements CommandBuilder {
 
     private final List<String> args = new ArrayList<>();
     private final List<String> files = new ArrayList<>();
-    private String executable = "exiftool";
+    private String executable = NativeBinaryLocator.getExecutablePath("exiftool").toString();
 
     public ExifToolCommandBuilder setExecutable(String executablePath) {
         if (executablePath != null && !executablePath.isBlank()) {

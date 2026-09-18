@@ -13,7 +13,7 @@
 ### 1.1 Key Architectural Highlights
 - **Hybrid Desktop Workspace:** Real-time hardware-accelerated rendering engine running via LWJGL/OpenGL inside a JavaFX shell.
 - **Embedded Web View & Bridge:** Embedded Chromium/WebEngine hosting the Angular UI, coupled via a bi-directional JS-Java bridge for seamless local asset passing and instant preset application.
-- **Native Interoperability:** C/C++ bindings via JNI/FFM for **LibRaw** (RAW image decoding), integration with **ExifTool** (metadata handling), and **FFmpeg** (video/image encoding pipeline).
+- **Native Interoperability:** C/C++ bindings via JNI/FFM for **hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw** (RAW image decoding), integration with **ExifTool** (metadata handling), and **FFmpeg** (video/image encoding pipeline).
 - **Preset & LUT Engine:** Complete color math pipeline supporting 3D LUT generation (.cube/.3dl) and non-destructive JSON adjustment manifests.
 
 ---
@@ -37,7 +37,7 @@
 
 ### 3.1 Editing Platform (Native JavaFX / LWJGL)
 1. **RAW & Raster Image Ingestion:**
-   - Multi-format ingestion using **LibRaw** wrapper for major RAW formats (CR2, CR3, NEF, ARW, DNG) and standard images (JPEG, PNG, TIFF).
+   - Multi-format ingestion using **hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw** wrapper for major RAW formats (CR2, CR3, NEF, ARW, DNG) and standard images (JPEG, PNG, TIFF).
    - Metadata parsing and writing via **ExifTool** (EXIF, IPTC, XMP).
 2. **GPU-Accelerated Color Grading (LWJGL/OpenGL):**
    - Real-time histogram, waveform vectorscope, and RGB parade displays.
@@ -163,7 +163,7 @@ package "LuminaGrad Desktop hu.elte.ik.thesis.cinegrade.app.main.App (JavaFX Hos
     
     package "Core Editing Engine" {
         [LWJGL / OpenGL Canvas] --> [Color Pipeline Shader Core]
-        [LibRaw Native Wrapper] --> [LWJGL / OpenGL Canvas] : Decoded Pixels
+        [hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw Native Wrapper] --> [LWJGL / OpenGL Canvas] : Decoded Pixels
         [ExifTool Service] --> [JavaFX UI Shell] : Metadata Extraction
         [FFmpeg Native Binding] --> [Export Pipeline] : Final Render Output
     }
@@ -216,7 +216,7 @@ Angular -> User : Display "Preset Applied" Toast Banner
 ```
 
 * **Milestone 1: Native Core Engine (Months 1-2)**
-  - Integrate LibRaw wrapper for RAW file loading.
+  - Integrate hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw wrapper for RAW file loading.
   - Implement LWJGL viewport with custom GLSL shaders for basic exposure, white balance, and 3D LUT mapping.
 * **Milestone 2: Web Platform & API (Months 3-4)**
   - Build Spring Boot REST backend with PostgreSQL schemas.

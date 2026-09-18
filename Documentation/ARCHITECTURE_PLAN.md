@@ -22,7 +22,7 @@ hu.elte.ik.thesis.cinegrade
 │   ├── managers                         # Business logic orchestrators (stateful singletons)
 │   │   ├── catalog                          # CatalogManager — create/open/delete/list catalogs
 │   │   ├── files                            # FileOrganizer — move photos, export hierarchy to OS
-│   │   ├── settings                         # SettingsManager — load/save/reset app & LibRaw settings
+│   │   ├── settings                         # SettingsManager — load/save/reset app & hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw settings
 │   │   ├── tasks                            # TaskManager — submit/track/cancel async jobs
 │   │   └── editing                          # EditingSession — active photo + EditState + undo/redo
 │   └── repositories                     # Data persistence (JSON ↔ disk)
@@ -86,7 +86,7 @@ hu.elte.ik.thesis.cinegrade
     │   ├── ExportPageController.java   # Batch config, queue monitor, progress bars
     │   └── ExportItemCell.java         # Custom cell: per-photo export settings
     ├── settings
-    │   └── SettingsDialogController.java  # Modal: app settings + LibRaw settings
+    │   └── SettingsDialogController.java  # Modal: app settings + hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw settings
     └── components                   # Reusable JavaFX components
         ├── StarRatingControl.java       # 1-5 star rating widget
         ├── TaskProgressBar.java         # Bindable progress bar tied to CineTask
@@ -104,7 +104,7 @@ Every error in the system is identified by a unique enum constant with a numeric
 ```
 ErrorCode Enum Fields:
   - int code          (e.g., 1001, 2001, 3001...)
-  - String message    (e.g., "LibRaw DLL not found at expected path: %s")
+  - String message    (e.g., "hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw DLL not found at expected path: %s")
   - Severity level    (FATAL, ERROR, WARNING)
 ```
 
@@ -113,7 +113,7 @@ ErrorCode Enum Fields:
 | Range | Domain |
 |-------|--------|
 | 1000–1099 | Startup / RequirementChecker |
-| 1100–1199 | Native tools (LibRaw, FFmpeg, ExifTool) |
+| 1100–1199 | Native tools (hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw, FFmpeg, ExifTool) |
 | 2000–2099 | Catalog operations |
 | 2100–2199 | File management / import |
 | 3000–3099 | Editing / preset operations |
@@ -125,7 +125,7 @@ ErrorCode Enum Fields:
 
 ```
 CineGradeException (checked)
-├── NativeToolException       — LibRaw load failure, FFmpeg not on PATH, ExifTool crash
+├── NativeToolException       — hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw load failure, FFmpeg not on PATH, ExifTool crash
 ├── CatalogException          — corrupt manifest, missing catalog dir, duplicate name
 ├── ImportException           — unsupported format, file locked, decode failure
 └── ExportException           — disk full, invalid settings, render pipeline failure
@@ -170,7 +170,7 @@ A reusable utility that wraps `java.lang.ProcessBuilder`:
 - `LibRawService.java` — high-level Java API:
   - `decodeToPixelBuffer(Path rawFile, LibRawSettings settings) → RawImageData`
   - `extractThumbnail(Path rawFile) → byte[]`
-  - Handles JNA memory lifecycle (allocate/free), maps LibRaw error codes to `NativeToolException`
+  - Handles JNA memory lifecycle (allocate/free), maps hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw error codes to `NativeToolException`
 
 ### 4.3 ExifToolService
 
@@ -347,7 +347,7 @@ StartScreen (no catalog open)
 ### 8.2 Settings Dialog (Modal)
 
 - **hu.elte.ik.thesis.cinegrade.app.main.App Settings tab:** theme, default catalog location, thread pool size, recent catalogs limit
-- **LibRaw Settings tab:** demosaic algorithm, half-size decode toggle, white balance mode, output color space, output bit depth
+- **hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw Settings tab:** demosaic algorithm, half-size decode toggle, white balance mode, output color space, output bit depth
 - **Keyboard Shortcuts tab:** (optional, stretch goal)
 
 ### 8.3 Save/Load Menu
@@ -469,8 +469,8 @@ This phase covers the Angular SPA, Spring Boot backend, and WebView bridge — p
 > - `CineTask` extends JavaFX `Task<T>` which handles `updateProgress`/`updateMessage` safely, but your `call()` body runs on the thread pool — be careful with shared state.
 
 > [!WARNING]
-> ### JNA / LibRaw Memory
-> - LibRaw allocates native memory. You **must** call `libraw_close()` / `libraw_recycle()` in a `finally` block or you'll leak native memory.
+> ### JNA / hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw Memory
+> - hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw allocates native memory. You **must** call `libraw_close()` / `libraw_recycle()` in a `finally` block or you'll leak native memory.
 > - Consider wrapping the JNA pointer lifecycle in a try-with-resources `AutoCloseable` wrapper.
 
 > [!TIP]
@@ -510,7 +510,7 @@ Your current pom.xml already includes everything needed:
 |-----------|--------|---------|
 | Log4j Core 2.19 | ✅ Present | Logging |
 | Gson 2.12 | ✅ Present | JSON serialization |
-| JNA 5.14 | ✅ Present | LibRaw DLL binding |
+| JNA 5.14 | ✅ Present | hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw DLL binding |
 | JNA Platform 5.14 | ✅ Present | Platform-specific JNA utils |
 | JavaFX Controls 23 | ✅ Present | UI components |
 | JavaFX FXML 23 | ✅ Present | FXML loading |
