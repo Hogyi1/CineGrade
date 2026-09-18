@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<HBox fx:id="toastRoot" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="340.0" spacing="12.0" styleClass="toast-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController">
+    <stylesheets>
+        <URL value="@../css/theme.css" />
+    </stylesheets>
+    <padding>
+        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+    </padding>
+    <children>
+        <!-- Colored Status Indicator Strip -->
+        <Rectangle fx:id="statusIndicator" arcHeight="4.0" arcWidth="4.0" fill="#e02424" height="38.0" stroke="TRANSPARENT" width="4.0" />
+
+        <!-- Title & Message Text -->
+        <VBox alignment="CENTER_LEFT" spacing="3.0" HBox.hgrow="ALWAYS">
+            <children>
+                <Label fx:id="toastTitle" styleClass="toast-title" text="[1001] Error Occurred" />
+                <Label fx:id="toastMessage" maxWidth="260.0" styleClass="toast-message" text="Operation could not be completed." wrapText="true" />
+            </children>
+        </VBox>
+
+        <!-- Close 'X' Button -->
+        <VBox alignment="TOP_RIGHT">
+            <children>
+                <Button fx:id="toastCloseButton" mnemonicParsing="false" styleClass="toast-close-btn" text="✕" />
+            </children>
+        </VBox>
+    </children>
+</HBox>

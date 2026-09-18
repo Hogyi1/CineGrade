@@ -38,4 +38,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
-.bin
+/bin/windows/
+*.log
