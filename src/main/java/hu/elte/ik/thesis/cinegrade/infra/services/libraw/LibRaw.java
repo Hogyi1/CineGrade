@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface LibRaw extends Library {
 
-    String path = NativeBinaryLocator.getBinaryPath("libraw.dll").toString();
+    String path = NativeBinaryLocator.getBinaryPath("libraw.dll").get().toString();
     LibRaw INSTANCE = Native.load(path, LibRaw.class);
 
     // ── Core structs ──────────────────────────────────────────────────────

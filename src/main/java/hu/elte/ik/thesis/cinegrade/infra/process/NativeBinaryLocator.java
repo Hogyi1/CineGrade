@@ -9,17 +9,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 public class NativeBinaryLocator {
 
-    public static Path getBinaryPath(String binaryName) {
+    private static final ConcurrentHashMap<String, Optional<Path>> CACHE = new ConcurrentHashMap<>();
+
+    public static Optional<Path> getBinaryPath(String binaryName) {
+        String targetName = normalizeBinaryName(binaryName);
+        return CACHE.computeIfAbsent(targetName, NativeBinaryLocator::resolveBinaryPath);
+    }
+
+    private static Optional<Path> resolveBinaryPath(String binaryName) {
         String targetName = normalizeBinaryName(binaryName);
 
         Optional<Path> systemPath = findOsSystemPath(targetName);
         if (systemPath.isPresent()) {
-            return systemPath.get();
+            return systemPath;
         }
 
         // Check production app directory (set when packaged with jpackage)
@@ -28,7 +38,7 @@ public class NativeBinaryLocator {
             Path prodBinDir = Path.of(appDir, "bin");
             Optional<Path> found = searchDirectory(prodBinDir, targetName);
             if (found.isPresent()) {
-                return found.get();
+                return found;
             }
         }
 
@@ -36,20 +46,28 @@ public class NativeBinaryLocator {
         Path localBinDir = Path.of("bin");
         Optional<Path> foundLocal = searchDirectory(localBinDir, targetName);
         if (foundLocal.isPresent()) {
-            return foundLocal.get();
+            return foundLocal;
+        }
+
+        Path currentDirFile = Path.of(targetName);
+        if (Files.isRegularFile(currentDirFile)) {
+            Optional<Path> foundRoot = Optional.of(currentDirFile.toAbsolutePath());
+            System.out.println("Working Directory: " + Path.of("").toAbsolutePath());
+            System.out.println("Resolved Target: " + currentDirFile.toAbsolutePath());
+            return foundRoot;
         }
 
         // Check user home data directory (~/.cinegrade/bin)
         Path userHomeBin = Path.of(AppConfig.INSTANCE.getRootDirectory(), "bin", "windows");
         Optional<Path> foundUserHome = searchDirectory(userHomeBin, targetName);
         if (foundUserHome.isPresent()) {
-            return foundUserHome.get();
+            return foundUserHome;
         }
 
-        throw createNotFoundException(binaryName);
+        return Optional.empty();
     }
 
-    public static Path getExecutablePath(String executable) {
+    public static Optional<Path> getExecutablePath(String executable) {
         return getBinaryPath(executable);
     }
 
@@ -74,7 +92,7 @@ public class NativeBinaryLocator {
             return Optional.empty();
         }
 
-        for (String directory : pathEnv.split(java.util.regex.Pattern.quote(File.pathSeparator))) {
+        for (String directory : pathEnv.split(Pattern.quote(File.pathSeparator))) {
             try {
                 Path filePath = Path.of(directory.trim(), targetName);
                 if (Files.isRegularFile(filePath) && Files.isExecutable(filePath)) {
@@ -96,17 +114,7 @@ public class NativeBinaryLocator {
         return name;
     }
 
-    private static CineGradeException createNotFoundException(String binaryName) {
-        String lower = binaryName.toLowerCase(Locale.ROOT);
-        if (lower.contains("ffprobe")) {
-            return new CineGradeException(hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode.REQ_FFPROBE_NOT_FOUND);
-        } else if (lower.contains("ffmpeg")) {
-            return new CineGradeException(hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode.REQ_FFMPEG_NOT_FOUND);
-        } else if (lower.contains("exiftool")) {
-            return new CineGradeException(hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode.REQ_EXIFTOOL_NOT_FOUND);
-        } else if (lower.contains("libraw")) {
-            return new CineGradeException(hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode.REQ_LIBRAW_DLL_MISSING, binaryName);
-        }
-        return new CineGradeException(hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode.REQ_RESOURCE_MISSING, binaryName);
+    public static boolean isAvailable(String binaryName) {
+        return getBinaryPath(binaryName).isPresent();
     }
 }

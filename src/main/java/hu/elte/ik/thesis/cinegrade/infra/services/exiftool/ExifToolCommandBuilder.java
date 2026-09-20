@@ -1,6 +1,8 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 
+import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
+import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
@@ -12,13 +14,12 @@ public class ExifToolCommandBuilder implements CommandBuilder {
 
     private final List<String> args = new ArrayList<>();
     private final List<String> files = new ArrayList<>();
-    private String executable = NativeBinaryLocator.getExecutablePath("exiftool").toString();
+    private final String EXIFTOOL_EXECUTABLE;
 
-    public ExifToolCommandBuilder setExecutable(String executablePath) {
-        if (executablePath != null && !executablePath.isBlank()) {
-            this.executable = executablePath;
-        }
-        return this;
+    public ExifToolCommandBuilder() {
+        EXIFTOOL_EXECUTABLE = NativeBinaryLocator.getExecutablePath("exiftool")
+                .map(Path::toString)
+                .orElseThrow(() -> new CineGradeException(ErrorCode.REQ_EXIFTOOL_NOT_FOUND));
     }
 
     /**
@@ -71,7 +72,7 @@ public class ExifToolCommandBuilder implements CommandBuilder {
     }
 
     public ExifToolCommandBuilder addTags(ExifTag... tags) {
-        for (ExifTag tag : tags){
+        for (ExifTag tag : tags) {
             addTag(tag);
         }
         return this;
@@ -118,7 +119,7 @@ public class ExifToolCommandBuilder implements CommandBuilder {
 
     public ArrayList<String> buildCommands() {
         ArrayList<String> finalCommands = new ArrayList<>();
-        finalCommands.add(executable);
+        finalCommands.add(EXIFTOOL_EXECUTABLE);
         finalCommands.addAll(args);
         finalCommands.addAll(files);
         return finalCommands;

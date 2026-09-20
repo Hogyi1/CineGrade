@@ -7,18 +7,24 @@ import hu.elte.ik.thesis.cinegrade.domain.catalog.PhotoMetadata;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
 import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
+import hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg.FFmpegService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import static hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
 
 public class ExifToolService {
 
-    public PhotoMetadata readMetaData(Path path, BooleanSupplier isCanceled) {
+    private static final Logger logger = LogManager.getLogger(ExifToolService.class);
 
+    public PhotoMetadata readMetaData(Path path, BooleanSupplier isCanceled) {
+        logger.debug("Reading metadata for: {}", path);
         ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
         String colorProfile = "";
 
@@ -29,6 +35,9 @@ public class ExifToolService {
                 .addTarget(path)
                 .buildCommands();
         ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
+        if (!pr.isSuccess()) {
+            logger.debug("ExifTool process failed for '{}': exitCode={}, error={}", path, pr.exitCode(), pr.stderr());
+        }
 
         JsonObject jsonObject = new Gson().fromJson(pr.stdout(), JsonObject.class);
 
@@ -44,15 +53,28 @@ public class ExifToolService {
 
         PhotoMetadata photoMetadata = new Gson().fromJson(pr.stdout(), PhotoMetadata.class);
         photoMetadata.setColorStyle(colorProfile);
+        logger.debug("Successfully read metadata for '{}', color profile: '{}'", path, colorProfile);
         return photoMetadata;
     }
 
-    public boolean checkExifToolExists(BooleanSupplier isCanceled) {
-
+    public Optional<String> checkExifToolVersion(BooleanSupplier isCanceled) {
+        logger.debug("Checking ExifTool version...");
         ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
 
         ArrayList<String> commands = builder.versionInfo().buildCommands();
         ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
-        return pr.isSuccess();
+        if (pr.isSuccess()) {
+            String version = pr.stdout().trim();
+            logger.debug("ExifTool version detected: {}", version);
+            return Optional.of(version);
+        }
+        logger.debug("ExifTool version check failed: exitCode={}, error={}", pr.exitCode(), pr.stderr());
+        return Optional.empty();
+    }
+
+    public boolean isAvailable() {
+        boolean available = checkExifToolVersion(null).isPresent();
+        logger.debug("ExifTool availability: {}", available);
+        return available;
     }
 }

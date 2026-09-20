@@ -18,6 +18,7 @@ public enum AppConfig {
     private final String appDirectory;
     private final String logDirectory;
     private final String presetDirectory;
+    private final String javaVersion;
 
     private AppConfig() {
         Properties properties = new Properties();
@@ -35,6 +36,7 @@ public enum AppConfig {
         this.appDirectory = Paths.get(System.getProperty("user.home"), "." + this.appName).toString();
         this.logDirectory = Paths.get(this.appDirectory, "logs").toString();
         this.presetDirectory = Paths.get(this.appDirectory, "presets").toString();
+        this.javaVersion = properties.getProperty("app.java.version", System.getProperty("java.version"));
     }
 
     public String getAppName() {
@@ -55,5 +57,9 @@ public enum AppConfig {
 
     public String getPresetDirectory() {
         return presetDirectory;
+    }
+
+    public String getBuildJavaVersion() {
+        return javaVersion;
     }
 }

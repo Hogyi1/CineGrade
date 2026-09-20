@@ -1,27 +1,107 @@
 package hu.elte.ik.thesis.cinegrade.app.main;
 
+import hu.elte.ik.thesis.cinegrade.app.managers.ApplicationManager;
+import hu.elte.ik.thesis.cinegrade.app.managers.ThreadPoolManager;
+import hu.elte.ik.thesis.cinegrade.app.managers.tasks.TaskManager;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
+import hu.elte.ik.thesis.cinegrade.infra.logger.LoggerUtils;
 import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
+import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
 import hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg.FFmpegCommandBuilder;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorHandler;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.SplashScreenController;
+import hu.elte.ik.thesis.cinegrade.tasks.AppInitService;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class App extends Application {
+
+    private ApplicationManager applicationManager;
+    private ThreadPoolManager threadPoolManager;
+    private RequirementChecker requirementChecker;
+    private TaskManager taskManager;
+    private Logger logger;
+
+    private Stage splashStage;
+
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void init() {
+        LoggerUtils.init();
+        logger = LogManager.getLogger(App.class);
+        logger.info("Application starting...");
+
+        logger.debug("Installing global error handler");
         ErrorHandler.getInstance().install();
 
+        logger.debug("Creating managers");
+        applicationManager = new ApplicationManager();
+        threadPoolManager = new ThreadPoolManager();
+        requirementChecker = new RequirementChecker();
+        taskManager = new TaskManager(threadPoolManager);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        splashStage = new Stage(StageStyle.TRANSPARENT);
+        logger.debug("Application start method started");
+        primaryStage.setTitle("CineGrade");
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/splashScreen.fxml"));
+        Parent root = loader.load();
+        SplashScreenController controller = loader.getController();
+
+        AppInitService appInitService = new AppInitService(requirementChecker);
+        taskManager.configure(appInitService);
+
+        controller.getTaskNameLabel().textProperty().bind(appInitService.messageProperty());
+        appInitService.progressProperty().addListener((obs, oldVal, newVal) -> {
+            controller.setProgress(newVal.doubleValue());
+        });
+
+        appInitService.setOnSucceeded(e -> {
+            logger.info("Startup sequence completed successfully");
+            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(400));
+            pause.setOnFinished(ev -> loadMainMenu(primaryStage));
+            pause.play();
+        });
+
+        appInitService.setOnFailed(e -> {
+            Throwable ex = appInitService.getException();
+            logger.error("Startup failed with exception: ", ex);
+        });
+
+        Scene scene = new Scene(root);
+        splashStage.setScene(scene);
+        splashStage.centerOnScreen();
+        scene.setFill(Color.TRANSPARENT);
+        splashStage.show();
+        splashStage.toFront();
+
+        logger.debug("Task setup finished, starting AppInitService");
+        appInitService.start();
+    }
+
+    private void loadMainMenu(Stage primaryStage) {
+
         // UI Controls
+        splashStage.hide();
+
         Label label = new Label("CineGrade Diagnostic & Test Bench");
         label.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -clr-text-primary;");
 
@@ -55,17 +135,17 @@ public class App extends Application {
         toastBox.setPickOnBounds(false);
 
         // Root AnchorPane
-        javafx.scene.layout.AnchorPane rootPane = new javafx.scene.layout.AnchorPane();
+        AnchorPane rootPane = new AnchorPane();
         rootPane.setStyle("-fx-background-color: -clr-almostdarkgrey;");
         rootPane.getStyleClass().add("theme-dark");
 
-        javafx.scene.layout.AnchorPane.setTopAnchor(contentBox, 0.0);
-        javafx.scene.layout.AnchorPane.setBottomAnchor(contentBox, 0.0);
-        javafx.scene.layout.AnchorPane.setLeftAnchor(contentBox, 0.0);
-        javafx.scene.layout.AnchorPane.setRightAnchor(contentBox, 0.0);
+        AnchorPane.setTopAnchor(contentBox, 0.0);
+        AnchorPane.setBottomAnchor(contentBox, 0.0);
+        AnchorPane.setLeftAnchor(contentBox, 0.0);
+        AnchorPane.setRightAnchor(contentBox, 0.0);
 
-        javafx.scene.layout.AnchorPane.setTopAnchor(toastBox, 20.0);
-        javafx.scene.layout.AnchorPane.setRightAnchor(toastBox, 20.0);
+        AnchorPane.setTopAnchor(toastBox, 20.0);
+        AnchorPane.setRightAnchor(toastBox, 20.0);
 
         rootPane.getChildren().addAll(contentBox, toastBox);
 
@@ -105,16 +185,7 @@ public class App extends Application {
             ErrorHandler.getInstance().handle(new CineGradeException(ErrorCode.DB_SCHEMA_INIT_FAILED));
         });
 
-        primaryStage.setTitle("CineGrade Diagnostic Window");
         primaryStage.setScene(scene);
         primaryStage.show();
-
-        try {
-            FFmpegCommandBuilder builder = new FFmpegCommandBuilder();
-            ProcessResult res = ProcessRunner.run(builder.versionInfo().buildCommands(), 1000, null);
-            System.out.println("FFmpeg check: " + res.isSuccess());
-        } catch (CineGradeException ex) {
-            ErrorHandler.getInstance().handle(ex);
-        }
     }
 }

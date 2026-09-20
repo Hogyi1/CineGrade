@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox alignment="CENTER" prefHeight="600.0" prefWidth="780.0" styleClass="splash-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.SplashScreenController">
+    <stylesheets>
+        <URL value="@../css/theme.css" />
+        <URL value="@../css/splash.css" />
+    </stylesheets>
+    <children>
+        <!-- Left Column: Branding, Legal Information & Progress Bar -->
+        <VBox prefWidth="390.0" styleClass="splash-left-pane" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets bottom="36.0" left="36.0" right="32.0" top="36.0" />
+            </padding>
+            <children>
+                <!-- Top Brand Section: CINE Logo + "grade" text -->
+                <HBox alignment="BOTTOM_LEFT" spacing="6.0">
+                    <children>
+                        <ImageView fitHeight="74.0" fitWidth="164.0" pickOnBounds="true" preserveRatio="true" smooth="true">
+                            <image>
+                                <Image preserveRatio="true" requestedHeight="148.0" requestedWidth="328.0" smooth="true" url="@../images/cine-logo.png" />
+                            </image>
+                        </ImageView>
+                        <Label styleClass="splash-logo-grade" text="grade">
+                            <HBox.margin>
+                                <Insets bottom="0.0" />
+                            </HBox.margin>
+                        </Label>
+                    </children>
+                </HBox>
+
+                <!-- Fixed spacer keeping middle block higher -->
+                <Pane prefHeight="56.0" />
+
+                <!-- Middle Section: Author & Legal Disclosures -->
+                <VBox spacing="14.0">
+                    <children>
+                        <Label styleClass="splash-author-label" text="Made by Hogyor Péter" />
+                        <Label styleClass="splash-legal-label" text="© 2025–2026 Cinegrade.&#10;All rights reserved.&#10;Documentation, third-party libraries,&#10;and legal disclosures are available&#10;under About Cinegrade." wrapText="true" />
+                    </children>
+                </VBox>
+
+                <!-- Spacer pushing progress section to bottom -->
+                <Pane VBox.vgrow="ALWAYS" />
+
+                <!-- Bottom Section: Task name, percentage counter & Progress Bar -->
+                <VBox spacing="8.0">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <Label fx:id="taskNameLabel" maxWidth="1.7976931348623157E308" minWidth="0.0" styleClass="splash-task-label" text="Initializing..." HBox.hgrow="ALWAYS" />
+                                <Label fx:id="percentageLabel" alignment="CENTER_RIGHT" minWidth="55.0" prefWidth="55.0" styleClass="splash-percent-label" text="[0%]" />
+                            </children>
+                        </HBox>
+                        <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" minHeight="7.0" prefHeight="7.0" progress="0.0" styleClass="splash-progress-bar" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <!-- Right Column: Placeholder / Colorwheel image -->
+        <StackPane alignment="CENTER" prefWidth="390.0" styleClass="splash-right-pane" HBox.hgrow="ALWAYS">
+            <children>
+                <ImageView fx:id="rightsideImageView" fitHeight="450.0" fitWidth="325.0" pickOnBounds="true" preserveRatio="true" smooth="true">
+                    <image>
+                        <Image url="@../images/HSV_circle_(value_1).png" />
+                    </image>
+                </ImageView>
+            </children>
+        </StackPane>
+    </children>
+</HBox>

@@ -1,5 +1,7 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg;
 
+import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
+import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
@@ -7,14 +9,27 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FFmpegCommandBuilder implements CommandBuilder {
 
-    private final String FFPROBE_EXECUTABLE = NativeBinaryLocator.getExecutablePath("ffprobe").toString();
-    private final String FFMPEG_EXECUTABLE = NativeBinaryLocator.getExecutablePath("ffmpeg").toString();
+    private final String FFPROBE_EXECUTABLE;
+    private final String FFMPEG_EXECUTABLE;
 
-    private String executable = FFMPEG_EXECUTABLE;
+    private String executable;
     private final ArrayList<String> args = new ArrayList<>();
+
+    public FFmpegCommandBuilder() {
+        FFPROBE_EXECUTABLE = NativeBinaryLocator.getExecutablePath("ffprobe")
+                .map(Path::toString)
+                .orElseThrow(() -> new CineGradeException(ErrorCode.REQ_FFPROBE_NOT_FOUND));
+
+        FFMPEG_EXECUTABLE = NativeBinaryLocator.getExecutablePath("ffmpeg")
+                .map(Path::toString)
+                .orElseThrow(() -> new CineGradeException(ErrorCode.REQ_FFMPEG_NOT_FOUND));
+
+        executable = FFMPEG_EXECUTABLE;
+    }
 
     private void setExecutablePath(String path) {
         executable = path;

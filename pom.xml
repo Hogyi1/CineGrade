@@ -180,6 +180,10 @@
                 <version>${javafx.maven.plugin.version}</version>
                 <configuration>
                     <mainClass>hu.elte.ik.thesis.cinegrade.app.main.Launcher</mainClass>
+                    <options>
+                        <option>--enable-native-access=ALL-UNNAMED</option>
+                        <option>--sun-misc-unsafe-memory-access=allow</option>
+                    </options>
                 </configuration>
             </plugin>
             <plugin>

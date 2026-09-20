@@ -30,6 +30,7 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
     private static final int MAX_WAIT_TIME_IN_MILLIS = 500;
     private final Queue<QueuedToast> toastQueue = new ArrayDeque<>();
     private VBox toastContainer;
+    private volatile boolean isModalShowing = false;
 
     private ErrorHandler() {
     }
@@ -88,36 +89,48 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
 
     private void showModal(CineGradeException exception) {
         Platform.runLater(() -> {
+            if (isModalShowing) {
+                return;
+            }
+            isModalShowing = true;
             try {
+                Platform.setImplicitExit(false);
+                toastQueue.clear();
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/errorModal.fxml"));
                 Parent root = loader.load();
 
                 ErrorModalController controller = loader.getController();
                 controller.setupDialog(exception);
 
+                // Preserve theme from currently active window
+                Window activeWindow = Window.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
+                if (activeWindow != null && activeWindow.getScene() != null && activeWindow.getScene().getRoot() != null) {
+                    for (String styleClass : activeWindow.getScene().getRoot().getStyleClass()) {
+                        if (styleClass.startsWith("theme-")) {
+                            root.getStyleClass().add(styleClass);
+                        }
+                    }
+                }
+
                 Stage modalStage = new Stage();
                 modalStage.initModality(Modality.APPLICATION_MODAL);
                 modalStage.setTitle("CineGrade — Fatal Error");
                 modalStage.setResizable(false);
                 modalStage.setScene(new Scene(root));
+                modalStage.centerOnScreen();
 
-                Window activeWindow = Window.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
-                if (activeWindow != null) {
-                    modalStage.initOwner(activeWindow);
-
-                    if (activeWindow.getScene() != null && activeWindow.getScene().getRoot() != null) {
-                        for (String styleClass : activeWindow.getScene().getRoot().getStyleClass()) {
-                            if (styleClass.startsWith("theme-")) {
-                                root.getStyleClass().add(styleClass);
-                            }
-                        }
+                // Close all existing open windows so the main app disappears completely
+                for (Window window : Window.getWindows().toArray(new Window[0])) {
+                    if (window instanceof Stage stage && stage != modalStage) {
+                        stage.close();
                     }
                 }
 
                 modalStage.showAndWait();
                 Platform.exit();
-            } catch (IOException e) {
-                logger.error("Failed to load /fxmls/errorModal.fxml", e);
+            } catch (Exception e) {
+                logger.error("Failed to load or display fatal error modal", e);
             }
         });
     }

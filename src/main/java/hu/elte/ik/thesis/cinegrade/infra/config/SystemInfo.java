@@ -22,6 +22,11 @@ public enum SystemInfo {
     private String gpuVendor;
     private String glVersion;
 
+    private String ffmpegVersion;
+    private String ffprobeVersion;
+    private String exiftoolVersion;
+    private String librawVersion;
+
     public String getOsName() {
         return osName;
     }
@@ -85,4 +90,9 @@ public enum SystemInfo {
     public boolean isGpuInfoAvailable() {
         return gpuRenderer != null;
     }
+
+    public void setExiftoolVersion(String exiftoolVersion) { this.exiftoolVersion = exiftoolVersion; }
+    public void setFfmpegVersion(String ffmpegVersion) { this.ffmpegVersion = ffmpegVersion; }
+    public void setFfprobeVersion(String ffprobeVersion) { this.ffprobeVersion = ffprobeVersion; }
+    public void setLibrawVersion(String librawVersion) { this.librawVersion = librawVersion; }
 }
