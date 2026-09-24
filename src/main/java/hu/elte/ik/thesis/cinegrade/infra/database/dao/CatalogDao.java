@@ -10,7 +10,6 @@ import java.util.Date;
 
 public class CatalogDao {
 
-
     private final Connection connection;
 
     public CatalogDao(Connection connection) {
@@ -21,8 +20,8 @@ public class CatalogDao {
         String sql = "UPDATE recent_catalogs SET last_opened_at = ? WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            pstmt.setTimestamp(2, Timestamp.from(newDate.toInstant()));
+            pstmt.setTimestamp(1, Timestamp.from(newDate.toInstant()));
+            pstmt.setInt(2, id);
             pstmt.executeUpdate();
         }
     }

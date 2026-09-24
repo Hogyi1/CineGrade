@@ -3,17 +3,14 @@ package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import hu.elte.ik.thesis.cinegrade.domain.catalog.PhotoMetadata;
-import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
+import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoMetadata;
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
 import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
-import hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg.FFmpegService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -22,6 +19,7 @@ import static hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
 public class ExifToolService {
 
     private static final Logger logger = LogManager.getLogger(ExifToolService.class);
+    private final int TIMEOUT_MILLIS = 5000;
 
     public PhotoMetadata readMetaData(Path path, BooleanSupplier isCanceled) {
         logger.debug("Reading metadata for: {}", path);
@@ -34,7 +32,7 @@ public class ExifToolService {
                 .fastMode()
                 .addTarget(path)
                 .buildCommands();
-        ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
         if (!pr.isSuccess()) {
             logger.debug("ExifTool process failed for '{}': exitCode={}, error={}", path, pr.exitCode(), pr.stderr());
         }
@@ -62,7 +60,7 @@ public class ExifToolService {
         ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
 
         ArrayList<String> commands = builder.versionInfo().buildCommands();
-        ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
         if (pr.isSuccess()) {
             String version = pr.stdout().trim();
             logger.debug("ExifTool version detected: {}", version);

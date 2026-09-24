@@ -18,12 +18,13 @@ public class FFmpegService {
 
     private static final Logger logger = LogManager.getLogger(FFmpegService.class);
     private final Pattern VERSION_PATTERN = Pattern.compile("(?:ffmpeg|ffprobe) version\\s+([^\\s]+)", Pattern.CASE_INSENSITIVE);
+    private final int TIMEOUT_MILLIS = 5000;
 
     public boolean validateInput(Path path, BooleanSupplier isCanceled) {
         logger.debug("Validating input media file: {}", path);
         FFmpegCommandBuilder builder = new FFmpegCommandBuilder();
         ArrayList<String> commands = builder.addInput(path).validateCommand().buildCommands();
-        ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
         if (pr.isSuccess()) {
             logger.debug("Media validation succeeded for '{}'", path);
         } else {
@@ -36,7 +37,7 @@ public class FFmpegService {
         logger.debug("Checking FFmpeg version...");
         FFmpegCommandBuilder builder = new FFmpegCommandBuilder();
         ArrayList<String> commands = builder.versionInfo().buildCommands();
-        ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
         if (!pr.isSuccess()) {
             logger.debug("FFmpeg version command failed: exitCode={}, error={}", pr.exitCode(), pr.stderr());
         }
@@ -50,7 +51,7 @@ public class FFmpegService {
         ArrayList<String> commands = builder.setFFprobeExecutable()
                 .versionInfo()
                 .buildCommands();
-        ProcessResult pr = ProcessRunner.run(commands, 500, isCanceled);
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
         if (!pr.isSuccess()) {
             logger.debug("FFprobe version command failed: exitCode={}, error={}", pr.exitCode(), pr.stderr());
         }

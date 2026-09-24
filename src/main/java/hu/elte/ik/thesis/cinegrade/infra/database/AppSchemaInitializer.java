@@ -16,7 +16,8 @@ public class AppSchemaInitializer {
     private AppSchemaInitializer() {
     }
 
-    private record SchemaEntity(String name, String sql) {}
+    private record SchemaEntity(String name, String sql) {
+    }
 
     private static final String CREATE_TABLE_APP_SETTINGS = """
             CREATE TABLE IF NOT EXISTS app_settings (
@@ -37,10 +38,22 @@ public class AppSchemaInitializer {
 
     private static final String CREATE_TABLE_GLOBAL_PRESETS = """
             CREATE TABLE IF NOT EXISTS global_presets (
-                id TEXT PRIMARY KEY,
+                id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 category TEXT DEFAULT 'User',
                 edit_parameters_json TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            """;
+
+    private static final String CREATE_TABLE_USER_SESSION = """
+            CREATE TABLE IF NOT EXISTS user_session (
+                id INTEGER PRIMARY KEY,
+                username TEXT NOT NULL,
+                email TEXT NOT NULL,
+                avatar_url TEXT,
+                auth_token TEXT NOT NULL,
+                last_login DATETIME DEFAULT CURRENT_TIMESTAMP,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
             """;
@@ -57,6 +70,7 @@ public class AppSchemaInitializer {
             new SchemaEntity("app_settings", CREATE_TABLE_APP_SETTINGS),
             new SchemaEntity("recent_catalogs", CREATE_TABLE_RECENT_CATALOGS),
             new SchemaEntity("global_presets", CREATE_TABLE_GLOBAL_PRESETS),
+            new SchemaEntity("user_session", CREATE_TABLE_USER_SESSION)
     };
 
     private static final SchemaEntity[] INDEXES = {

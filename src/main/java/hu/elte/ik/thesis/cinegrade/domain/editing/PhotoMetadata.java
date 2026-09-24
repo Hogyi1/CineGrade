@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.domain.catalog;
+package hu.elte.ik.thesis.cinegrade.domain.editing;
 
 public class PhotoMetadata{
         String make;
