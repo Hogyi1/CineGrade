@@ -1,0 +1,300 @@
+/* ==========================================================================
+   CineGrade - Main Menu & Catalog Dashboard Stylesheet
+   Derived from Figma Frame 2 design
+   ========================================================================== */
+
+/* Main Root & Containers */
+.main-menu-root {
+    -fx-background-color: #1E1E22;
+}
+
+/* Top Navigation Bar */
+.top-bar {
+    -fx-background-color: #32363D;
+    -fx-border-color: transparent transparent #25282D transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.profile-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.profile-button:hover {
+    -fx-opacity: 0.85;
+}
+
+/* Left Sidebar */
+.sidebar {
+    -fx-background-color: #1E1E22;
+    -fx-border-color: transparent #2A2D33 transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.btn-new-project {
+    -fx-background-color: #1D7CF0;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(29, 124, 240, 0.3), 8, 0, 0, 2);
+}
+.btn-new-project:hover {
+    -fx-background-color: #3B8EF5;
+}
+.btn-new-project:pressed {
+    -fx-background-color: #146BD1;
+}
+
+.btn-open-project {
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.btn-open-project:hover {
+    -fx-background-color: #292C32;
+    -fx-text-fill: #FFFFFF;
+}
+.btn-open-project:pressed {
+    -fx-background-color: #202227;
+}
+
+.sidebar-divider {
+    -fx-background-color: #383C44;
+}
+
+/* Navigation Links */
+.nav-item {
+    -fx-cursor: hand;
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 6px;
+}
+.nav-item:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
+.nav-item-active .nav-indicator {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 2px;
+}
+
+.nav-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* Main Content Area */
+.main-content {
+    -fx-background-color: #1E1E22;
+}
+
+.welcome-heading {
+    -fx-font-family: "Helvetica Neue", "Segoe UI Light", "Segoe UI", sans-serif;
+    -fx-font-size: 36px;
+    -fx-font-weight: 200;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* Search Bar */
+.search-container {
+    -fx-background-color: #32363D;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: transparent;
+    -fx-border-width: 1px;
+    -fx-padding: 4px 14px;
+}
+.search-container:hover, .search-container:focused {
+    -fx-border-color: #4C525D;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFFFFF;
+    -fx-prompt-text-fill: #8D8D8D;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-padding: 6px 0;
+}
+
+.search-icon {
+    -fx-opacity: 0.75;
+    -fx-cursor: hand;
+}
+.search-icon:hover {
+    -fx-opacity: 1.0;
+}
+
+/* Table Header & Filter Labels */
+.table-header-row {
+    -fx-background-color: transparent;
+}
+
+.filter-label {
+    -fx-font-family: "Helvetica Neue", "Segoe UI Light", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #FFFFFF;
+    -fx-cursor: hand;
+}
+.filter-label:hover {
+    -fx-text-fill: #1D7CF0;
+}
+
+.sort-icon {
+    -fx-opacity: 0.8;
+    -fx-cursor: hand;
+}
+.sort-icon:hover {
+    -fx-opacity: 1.0;
+}
+
+.table-divider {
+    -fx-background-color: #32363D;
+}
+
+/* ListView */
+.catalog-list-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.catalog-list-view .virtual-flow .clipped-container {
+    -fx-background-color: transparent;
+}
+
+.catalog-list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 2px 0;
+}
+.catalog-list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* Catalog Row Item */
+.catalog-row {
+    -fx-background-color: #1E1E22;
+    -fx-border-color: transparent transparent #32363D transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+/* Hover: brighter highlight & subtle opacity adjustment */
+.catalog-list-cell:hover .catalog-row {
+    -fx-background-color: #2D323B;
+    -fx-opacity: 0.95;
+}
+
+.catalog-list-cell:selected .catalog-row {
+    -fx-background-color: #2A2F38;
+    -fx-border-color: transparent transparent #1D7CF0 transparent;
+}
+
+.catalog-cell-text {
+    -fx-font-family: "Helvetica Neue", "Segoe UI Light", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.catalog-cell-name {
+    -fx-text-fill: #FFFFFF;
+}
+
+.catalog-cell-dim {
+    -fx-text-fill: #AAB8C2;
+}
+
+/* Options Button (3 dots) */
+.catalog-options-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 6px 8px;
+    -fx-background-radius: 6px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.catalog-options-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+}
+.catalog-options-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.20);
+}
+.catalog-options-button .svg-path {
+    -fx-fill: #AAB8C2;
+}
+.catalog-options-button:hover .svg-path {
+    -fx-fill: #FFFFFF;
+}
+
+/* Context Menu / Popup Menu */
+.context-menu {
+    -fx-background-color: #24272D;
+    -fx-background-radius: 8px;
+    -fx-border-color: #383C44;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 14, 0, 0, 4);
+}
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 8px 14px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+.menu-item:hover, .menu-item:focused {
+    -fx-background-color: #32363D;
+}
+.menu-item .label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+}
+.menu-item-danger:hover, .menu-item-danger:focused {
+    -fx-background-color: rgba(224, 36, 36, 0.22);
+}
+.menu-item-danger .label {
+    -fx-text-fill: #F87171;
+}
+
+/* Clean Custom ScrollBar */
+.catalog-list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+.catalog-list-view .scroll-bar:vertical .track {
+    -fx-background-color: #1E1E22;
+    -fx-border-color: transparent;
+}
+.catalog-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #555A64;
+    -fx-background-radius: 4px;
+}
+.catalog-list-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #8D8D8D;
+}
+.catalog-list-view .scroll-bar:vertical .increment-button,
+.catalog-list-view .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}

@@ -30,7 +30,8 @@ public class AppSchemaInitializer {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 catalog_path TEXT NOT NULL UNIQUE,
                 catalog_name TEXT NOT NULL,
-                last_opened_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                last_opened_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
             """;
 

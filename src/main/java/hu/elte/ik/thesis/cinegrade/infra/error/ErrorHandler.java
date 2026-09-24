@@ -1,7 +1,9 @@
-package hu.elte.ik.thesis.cinegrade.javafx.ui.dialog;
+package hu.elte.ik.thesis.cinegrade.infra.error;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorModalController;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -10,14 +12,12 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
-import java.util.Date;
 import java.util.Queue;
 
 public class ErrorHandler implements Thread.UncaughtExceptionHandler {

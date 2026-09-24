@@ -1,11 +1,10 @@
 package hu.elte.ik.thesis.cinegrade.app.managers.tasks;
 
 import hu.elte.ik.thesis.cinegrade.app.managers.ThreadPoolManager;
-import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorHandler;
+import hu.elte.ik.thesis.cinegrade.infra.error.ErrorHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 
 public class TaskManager {

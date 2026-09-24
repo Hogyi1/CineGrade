@@ -2,7 +2,6 @@ package hu.elte.ik.thesis.cinegrade.infra.services;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
 import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.exiftool.ExifToolService;
@@ -30,7 +29,7 @@ public class RequirementChecker {
                 "/css/theme.css",
                 "/css/splash.css",
                 "/css/modal.css",
-                "/images/cine-logo.png"
+                "/images/icons/cine-logo.png"
         };
 
         for (String path : critical) {

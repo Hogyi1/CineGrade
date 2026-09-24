@@ -28,7 +28,7 @@
                     <children>
                         <ImageView fitHeight="74.0" fitWidth="164.0" pickOnBounds="true" preserveRatio="true" smooth="true">
                             <image>
-                                <Image preserveRatio="true" requestedHeight="148.0" requestedWidth="328.0" smooth="true" url="@../images/cine-logo.png" />
+                                <Image preserveRatio="true" requestedHeight="148.0" requestedWidth="328.0" smooth="true" url="@../images/icons/cine-logo.png" />
                             </image>
                         </ImageView>
                         <Label styleClass="splash-logo-grade" text="grade">

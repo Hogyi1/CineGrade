@@ -5,14 +5,12 @@ import hu.elte.ik.thesis.cinegrade.app.managers.ThreadPoolManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.tasks.TaskManager;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
 import hu.elte.ik.thesis.cinegrade.infra.logger.LoggerUtils;
-import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
-import hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg.FFmpegCommandBuilder;
-import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorHandler;
+import hu.elte.ik.thesis.cinegrade.infra.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.SplashScreenController;
 import hu.elte.ik.thesis.cinegrade.tasks.AppInitService;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -27,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -76,7 +75,7 @@ public class App extends Application {
 
         appInitService.setOnSucceeded(e -> {
             logger.info("Startup sequence completed successfully");
-            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.millis(400));
+            PauseTransition pause = new PauseTransition(Duration.millis(400));
             pause.setOnFinished(ev -> loadMainMenu(primaryStage));
             pause.play();
         });

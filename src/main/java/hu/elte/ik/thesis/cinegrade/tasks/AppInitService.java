@@ -6,10 +6,11 @@ import hu.elte.ik.thesis.cinegrade.domain.results.AppInitResult;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
-import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorHandler;
+import javafx.animation.PauseTransition;
 import javafx.beans.property.*;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
@@ -41,7 +42,8 @@ public class AppInitService extends Service<AppInitResult> {
                     throw new CineGradeException(ErrorCode.REQ_JAVA_VERSION_INCOMPATIBLE);
                 }
                 updateProgress(1, totalSteps);
-                //delay(500);
+                PauseTransition pause = new PauseTransition(Duration.millis(1000));
+                pause.play();
 
                 updateMessage("Checking native binaries...");
                 requirementChecker.checkNativeBinaries();
@@ -131,13 +133,5 @@ public class AppInitService extends Service<AppInitResult> {
 
     public ReadOnlyStringProperty taskProperty() {
         return messageProperty();
-    }
-
-    private void delay(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }
