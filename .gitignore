@@ -40,3 +40,4 @@ build/
 
 /bin/windows/
 *.log
+/src/main/resources/images/*

@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class RecentCatalogService {
+public class CatalogDbService {
 
     private final CatalogDao dao;
     private final Connection connection;
 
-    public RecentCatalogService() {
+    public CatalogDbService() {
         connection = AppDatabase.getInstance().getConnection();
         dao = new CatalogDao(connection);
     }

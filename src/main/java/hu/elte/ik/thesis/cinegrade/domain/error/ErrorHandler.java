@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.infra.error;
+package hu.elte.ik.thesis.cinegrade.domain.error;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;

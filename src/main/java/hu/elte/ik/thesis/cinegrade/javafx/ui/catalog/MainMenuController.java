@@ -3,6 +3,7 @@ package hu.elte.ik.thesis.cinegrade.javafx.ui.catalog;
 import hu.elte.ik.thesis.cinegrade.app.managers.catalog.CatalogManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.user.UserManager;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
+import hu.elte.ik.thesis.cinegrade.domain.navigation.NavigationManager;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -18,8 +19,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.*;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -62,6 +68,7 @@ public class MainMenuController {
 
     private final CatalogManager catalogManager;
     private final UserManager userManager;
+    private final NavigationManager navigationManager;
     private ObservableList<Catalog> catalogObservableList;
     private FilteredList<Catalog> filteredList;
     private SortedList<Catalog> sortedList;
@@ -70,9 +77,10 @@ public class MainMenuController {
     private final Consumer<Catalog> removeRecentConsumer;
     private final Consumer<Catalog> deleteConsumer;
 
-    public MainMenuController(CatalogManager catalogManager, UserManager userManager) {
+    public MainMenuController(CatalogManager catalogManager, UserManager userManager, NavigationManager navigationManager) {
         this.catalogManager = catalogManager;
         this.userManager = userManager;
+        this.navigationManager = navigationManager;
 
         deleteConsumer = catalogManager::deleteCatalog;
         removeRecentConsumer = catalogManager::removeFromRecent;
@@ -108,13 +116,17 @@ public class MainMenuController {
     }
 
     private void setupButtons() {
-        newProjectButton.setOnMouseClicked(e -> {
-            // Handle new project button click
-        });
+        newProjectButton.setOnMouseClicked(e -> catalogManager.createNewProject());
 
         openProjectButton.setOnMouseClicked(e -> {
-            ;
-            // Handle open project button click
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open CineGrade project");
+            fileChooser.getExtensionFilters().addAll(new ExtensionFilter("CG projects", "*.cgproj"));
+            Window mainWindow = navigationManager.getActiveWindow();
+            File selectedFile = fileChooser.showOpenDialog(mainWindow);
+            if (selectedFile != null) {
+                catalogManager.openCatalog(selectedFile);
+            }
         });
 
         homeNav.setOnMouseClicked(e -> {
@@ -127,7 +139,8 @@ public class MainMenuController {
     }
 
     private void setupWelcomeLabel() {
-        String userName = userManager.getUserName();
-        welcomeLabel.setText("Welcome, " + userName + "!");
+        String userName = userManager.getUsername();
+        String text = userName.isBlank() ? "Welcome bacl!" : "Welcome, " + userName + "!";
+        welcomeLabel.setText(text);
     }
 }

@@ -18,7 +18,7 @@ public class UserManager {
 
     public UserManager() {
         this.userService = new UserService();
-        this.activeUser.set(userService.getActiveUser().orElse(null));
+        refreshUser();
     }
 
     public void refreshUser() {
@@ -32,7 +32,7 @@ public class UserManager {
 
     public String getUsername() {
         User user = activeUser.get();
-        return user != null ? user.getUsername() : null;
+        return user != null ? user.getUsername() : "";
     }
 
     public Path getAvatarPath() {

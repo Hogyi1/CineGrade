@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="rootPane" prefHeight="520.0" prefWidth="720.0" style="-fx-background-color: -clr-almostdarkgrey;" styleClass="theme-dark" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.test.ErrorTestController">
+    <stylesheets>
+        <URL value="@../css/theme.css" />
+    </stylesheets>
+    <children>
+        <VBox alignment="CENTER" spacing="12.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+            <children>
+                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -clr-text-primary;" text="CineGrade Diagnostic &amp; Test Bench" />
+                <Button fx:id="themeToggleBtn" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Toggle Light / Dark Theme" />
+                <Button fx:id="uncaughtExceptionBtn" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Throw Uncaught Exception (Generic)" />
+                <Button fx:id="uncaughtExceptionBtn2" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Throw Uncaught CineGradeException" />
+                <Button fx:id="cinegradeException" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Trigger Toast Warning (Delete Failed)" />
+                <Button fx:id="cinegradeException2" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Trigger Toast Error (Write Failed)" />
+                <Button fx:id="cinegradeException3" mnemonicParsing="false" styleClass="btn, btn-danger" text="Trigger Fatal Error Modal (DB Schema Failed)" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
