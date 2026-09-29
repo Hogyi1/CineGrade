@@ -7,6 +7,8 @@ import hu.elte.ik.thesis.cinegrade.infra.services.database.UserService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -15,6 +17,7 @@ public class UserManager {
 
     private final UserService userService;
     private final ObjectProperty<User> activeUser = new SimpleObjectProperty<>();
+    private static final Logger logger = LogManager.getLogger(UserManager.class);
 
     public UserManager() {
         this.userService = new UserService();
@@ -24,6 +27,7 @@ public class UserManager {
     public void refreshUser() {
         Optional<User> userOpt = userService.getActiveUser();
         activeUser.set(userOpt.orElse(null));
+        logger.debug("User set to {}", activeUser.get());
     }
 
     public boolean isLoggedIn() {
@@ -32,7 +36,9 @@ public class UserManager {
 
     public String getUsername() {
         User user = activeUser.get();
-        return user != null ? user.getUsername() : "";
+        String userName = user != null ? user.getUsername() : "";
+        logger.debug("Username: {}", userName);
+        return userName;
     }
 
     public Path getAvatarPath() {

@@ -50,7 +50,7 @@ public class CatalogDatabase implements Database {
             return true;
         } catch (SQLException ex) {
             closeConnection();
-            throw new CineGradeException(ErrorCode.DB_CONNECTION_FAILED, catalogPath);
+            throw new CineGradeException(ErrorCode.DB_CONNECTION_FAILED, ex, path);
         }
     }
 

@@ -1,0 +1,150 @@
+/* ==========================================================================
+   Create New Project Modal Styles
+   Matches Figma Frame 3
+   ========================================================================== */
+
+.new-project-modal-root {
+    -fx-background-color: #32363d;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: #383c44;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0, 0, 6);
+}
+
+/* Header Bar */
+.modal-header {
+    -fx-background-color: #1c1e22;
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-border-radius: 10px 10px 0 0;
+}
+
+.modal-header-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Body */
+.modal-body {
+    -fx-background-color: transparent;
+}
+
+/* Field Labels */
+.modal-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Editable Project Name TextField */
+.modal-text-field {
+    -fx-background-color: #1c1e22;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: transparent;
+    -fx-border-width: 1.5px;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #8d8d8d;
+    -fx-font-size: 15px;
+    -fx-padding: 0 14px;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.modal-text-field:error {
+    -fx-border-color: #e02424;
+}
+
+.modal-text-field:focused {
+    -fx-border-color: #1d7cf0;
+}
+
+/* Location Container & Read-only TextField */
+.modal-location-container {
+    -fx-background-color: #1c1e22;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: transparent;
+    -fx-border-width: 1.5px;
+    -fx-padding: 0 6px 0 0;
+}
+
+.modal-location-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #8d8d8d;
+    -fx-font-size: 15px;
+    -fx-padding: 0 14px;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -fx-cursor: default;
+}
+
+.modal-location-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* 3-dots Browse Button */
+.modal-ellipsis-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 6px;
+    -fx-padding: 2px 8px;
+    -fx-alignment: CENTER;
+}
+
+.modal-ellipsis-btn:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-text-fill: #1d7cf0;
+}
+
+.modal-ellipsis-btn:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Buttons */
+.btn-create {
+    -fx-background-color: #1d7cf0;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(29, 124, 240, 0.35), 8, 0, 0, 2);
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.btn-create:hover {
+    -fx-background-color: #388ff7;
+}
+
+.btn-create:pressed {
+    -fx-background-color: #146bd1;
+}
+
+.btn-cancel {
+    -fx-background-color: #1c1e22;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #292d33;
+}
+
+.btn-cancel:pressed {
+    -fx-background-color: #15171a;
+}

@@ -4,8 +4,11 @@ import org.sqlite.date.DateFormatUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
 public class Catalog {
 
@@ -65,23 +68,41 @@ public class Catalog {
 
     public String getFormattedLastOpenedAt() {
 
-        Instant now = Instant.now();
+        if (lastOpenedAt == null) {
+            return "Never";
+        }
 
-        long years = ChronoUnit.YEARS.between(lastOpenedAt, now);
+        ZoneId zone = ZoneId.systemDefault();
+        ZonedDateTime opened = lastOpenedAt.atZone(zone);
+        ZonedDateTime now = Instant.now().atZone(zone);
+
+        long years = ChronoUnit.YEARS.between(opened, now);
         if (years > 0) return years == 1 ? "1 year ago" : years + " years ago";
 
-        long months = ChronoUnit.MONTHS.between(lastOpenedAt, now);
+        long months = ChronoUnit.MONTHS.between(opened, now);
         if (months > 0) return months == 1 ? "1 month ago" : months + " months ago";
 
-        long days = ChronoUnit.DAYS.between(lastOpenedAt, now);
+        long days = ChronoUnit.DAYS.between(opened, now);
         if (days > 0) return days == 1 ? "Yesterday" : days + " days ago";
 
-        long hours = ChronoUnit.HOURS.between(lastOpenedAt, now);
+        long hours = ChronoUnit.HOURS.between(opened, now);
         if (hours > 0) return hours == 1 ? "1 hour ago" : hours + " hours ago";
 
-        long minutes = ChronoUnit.MINUTES.between(lastOpenedAt, now);
+        long minutes = ChronoUnit.MINUTES.between(opened, now);
         if (minutes > 0) return minutes == 1 ? "1 minute ago" : minutes + " minutes ago";
 
         return "Just now";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Catalog catalog = (Catalog) o;
+        return id == catalog.id && Objects.equals(catalogName, catalog.catalogName) && Objects.equals(catalogPath, catalog.catalogPath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, catalogName, catalogPath);
     }
 }

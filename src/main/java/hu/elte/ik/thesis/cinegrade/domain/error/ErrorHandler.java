@@ -2,6 +2,7 @@ package hu.elte.ik.thesis.cinegrade.domain.error;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorModalController;
 import javafx.application.Platform;
@@ -65,10 +66,7 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
         switch (exception.getSeverity()) {
             case FATAL -> showModal(exception);
             case ERROR, WARNING ->
-                    enqueueToast("[%d] %s".formatted(exception.getErrorCodeValue(),
-                            exception.getSeverity()),
-                            exception.getErrorMessage(),
-                            exception.getSeverity());
+                    enqueueToast("[%d] %s".formatted(exception.getErrorCodeValue(), exception.getSeverity()), exception.getLocalizedMessage(), exception.getSeverity());
         }
     }
 
@@ -82,9 +80,7 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
             return;
         }
         logger.error("Unhandled Exception: {}", exception.getMessage(), exception);
-        enqueueToast("Error",
-                exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "Unexpected error",
-                Severity.ERROR);
+        enqueueToast("Error", exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "Unexpected error", Severity.FATAL);
     }
 
     private void showModal(CineGradeException exception) {
@@ -103,15 +99,7 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
                 ErrorModalController controller = loader.getController();
                 controller.setupDialog(exception);
 
-                // Preserve theme from currently active window
-                Window activeWindow = Window.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
-                if (activeWindow != null && activeWindow.getScene() != null && activeWindow.getScene().getRoot() != null) {
-                    for (String styleClass : activeWindow.getScene().getRoot().getStyleClass()) {
-                        if (styleClass.startsWith("theme-")) {
-                            root.getStyleClass().add(styleClass);
-                        }
-                    }
-                }
+                root.getStyleClass().add(ThemeManager.get().getStyleClass());
 
                 Stage modalStage = new Stage();
                 modalStage.initModality(Modality.APPLICATION_MODAL);

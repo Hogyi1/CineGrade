@@ -5,13 +5,17 @@ import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.*;
+import java.util.Calendar;
 
 public class CatalogSchemaInitializer {
 
     private static final Logger logger = LogManager.getLogger(CatalogSchemaInitializer.class);
+    private static final String META_DATA_SQL = "INSERT OR IGNORE INTO catalog_info (key, value) VALUES ('app', 'CineGrade'), ('schema_version', '1.0.2');";
 
     private CatalogSchemaInitializer() {
     }
@@ -158,6 +162,13 @@ public class CatalogSchemaInitializer {
         }
 
         logger.info("Schema initialization has successfully finished");
+
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(META_DATA_SQL);
+            pstmt.execute();
+        } catch (SQLException ex) {
+            throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Metadata insertion");
+        }
     }
 
     private static void executeStatement(Connection connection, String sql) throws SQLException {

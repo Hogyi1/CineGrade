@@ -1,0 +1,82 @@
+/* ==========================================================================
+   Delete Confirmation Modal Styles
+   Matches Figma Frame 3 (Group 26)
+   ========================================================================== */
+
+.confirm-modal-root {
+    -fx-background-color: #32363d;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: #383c44;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0, 0, 6);
+}
+
+/* Header Bar */
+.confirm-modal-header {
+    -fx-background-color: #1c1e22;
+    -fx-background-radius: 20px 20px 0 0;
+    -fx-border-radius: 20px 20px 0 0;
+}
+
+.confirm-header-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Body */
+.confirm-modal-body {
+    -fx-background-color: transparent;
+}
+
+.confirm-message-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: 500;
+    -fx-alignment: CENTER;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Buttons */
+.btn-cancel {
+    -fx-background-color: #1c1e22;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #292d33;
+}
+
+.btn-cancel:pressed {
+    -fx-background-color: #15171a;
+}
+
+.btn-delete {
+    -fx-background-color: #f00000;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(240, 0, 0, 0.35), 8, 0, 0, 2);
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.btn-delete:hover {
+    -fx-background-color: #ff2b2b;
+}
+
+.btn-delete:pressed {
+    -fx-background-color: #c80000;
+}

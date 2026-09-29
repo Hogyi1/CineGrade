@@ -48,7 +48,7 @@ public class AppSchemaInitializer {
 
     private static final String CREATE_TABLE_USER_SESSION = """
             CREATE TABLE IF NOT EXISTS user_session (
-                id INTEGER PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
                 email TEXT NOT NULL,
                 avatar_url TEXT,

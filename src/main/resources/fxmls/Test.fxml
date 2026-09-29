@@ -19,7 +19,7 @@
             <children>
                 <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -clr-text-primary;" text="CineGrade Diagnostic &amp; Test Bench" />
                 <Button fx:id="themeToggleBtn" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Toggle Light / Dark Theme" />
-                <Button fx:id="uncaughtExceptionBtn" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Throw Uncaught Exception (Generic)" />
+                <Button fx:id="uncaughtExceptionBtn" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Change to main menu" />
                 <Button fx:id="uncaughtExceptionBtn2" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Throw Uncaught CineGradeException" />
                 <Button fx:id="cinegradeException" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Trigger Toast Warning (Delete Failed)" />
                 <Button fx:id="cinegradeException2" mnemonicParsing="false" styleClass="btn, btn-secondary" text="Trigger Toast Error (Write Failed)" />

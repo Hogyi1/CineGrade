@@ -91,7 +91,7 @@
                         <children>
                             <Region minWidth="3.0" opacity="0.0" prefHeight="20.0" prefWidth="3.0"/>
                             <Region prefWidth="20.0"/>
-                            <Label styleClass="nav-label" text="Social"/>
+                            <Label styleClass="nav-label" text="BACK TO TEST MENU"/>
                         </children>
                     </HBox>
                 </VBox>

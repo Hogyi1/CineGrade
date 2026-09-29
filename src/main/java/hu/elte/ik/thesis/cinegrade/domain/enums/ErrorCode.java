@@ -39,6 +39,7 @@ public enum ErrorCode {
     CATALOG_SAVE_FAILED(2005, "Failed to save catalog manifest: %s", Severity.ERROR),
     CATALOG_DELETE_FAILED(2006, "Failed to delete catalog directory: %s", Severity.ERROR),
     CATALOG_LOCKED(2007, "Catalog is currently locked by another process or operation.", Severity.ERROR),
+    CATALOG_REMOVE_FAILED(2008, "Catalog removement failed: %s", Severity.WARNING),
 
     // ==========================================
     // 2100–2199: File Management & Import
@@ -132,9 +133,13 @@ public enum ErrorCode {
 
     public String format(Object... args) {
         if (args == null || args.length == 0) {
-            return message;
+            return message.replaceAll(":\\s*%s", "").replaceAll("%[sdbB]", "").trim();
         }
-        return String.format(message, args);
+        try {
+            return String.format(message, args);
+        } catch (Exception ex) {
+            return message.replaceAll(":\\s*%s", "").replaceAll("%[sdbB]", "").trim();
+        }
     }
 
     @Override

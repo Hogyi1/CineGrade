@@ -1,9 +1,14 @@
 package hu.elte.ik.thesis.cinegrade.domain.navigation;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
+import hu.elte.ik.thesis.cinegrade.domain.enums.Theme;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
+import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -69,6 +74,8 @@ public class NavigationManager {
             // tofront tocenter stagemodality etc
             sceneHandling.accept(primaryScene, primaryStage);
         }
+
+
         String view = currentView != null ? currentView.getTitle() : "Splash";
         logger.info("Switched scenes from {} to {}", view, nextView.getTitle());
 
@@ -77,6 +84,7 @@ public class NavigationManager {
             Parent viewRoot = loader.load();
 
             primaryStage.setTitle(nextView.getTitle());
+            primaryStage.setMaximized(nextView.isFullScreen());
             contentLayer.getChildren().setAll(viewRoot);
 
             if (!primaryStage.isShowing()) {
@@ -86,9 +94,10 @@ public class NavigationManager {
                 primaryStage.show();
             }
 
+            currentView = nextView;
             return loader.getController();
         } catch (IOException ioex) {
-            throw new CineGradeException(ErrorCode.REQ_RESOURCE_MISSING, ioex);
+            throw new CineGradeException(ErrorCode.REQ_RESOURCE_MISSING, ioex, nextView.getFxmlPath());
         }
     }
 
@@ -144,6 +153,12 @@ public class NavigationManager {
         primaryScene = new Scene(rootShell);
         primaryScene.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
         primaryStage.setScene(primaryScene);
+
+        rootShell.getStyleClass().add(ThemeManager.get().getStyleClass());
+        ThemeManager.getInstance().themeProperty().addListener((obs, oldValue, newValue) -> {
+            if (oldValue != null) rootShell.getStyleClass().remove(oldValue.getStyleClass());
+            if (newValue != null) rootShell.getStyleClass().add(newValue.getStyleClass());
+        });
     }
 
     public Stage getActiveStage() {

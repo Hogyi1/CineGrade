@@ -3,6 +3,7 @@ package hu.elte.ik.thesis.cinegrade.tasks;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.results.AppInitResult;
+import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 
 public class AppInitService extends Service<AppInitResult> {
 
+    private static final int MAX_DELETE_DEPTH = 10;
     private final RequirementChecker requirementChecker;
 
     public AppInitService(RequirementChecker requirementChecker) {
@@ -67,6 +69,7 @@ public class AppInitService extends Service<AppInitResult> {
 
                 updateMessage("Setting up app database connection...");
                 AppDatabase.getInstance().openConnection(Path.of(AppConfig.INSTANCE.getRootDirectory(), "app.db"));
+                ThemeManager.getInstance().initDatabase(AppDatabase.getInstance().getConnection());
                 updateProgress(7, totalSteps);
 
                 updateMessage("Engine warmup...");
@@ -89,12 +92,14 @@ public class AppInitService extends Service<AppInitResult> {
         Path logDir = Path.of(AppConfig.INSTANCE.getLogDirectory());
         Path presetDir = Path.of(AppConfig.INSTANCE.getPresetDirectory());
         Path tempDir = rootDir.resolve("temp");
+        Path projectDir = Path.of(AppConfig.INSTANCE.getProjectDirectory());
 
         try {
             Files.createDirectories(rootDir);
             Files.createDirectories(logDir);
             Files.createDirectories(presetDir);
             Files.createDirectories(tempDir);
+            Files.createDirectories(projectDir);
         } catch (IOException e) {
             throw new CineGradeException(ErrorCode.REQ_APP_DATA_DIR_NOT_WRITABLE, e, rootDir.toAbsolutePath().toString());
         }
@@ -109,19 +114,22 @@ public class AppInitService extends Service<AppInitResult> {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(tempDir)) {
             for (Path entry : stream) {
-                deleteRecursively(entry);
+                deleteRecursively(entry, 0);
             }
         } catch (IOException e) {
             LogManager.getLogger(AppInitService.class).warn("Failed to read temp directory during cleanup: {}", tempDir, e);
         }
     }
 
-    private void deleteRecursively(Path path) {
+    private void deleteRecursively(Path path, int round) {
+        round++;
+        if (round >= MAX_DELETE_DEPTH)
+            return;
         try {
             if (Files.isDirectory(path)) {
                 try (DirectoryStream<Path> entries = Files.newDirectoryStream(path)) {
                     for (Path child : entries) {
-                        deleteRecursively(child);
+                        deleteRecursively(child, round);
                     }
                 }
             }

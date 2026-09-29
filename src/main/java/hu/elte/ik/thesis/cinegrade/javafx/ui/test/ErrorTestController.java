@@ -1,8 +1,11 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.test;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
+import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.domain.navigation.NavigationManager;
+import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -31,21 +34,19 @@ public class ErrorTestController {
     @FXML
     private Button cinegradeException3;
 
+    private NavigationManager navigationManager;
+    public ErrorTestController(NavigationManager navigationManager) {
+        this.navigationManager = navigationManager;
+    }
+
     @FXML
     private void initialize() {
         themeToggleBtn.setOnAction(e -> {
-            ObservableList<String> classes = rootPane.getStyleClass();
-            if (classes.contains("theme-light")) {
-                classes.remove("theme-light");
-                classes.add("theme-dark");
-            } else {
-                classes.remove("theme-dark");
-                classes.add("theme-light");
-            }
+            ThemeManager.toggle();
         });
 
         uncaughtExceptionBtn.setOnMouseClicked(e -> {
-            throw new RuntimeException("Generic unexpected runtime exception");
+            navigationManager.switchView(ViewType.MAIN_MENU);
         });
 
         uncaughtExceptionBtn2.setOnMouseClicked(e -> {

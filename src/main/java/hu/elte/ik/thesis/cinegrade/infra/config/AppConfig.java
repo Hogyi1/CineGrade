@@ -1,5 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.infra.config;
 
+import hu.elte.ik.thesis.cinegrade.domain.enums.Theme;
 import hu.elte.ik.thesis.cinegrade.infra.database.AppSchemaInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,9 +17,11 @@ public enum AppConfig {
     private final String appName;
     private final String appVersion;
     private final String appDirectory;
+    private final String projectDirectory;
     private final String logDirectory;
     private final String presetDirectory;
     private final String javaVersion;
+    private final Theme fallBackTheme;
 
     private AppConfig() {
         Properties properties = new Properties();
@@ -35,8 +38,10 @@ public enum AppConfig {
         this.appVersion = properties.getProperty("app.version", "1.0-SNAPSHOT");
         this.appDirectory = Paths.get(System.getProperty("user.home"), "." + this.appName).toString();
         this.logDirectory = Paths.get(this.appDirectory, "logs").toString();
+        this.projectDirectory = Paths.get(this.appDirectory, "projects").toString();
         this.presetDirectory = Paths.get(this.appDirectory, "presets").toString();
         this.javaVersion = properties.getProperty("app.java.version", System.getProperty("java.version"));
+        this.fallBackTheme = Theme.DARK;
     }
 
     public String getAppName() {
@@ -54,6 +59,7 @@ public enum AppConfig {
     public String getLogDirectory() {
         return logDirectory;
     }
+    public String getProjectDirectory() { return projectDirectory; }
 
     public String getPresetDirectory() {
         return presetDirectory;
@@ -62,4 +68,5 @@ public enum AppConfig {
     public String getBuildJavaVersion() {
         return javaVersion;
     }
+    public Theme getFallBackTheme() { return fallBackTheme; }
 }

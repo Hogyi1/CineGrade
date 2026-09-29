@@ -1,6 +1,5 @@
 package hu.elte.ik.thesis.cinegrade.infra.database.dao;
 
-import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.user.User;
 
 import java.sql.*;
@@ -90,26 +89,31 @@ public class UserDao {
         );
     }
 
-    public User findUser(int id) throws SQLException {
+    public User findLatestUser(int id) throws SQLException {
         String sql = "SELECT id, username, email, avatar_url, auth_token, auth_token, last_login, created_at FROM user_session WHERE id = ?";
         User user;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
-            user = mapRowToUser(rs);
+            if (rs.next()){
+                return mapRowToUser(rs);
+            }
         }
-        return user;
+        return null;
     }
 
-    public User findUser() throws SQLException {
+    public User findLatestUser() throws SQLException {
         String sql = "SELECT id, username, email, avatar_url, auth_token, auth_token, last_login, created_at FROM user_session ORDER BY last_login LIMIT 1";
         User user;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
-            return mapRowToUser(rs);
+            if (rs.next()) {
+                return mapRowToUser(rs);
+            }
         }
+        return null;
     }
 
     public boolean deleteUser() throws SQLException {

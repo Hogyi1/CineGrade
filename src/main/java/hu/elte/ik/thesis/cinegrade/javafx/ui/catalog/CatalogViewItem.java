@@ -6,12 +6,18 @@ import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -76,10 +82,9 @@ public class CatalogViewItem extends ListCell<Catalog> {
         MenuItem deleteCatalogItem = new MenuItem("Delete Catalog");
         deleteCatalogItem.getStyleClass().add("menu-item-danger");
         deleteCatalogItem.setOnAction(e -> {
-            Catalog current = getItem();
-            if (current != null && onDelete != null) {
-                onDelete.accept(current);
-            }
+            createConfirmationModal();
+            e.consume();
+            optionsMenu.hide();
         });
 
         optionsMenu.getItems().addAll(removeFromRecentsItem, deleteCatalogItem);
@@ -122,5 +127,37 @@ public class CatalogViewItem extends ListCell<Catalog> {
 
     public void setOnDelete(Consumer<Catalog> onDelete) {
         this.onDelete = onDelete;
+    }
+
+    private void createConfirmationModal() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/deleteConfirmationModal.fxml"));
+            Parent root = loader.load();
+
+            Button cancelButton = (Button) root.lookup("#cancelButton");
+            Button deleteButton = (Button) root.lookup("#deleteButton");
+
+            Stage confirmStage = new Stage(StageStyle.TRANSPARENT);
+            confirmStage.initModality(Modality.APPLICATION_MODAL);
+            confirmStage.setTitle("CineGrade — Confirm Deletion");
+            confirmStage.setResizable(false);
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            confirmStage.setScene(scene);
+            confirmStage.centerOnScreen();
+
+            cancelButton.setOnAction(e -> confirmStage.close());
+            deleteButton.setOnAction(e -> {
+                confirmStage.close();
+                Catalog current = getItem();
+                if (current != null && onDelete != null) {
+                    onDelete.accept(current);
+                }
+            });
+
+            confirmStage.showAndWait();
+        } catch (IOException ex) {
+            throw new CineGradeException(ErrorCode.REQ_RESOURCE_MISSING, ex, "/fxmls/deleteConfirmationModal.fxml");
+        }
     }
 }

@@ -10,7 +10,7 @@ public class CineGradeException extends RuntimeException {
     private Throwable cause = null;
 
     public CineGradeException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
+        super(errorCode.format());
         this.ERROR_CODE = errorCode;
         this.SEVERITY = errorCode.getSeverity();
     }
@@ -37,7 +37,7 @@ public class CineGradeException extends RuntimeException {
     }
 
     public String getErrorMessage() {
-        return ERROR_CODE.getMessage();
+        return getMessage() != null ? getMessage() : ERROR_CODE.getMessage();
     }
 
     public int getErrorCodeValue() {
