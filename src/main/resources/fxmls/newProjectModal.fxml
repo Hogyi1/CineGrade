@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
 
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
@@ -22,7 +23,7 @@
         <!-- Top Header Bar -->
         <HBox fx:id="headerBar" alignment="CENTER_LEFT" prefHeight="60.0" minHeight="60.0" maxHeight="60.0" styleClass="modal-header">
             <padding>
-                <Insets left="27.0" right="27.0"/>
+                <Insets left="42.0" right="27.0"/>
             </padding>
             <children>
                 <Label fx:id="titleLabel" styleClass="modal-header-title" text="Create New Project!"/>
@@ -30,20 +31,23 @@
         </HBox>
 
         <!-- Modal Body Content -->
-        <VBox spacing="15.0" VBox.vgrow="ALWAYS" styleClass="modal-body">
+        <VBox styleClass="modal-body" VBox.vgrow="ALWAYS">
             <padding>
-                <Insets top="20.0" right="45.0" bottom="24.0" left="45.0"/>
+                <Insets top="25.0" right="45.0" bottom="18.0" left="45.0"/>
             </padding>
             <children>
-                <!-- Project Name Field (Default "Untitled" prefilled) -->
+                <!-- Project Name Field -->
                 <VBox spacing="6.0">
                     <children>
                         <Label styleClass="modal-label" text="Project name"/>
                         <TextField fx:id="projectNameField" prefHeight="40.0" styleClass="modal-text-field" text="Untitled"/>
                     </children>
+                    <VBox.margin>
+                        <Insets bottom="24.0"/>
+                    </VBox.margin>
                 </VBox>
 
-                <!-- Location Field (Read-only text field with clickable 3-dots browse button) -->
+                <!-- Location Field -->
                 <VBox spacing="6.0">
                     <children>
                         <Label styleClass="modal-label" text="Location"/>
@@ -57,12 +61,12 @@
                             </children>
                         </HBox>
                     </children>
+                    <VBox.margin>
+                        <Insets bottom="33.0"/>
+                    </VBox.margin>
                 </VBox>
 
-                <!-- Spacer -->
-                <Pane VBox.vgrow="ALWAYS"/>
-
-                <!-- Action Buttons: Create (Blue) & Cancel (Dark) -->
+                <!-- Action Buttons: Create & Cancel -->
                 <HBox alignment="CENTER_RIGHT" spacing="25.0" prefHeight="35.0">
                     <children>
                         <Button fx:id="createButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="125.0"

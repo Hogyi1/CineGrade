@@ -1,3 +1,4 @@
+// [CONTAINS AI-GENERATED CODE: Table SQL strings]
 package hu.elte.ik.thesis.cinegrade.infra.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
@@ -19,6 +20,7 @@ public class AppSchemaInitializer {
     private record SchemaEntity(String name, String sql) {
     }
 
+    // [AI-GENERATED TABLE STRINGS]
     private static final String CREATE_TABLE_APP_SETTINGS = """
             CREATE TABLE IF NOT EXISTS app_settings (
                 key TEXT PRIMARY KEY,

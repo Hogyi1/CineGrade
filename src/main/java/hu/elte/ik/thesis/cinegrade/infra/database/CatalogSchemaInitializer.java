@@ -1,3 +1,4 @@
+// [CONTAINS AI-GENERATED CODE: Table SQL strings]
 package hu.elte.ik.thesis.cinegrade.infra.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
@@ -22,6 +23,7 @@ public class CatalogSchemaInitializer {
 
     private record SchemaEntity(String name, String sql) {}
 
+    // [AI-GENERATED TABLE STRINGS]
     private static final String CREATE_TABLE_CATALOG_INFO = """
             CREATE TABLE IF NOT EXISTS catalog_info (
                 key TEXT PRIMARY KEY,

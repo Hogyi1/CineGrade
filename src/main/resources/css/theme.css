@@ -1,9 +1,11 @@
+/* [AI-GENERATED] */
 /* ==========================================================================
    CineGrade Global Theme & Color Tokens
    Supports theme switching via .root or .theme-dark / .theme-light classes
    ========================================================================== */
 
 .root, .root.theme-dark {
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
     /* Base Backgrounds & Surfaces */
     -clr-dark: #121316;
     -clr-almostdarkgrey: #1c1e22;

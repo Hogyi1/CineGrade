@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
 
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
@@ -21,28 +22,28 @@
         </padding>
         <children>
             <!-- Catalog / Project Name -->
-            <HBox alignment="CENTER_LEFT" minWidth="200.0" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" minWidth="220.0" prefWidth="380.0" maxWidth="500.0" HBox.hgrow="ALWAYS">
                 <children>
                     <Label fx:id="nameLabel" styleClass="catalog-cell-text, catalog-cell-name" text="Project Name" />
                 </children>
             </HBox>
 
             <!-- File Size -->
-            <HBox alignment="CENTER_LEFT" maxWidth="220.0" minWidth="120.0" prefWidth="160.0">
+            <HBox alignment="CENTER_LEFT" minWidth="140.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
                 <children>
                     <Label fx:id="sizeLabel" styleClass="catalog-cell-text, catalog-cell-dim" text="15Mb" />
                 </children>
             </HBox>
 
             <!-- Last Modified / Recent -->
-            <HBox alignment="CENTER_LEFT" maxWidth="240.0" minWidth="140.0" prefWidth="180.0">
+            <HBox alignment="CENTER_LEFT" minWidth="160.0" prefWidth="260.0" HBox.hgrow="ALWAYS">
                 <children>
                     <Label fx:id="recentLabel" styleClass="catalog-cell-text, catalog-cell-dim" text="22 days ago" />
                 </children>
             </HBox>
 
             <!-- Creation Date -->
-            <HBox alignment="CENTER_LEFT" maxWidth="240.0" minWidth="140.0" prefWidth="180.0">
+            <HBox alignment="CENTER_LEFT" minWidth="160.0" prefWidth="240.0" HBox.hgrow="ALWAYS">
                 <children>
                     <Label fx:id="createdAtLabel" styleClass="catalog-cell-text, catalog-cell-dim" text="2026.01.01" />
                 </children>

@@ -151,7 +151,7 @@ public class NavigationManager {
         ErrorHandler.getInstance().setToastContainer(toastContainer);
 
         primaryScene = new Scene(rootShell);
-        primaryScene.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+        primaryScene.getStylesheets().add(ThemeManager.getInstance().getTheme().getStyleClass());
         primaryStage.setScene(primaryScene);
 
         rootShell.getStyleClass().add(ThemeManager.get().getStyleClass());

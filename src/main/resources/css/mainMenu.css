@@ -1,3 +1,4 @@
+/* [AI-GENERATED] */
 /* ==========================================================================
    CineGrade - Main Menu & Catalog Dashboard Stylesheet
    Derived from Figma Frame 2 design
@@ -5,14 +6,17 @@
 
 /* Main Root & Containers */
 .main-menu-root {
+    -fx-background-color: #32363D;
+}
+
+.main-body-container {
     -fx-background-color: #1E1E22;
 }
 
 /* Top Navigation Bar */
 .top-bar {
     -fx-background-color: #32363D;
-    -fx-border-color: transparent transparent #25282D transparent;
-    -fx-border-width: 0 0 1px 0;
+    -fx-border-width: 0;
 }
 
 .profile-button {
@@ -37,10 +41,10 @@
     -fx-background-color: #1D7CF0;
     -fx-text-fill: #FFFFFF;
     -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
     -fx-cursor: hand;
     -fx-alignment: CENTER;
     -fx-focus-color: transparent;
@@ -58,11 +62,12 @@
     -fx-background-color: transparent;
     -fx-text-fill: #FFFFFF;
     -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
     -fx-cursor: hand;
     -fx-alignment: CENTER;
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
@@ -96,7 +101,8 @@
 .nav-label {
     -fx-text-fill: #FFFFFF;
     -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
 }
 
 /* Main Content Area */
@@ -105,8 +111,8 @@
 }
 
 .welcome-heading {
-    -fx-font-family: "Helvetica Neue", "Segoe UI Light", "Segoe UI", sans-serif;
-    -fx-font-size: 36px;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 44px;
     -fx-font-weight: 200;
     -fx-text-fill: #FFFFFF;
 }
@@ -129,18 +135,26 @@
     -fx-text-fill: #FFFFFF;
     -fx-prompt-text-fill: #8D8D8D;
     -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
+    -fx-font-style: normal;
+    -fx-font-weight: 300;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-padding: 6px 0;
 }
+.search-field *.text {
+    -fx-font-style: normal;
+}
+.search-field:empty {
+    -fx-font-style: normal;
+}
 
 .search-icon {
     -fx-opacity: 0.75;
-    -fx-cursor: hand;
+    -fx-cursor: default;
 }
 .search-icon:hover {
-    -fx-opacity: 1.0;
+    -fx-opacity: 0.75;
 }
 
 /* Table Header & Filter Labels */
@@ -149,8 +163,9 @@
 }
 
 .filter-label {
-    -fx-font-family: "Helvetica Neue", "Segoe UI Light", "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: 200;
     -fx-text-fill: #FFFFFF;
     -fx-cursor: hand;
 }
@@ -211,8 +226,9 @@
 }
 
 .catalog-cell-text {
-    -fx-font-family: "Helvetica Neue", "Segoe UI Light", "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: 200;
 }
 
 .catalog-cell-name {

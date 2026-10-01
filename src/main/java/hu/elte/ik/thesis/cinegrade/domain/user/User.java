@@ -1,3 +1,4 @@
+// [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.domain.user;
 
 import java.text.SimpleDateFormat;

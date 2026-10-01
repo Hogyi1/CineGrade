@@ -1,3 +1,4 @@
+// [CONTAINS AI-GENERATED CODE: searchDirectory method]
 package hu.elte.ik.thesis.cinegrade.infra.process;
 
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
@@ -51,10 +52,7 @@ public class NativeBinaryLocator {
 
         Path currentDirFile = Path.of(targetName);
         if (Files.isRegularFile(currentDirFile)) {
-            Optional<Path> foundRoot = Optional.of(currentDirFile.toAbsolutePath());
-            System.out.println("Working Directory: " + Path.of("").toAbsolutePath());
-            System.out.println("Resolved Target: " + currentDirFile.toAbsolutePath());
-            return foundRoot;
+            return Optional.of(currentDirFile.toAbsolutePath());
         }
 
         // Check user home data directory (~/.cinegrade/bin)
@@ -71,6 +69,7 @@ public class NativeBinaryLocator {
         return getBinaryPath(executable);
     }
 
+    // [AI-GENERATED METHOD]
     private static Optional<Path> searchDirectory(Path baseDir, String targetFileName) {
         if (baseDir == null || !Files.exists(baseDir) || !Files.isDirectory(baseDir)) {
             return Optional.empty();

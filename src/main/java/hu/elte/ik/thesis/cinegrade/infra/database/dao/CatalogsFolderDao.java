@@ -1,3 +1,4 @@
+// [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.infra.database.dao;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.CatalogFolder;
