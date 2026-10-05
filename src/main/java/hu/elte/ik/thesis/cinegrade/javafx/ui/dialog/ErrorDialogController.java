@@ -1,6 +1,7 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.dialog;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.animations.TransitionFactory;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -46,18 +47,9 @@ public class ErrorDialogController {
             toastTitle.setTextFill(Color.web("#fbbf24"));
         }
 
-        // Animate Entry (Slide in from right + Fade in)
-        toastRoot.setOpacity(0.0);
-        toastRoot.setTranslateX(40.0);
-
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(250), toastRoot);
-        fadeIn.setToValue(1.0);
-
-        TranslateTransition slideIn = new TranslateTransition(Duration.millis(250), toastRoot);
-        slideIn.setToX(0.0);
-
-        ParallelTransition entryAnim = new ParallelTransition(fadeIn, slideIn);
-        entryAnim.play();
+        ParallelTransition transition = TransitionFactory
+                .createFadeSlideLeft(toastRoot, Duration.millis(250), 40.0, false, null);
+        transition.play();
 
         // Auto-dismiss after 4 seconds
         PauseTransition autoDismiss = new PauseTransition(Duration.seconds(4));
@@ -66,19 +58,13 @@ public class ErrorDialogController {
     }
 
     public void dismissWithAnimation() {
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), toastRoot);
-        fadeOut.setToValue(0.0);
-
-        TranslateTransition slideOut = new TranslateTransition(Duration.millis(200), toastRoot);
-        slideOut.setToX(50.0);
-
-        ParallelTransition exitAnim = new ParallelTransition(fadeOut, slideOut);
-        exitAnim.setOnFinished(e -> {
-            if (onDismissCallback != null) {
-                onDismissCallback.run();
-            }
-        });
-        exitAnim.play();
+        ParallelTransition transition = TransitionFactory
+                .createFadeSlideRight(toastRoot, Duration.millis(200), 50.0, true, () -> {
+                    if (onDismissCallback != null) {
+                        onDismissCallback.run();
+                    }
+                });
+        transition.play();
     }
 
 }

@@ -4,9 +4,8 @@ import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.navigation.NavigationManager;
+import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
@@ -34,9 +33,9 @@ public class ErrorTestController {
     @FXML
     private Button cinegradeException3;
 
-    private NavigationManager navigationManager;
-    public ErrorTestController(NavigationManager navigationManager) {
-        this.navigationManager = navigationManager;
+    private SceneManager sceneManager;
+    public ErrorTestController(SceneManager sceneManager) {
+        this.sceneManager = sceneManager;
     }
 
     @FXML
@@ -46,7 +45,7 @@ public class ErrorTestController {
         });
 
         uncaughtExceptionBtn.setOnMouseClicked(e -> {
-            navigationManager.switchView(ViewType.MAIN_MENU);
+            sceneManager.switchView(ViewType.PROJECT_MENU);
         });
 
         uncaughtExceptionBtn2.setOnMouseClicked(e -> {

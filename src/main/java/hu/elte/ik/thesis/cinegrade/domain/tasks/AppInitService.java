@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.tasks;
+package hu.elte.ik.thesis.cinegrade.domain.tasks;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;

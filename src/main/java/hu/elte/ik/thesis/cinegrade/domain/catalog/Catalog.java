@@ -3,6 +3,7 @@ package hu.elte.ik.thesis.cinegrade.domain.catalog;
 
 import org.sqlite.date.DateFormatUtils;
 
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -105,5 +106,17 @@ public class Catalog {
     @Override
     public int hashCode() {
         return Objects.hash(id, catalogName, catalogPath);
+    }
+
+    public Path getTempDirectory() {
+        Path path = Path.of(catalogPath);
+        Path dir = path.toString().endsWith(".cgproj") ? path.getParent() : path;
+        return dir.resolve("temp");
+    }
+
+    public Path getSettingsDirectory() {
+        Path path = Path.of(catalogPath);
+        Path dir = path.toString().endsWith(".cgproj") ? path.getParent() : path;
+        return dir.resolve("settings");
     }
 }

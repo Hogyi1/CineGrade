@@ -19,6 +19,10 @@ public class TaskManager {
         this.completedServices = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     }
 
+    /**
+     * Configures a service for task management
+     * @param service the service to configure
+     */
     public void configure(Service<?> service) {
         threadPoolManager.setMainExecutorService(service);
 
@@ -49,10 +53,18 @@ public class TaskManager {
         });
     }
 
+    /**
+     * Returns the list of running tasks
+     * @return the list of running tasks
+     */
     public ObservableList<Service<?>> runningTasks() {
         return runningServices;
     }
 
+    /**
+     * Returns the list of completed tasks
+     * @return the list of completed tasks
+     */
     public ObservableList<Service<?>> completedTasks() {
         return completedServices;
     }

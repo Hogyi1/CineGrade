@@ -39,6 +39,14 @@ public class ExifToolCommandBuilder implements CommandBuilder {
     }
 
     /**
+     * Returns a compact output format.
+     */
+    public ExifToolCommandBuilder shortOutput() {
+        args.add("-s3");
+        return this;
+    }
+
+    /**
      * Skips scanning file trailers (crucial speedup for large RAW files).
      */
     public ExifToolCommandBuilder fastMode() {

@@ -12,7 +12,7 @@
 <fx:root maxHeight="60.0" maxWidth="1.7976931348623157E308" minHeight="48.0" prefHeight="54.0" styleClass="catalog-list-cell" type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <stylesheets>
         <URL value="@../css/theme.css" />
-        <URL value="@../css/mainMenu.css" />
+        <URL value="@../css/projectMenu.css" />
     </stylesheets>
 
     <!-- Interactive Row Container -->
@@ -54,7 +54,7 @@
                 <children>
                     <Button fx:id="optionsButton" mnemonicParsing="false" styleClass="catalog-options-button">
                         <graphic>
-                            <SVGPath content="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="#AAB8C2" scaleX="1.1" scaleY="1.1" />
+                            <SVGPath content="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="WHITE" styleClass="svg-path" scaleX="1.1" scaleY="1.1" />
                         </graphic>
                     </Button>
                 </children>

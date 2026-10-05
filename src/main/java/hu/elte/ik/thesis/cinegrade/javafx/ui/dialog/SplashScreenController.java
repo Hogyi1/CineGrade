@@ -1,5 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.dialog;
 
+import hu.elte.ik.thesis.cinegrade.domain.tasks.AppInitService;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -24,7 +25,12 @@ public class SplashScreenController {
     @FXML
     private ImageView rightsideImageView;
 
-    private javafx.animation.Timeline progressTimeline;
+    private Timeline progressTimeline;
+    private final AppInitService appInitService;
+
+    public SplashScreenController(AppInitService appInitService) {
+        this.appInitService = appInitService;
+    }
 
     @FXML
     private void initialize() {
@@ -33,50 +39,23 @@ public class SplashScreenController {
                 updatePercentageText(newVal.doubleValue());
             });
         }
-        setProgress(0.0, false);
-    }
+        setProgress(0.0);
 
-    public void setTaskName(String taskName) {
-        if (taskNameLabel != null) {
-            taskNameLabel.setText(taskName);
+        if (appInitService != null) {
+            appInitService.progressProperty().addListener((obs, oldVal, newVal) -> {
+                setProgress(newVal.doubleValue());
+            });
+            taskNameLabel.textProperty().bind(appInitService.messageProperty());
         }
     }
 
-    public void setProgress(double progress) {
-        setProgress(progress, true, null);
-    }
-
-    public void setProgress(double progress, boolean animated) {
-        setProgress(progress, animated, null);
-    }
-
-    public void setProgress(double progress, boolean animated, Runnable onFinished) {
-        if (progressBar == null) {
-            if (onFinished != null) {
-                onFinished.run();
-            }
-            return;
-        }
-
-        if (progressTimeline != null) {
+    private void setProgress(double progress) {
+                if (progressTimeline != null) {
             progressTimeline.stop();
         }
 
-        if (!animated || progress < 0) {
-            progressBar.setProgress(progress);
-            updatePercentageText(progress);
-            if (onFinished != null) {
-                onFinished.run();
-            }
-            return;
-        }
-
-        double target = Math.min(1.0, Math.max(0.0, progress));
-        double current = progressBar.getProgress();
-        if (current < 0) {
-            current = 0.0;
-            progressBar.setProgress(0.0);
-        }
+        double target = Math.clamp(progress, 0.0, 1.0);
+        double current = Math.clamp(progressBar.getProgress(), 0.0, 1.0);
 
         progressTimeline = new Timeline(
             new KeyFrame(
@@ -89,42 +68,29 @@ public class SplashScreenController {
             )
         );
 
-        if (onFinished != null) {
-            progressTimeline.setOnFinished(e -> onFinished.run());
-        }
-
         progressTimeline.play();
     }
 
+    /**
+     * Update the percentage label
+     * */
     private void updatePercentageText(double progress) {
         if (percentageLabel != null) {
-            if (progress < 0) {
-                percentageLabel.setText("");
+            if (progress <= 0) {
+                percentageLabel.setText("[0%]");
             } else {
-                int percent = (int) Math.round(Math.min(1.0, Math.max(0.0, progress)) * 100);
+                int percent = (int) Math.round(Math.clamp(progress, 0.0, 1.0) * 100);
                 percentageLabel.setText("[" + percent + "%]");
             }
         }
     }
 
-    public void updateProgress(String taskName, double progress) {
-        setTaskName(taskName);
-        setProgress(progress);
-    }
-
-    public Label getTaskNameLabel() {
-        return taskNameLabel;
-    }
-
-    public Label getPercentageLabel() {
-        return percentageLabel;
-    }
-
-    public ProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    public ImageView getRightsideImageView() {
-        return rightsideImageView;
+    /**
+     * Start the service
+     * */
+    public void startService() {
+        if (appInitService != null && !appInitService.isRunning()) {
+            appInitService.start();
+        }
     }
 }

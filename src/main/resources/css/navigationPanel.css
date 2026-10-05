@@ -1,0 +1,147 @@
+/* [AI-GENERATED] */
+/* ==========================================================================
+   CineGrade Top Navigation Panel Stylesheet (Refined Slim Desktop Profile)
+   Slim 58px bar, floating capsule pill, projects return button, and clean tabs
+   ========================================================================== */
+
+.navigation-bar {
+    -fx-background-color: #23252B;
+    -fx-border-color: transparent transparent #2E323B transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 24px;
+    -fx-pref-height: 58px;
+    -fx-min-height: 56px;
+    -fx-max-height: 58px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* --------------------------------------------------------------------------
+   Left Branding & Normal Catalog Title Label
+   -------------------------------------------------------------------------- */
+.brand-box {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 14px;
+}
+
+.brand-separator {
+    -fx-background-color: #383D48;
+    -fx-pref-width: 1px;
+    -fx-min-width: 1px;
+    -fx-max-width: 1px;
+    -fx-pref-height: 18px;
+}
+
+.catalog-title {
+    -fx-text-fill: #E2E6EE;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Center Floating Pill Navigation (Slim 38px Capsule)
+   -------------------------------------------------------------------------- */
+.nav-pill-container {
+    -fx-background-color: #17181C;
+    -fx-background-radius: 20px;
+    -fx-border-color: #2B2F38;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1px;
+    -fx-padding: 3px;
+    -fx-alignment: CENTER;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-height: 38px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 6, 0, 0, 1);
+}
+
+/* Active Floating Bubble: Refined elevated slate pill */
+.selection-bubble {
+    -fx-background-color: #2E323A;
+    -fx-background-radius: 17px;
+    -fx-border-radius: 17px;
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 6, 0, 0, 1);
+}
+
+.nav-items-box {
+    -fx-alignment: CENTER;
+    -fx-spacing: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Clickable Labels (Navigation Tabs)
+   -------------------------------------------------------------------------- */
+.nav-item {
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 6px 20px;
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+    -fx-background-radius: 17px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+}
+
+/* Active State: Clean white with crisp weight */
+.nav-item-active {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 600;
+    -fx-opacity: 1.0;
+}
+
+/* Inactive State: Muted gray with smooth hover */
+.nav-item-inactive {
+    -fx-text-fill: #8E929B;
+    -fx-opacity: 0.85;
+}
+
+.nav-item-inactive:hover {
+    -fx-text-fill: #FFFFFF;
+    -fx-opacity: 1.0;
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item-inactive:pressed {
+    -fx-text-fill: #FFFFFF;
+    -fx-opacity: 1.0;
+    -fx-background-color: rgba(255, 255, 255, 0.09);
+}
+
+/* --------------------------------------------------------------------------
+   Right Section: Back to Projects Button & User Profile
+   -------------------------------------------------------------------------- */
+.nav-action-btn {
+    -fx-background-color: #2B2F38;
+    -fx-border-color: #3B404D;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-text-fill: #D4D8E0;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 14px;
+    -fx-cursor: hand;
+}
+
+.nav-action-btn:hover {
+    -fx-background-color: #363B46;
+    -fx-border-color: #1C7DF0;
+    -fx-text-fill: #FFFFFF;
+}
+
+.nav-action-btn:pressed {
+    -fx-background-color: #24272E;
+}
+
+.profile-avatar-btn {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}

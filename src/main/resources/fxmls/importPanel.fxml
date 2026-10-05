@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane alignment="CENTER" prefHeight="850.0" prefWidth="1380.0"
+           styleClass="import-panel-root, theme-dark"
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.editing.ImportPanelController">
+    <stylesheets>
+        <URL value="@../css/theme.css"/>
+        <URL value="@../css/importPanel.css"/>
+    </stylesheets>
+
+    <!-- Central Import Dialog Plate -->
+    <children>
+        <VBox alignment="CENTER" maxWidth="1360.0" styleClass="import-plate" VBox.vgrow="ALWAYS">
+            <children>
+                <!-- Inner Staging Plate (with blue highlight border) -->
+                <VBox fx:id="innerPlate" styleClass="inner-plate" VBox.vgrow="ALWAYS">
+                    <children>
+                        <!-- Top Staging Toolbar -->
+                        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="staging-toolbar">
+                            <children>
+                                <Label fx:id="stagedCountLabel" styleClass="staged-count-text" text="18 Photos Staged"/>
+                                <Label fx:id="selectedBadge" styleClass="selected-badge" text="16 Selected to Import"/>
+                                <Label fx:id="totalSizeLabel" styleClass="total-size-text" text="• 1.42 GB total"/>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <Button fx:id="selectAllButton" mnemonicParsing="false" styleClass="btn-batch-select" text="Select All"/>
+                                <Button fx:id="deselectAllButton" mnemonicParsing="false" styleClass="btn-batch-select" text="Deselect All"/>
+
+                                <!-- Thumbnail Zoom Slider -->
+                                <HBox alignment="CENTER" spacing="6.0">
+                                    <children>
+                                        <Label styleClass="thumb-zoom-label" text="Thumbnail: —"/>
+                                        <Slider fx:id="thumbnailSizeSlider" max="360.0" min="200.0" prefWidth="110.0" styleClass="thumbnail-slider" value="285.0"/>
+                                        <Label styleClass="thumb-zoom-label" text="+"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Staging Grid (Photos Container) -->
+                        <ScrollPane fx:id="stagedScrollPane" fitToWidth="true" styleClass="staging-scroll-pane" VBox.vgrow="ALWAYS">
+                            <content>
+                                <FlowPane fx:id="cardsFlowPane" hgap="16.0" styleClass="staging-flow-pane" vgap="16.0"/>
+                            </content>
+                        </ScrollPane>
+
+                        <!-- Bottom Plate Drag & Drop Hint Banner -->
+                        <HBox alignment="CENTER" styleClass="drop-hint-banner">
+                            <children>
+                                <Label styleClass="drop-hint-text" text="Drag &amp; drop additional photos or folders anywhere on this plate to append to staging queue"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- Bottom Plate Footer Actions -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="plate-footer">
+                    <children>
+                        <Button fx:id="browseFilesButton" mnemonicParsing="false" styleClass="btn-open-files" text="📂 Open Files..."/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Button fx:id="cancelButton" mnemonicParsing="false" styleClass="btn-plate-cancel" text="Cancel"/>
+                        <Button fx:id="importButton" mnemonicParsing="false" styleClass="btn-import-commit" text="Import (16)"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

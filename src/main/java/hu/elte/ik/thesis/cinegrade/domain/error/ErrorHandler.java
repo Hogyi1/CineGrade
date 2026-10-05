@@ -1,7 +1,9 @@
 package hu.elte.ik.thesis.cinegrade.domain.error;
 
+import hu.elte.ik.thesis.cinegrade.app.managers.ThreadPoolManager;
 import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorModalController;
@@ -31,6 +33,7 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
     private static final int MAX_WAIT_TIME_IN_MILLIS = 500;
     private final Queue<QueuedToast> toastQueue = new ArrayDeque<>();
     private VBox toastContainer;
+    private SceneManager sceneManager;
     private volatile boolean isModalShowing = false;
 
     private ErrorHandler() {
@@ -60,6 +63,10 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
         this.toastContainer = container;
     }
 
+    public void setSceneManager(SceneManager sceneManager) {
+        this.sceneManager = sceneManager;
+    }
+
     public void handle(CineGradeException exception) {
         logger.error("CineGradeException [{}]: {}", exception.getErrorCodeValue(), exception.getErrorMessage(), exception);
 
@@ -84,43 +91,14 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
     }
 
     private void showModal(CineGradeException exception) {
-        Platform.runLater(() -> {
-            if (isModalShowing) {
-                return;
-            }
-            isModalShowing = true;
-            try {
-                Platform.setImplicitExit(false);
-                toastQueue.clear();
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/errorModal.fxml"));
-                Parent root = loader.load();
-
-                ErrorModalController controller = loader.getController();
-                controller.setupDialog(exception);
-
-                root.getStyleClass().add(ThemeManager.get().getStyleClass());
-
-                Stage modalStage = new Stage();
-                modalStage.initModality(Modality.APPLICATION_MODAL);
-                modalStage.setTitle("CineGrade — Fatal Error");
-                modalStage.setResizable(false);
-                modalStage.setScene(new Scene(root));
-                modalStage.centerOnScreen();
-
-                // Close all existing open windows so the main app disappears completely
-                for (Window window : Window.getWindows().toArray(new Window[0])) {
-                    if (window instanceof Stage stage && stage != modalStage) {
-                        stage.close();
-                    }
-                }
-
-                modalStage.showAndWait();
-                Platform.exit();
-            } catch (Exception e) {
-                logger.error("Failed to load or display fatal error modal", e);
-            }
-        });
+        if (isModalShowing) return;
+        isModalShowing = true;
+        toastQueue.clear();
+        if (sceneManager != null) {
+            sceneManager.showFatalErrorModal(exception);
+        } else {
+            logger.error("Failed to display fatal error modal: SceneManager not available");
+        }
     }
 
     private synchronized void enqueueToast(String title, String message, Severity severity) {

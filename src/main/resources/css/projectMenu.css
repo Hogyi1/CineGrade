@@ -1,21 +1,27 @@
 /* [AI-GENERATED] */
 /* ==========================================================================
-   CineGrade - Main Menu & Catalog Dashboard Stylesheet
-   Derived from Figma Frame 2 design
+   CineGrade - Project Menu & Catalog Dashboard Stylesheet
+   Fully tokenized using centralized theme variables (-clr-*)
+   Layout: Lighter main background (-clr-surface-card) with darker middle panel (-clr-almostdarkgrey)
    ========================================================================== */
 
-/* Main Root & Containers */
+/* Main Root & Window Frame */
 .main-menu-root {
-    -fx-background-color: #32363D;
+    -fx-background-color: -clr-almostdarkgrey;
 }
 
+/* Middle Workspace Panel */
 .main-body-container {
-    -fx-background-color: #1E1E22;
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 }
 
-/* Top Navigation Bar */
+/* Top Navigation Bar (Matches lighter main background) */
 .top-bar {
-    -fx-background-color: #32363D;
+    -fx-background-color: -clr-surface-card;
     -fx-border-width: 0;
 }
 
@@ -30,17 +36,16 @@
     -fx-opacity: 0.85;
 }
 
-/* Left Sidebar */
+/* Left Sidebar (Darker, matches middle container) */
 .sidebar {
-    -fx-background-color: #1E1E22;
-    -fx-border-color: transparent #2A2D33 transparent transparent;
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: transparent -clr-border transparent transparent;
     -fx-border-width: 0 1px 0 0;
 }
 
 .btn-new-project {
-    -fx-background-color: #1D7CF0;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-background-color: -clr-blue;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-background-radius: 10px;
@@ -49,19 +54,18 @@
     -fx-alignment: CENTER;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(29, 124, 240, 0.3), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(20, 107, 209, 0.35), 8, 0, 0, 2);
 }
 .btn-new-project:hover {
-    -fx-background-color: #3B8EF5;
+    -fx-background-color: -clr-blue-hover;
 }
 .btn-new-project:pressed {
-    -fx-background-color: #146BD1;
+    -fx-background-color: -clr-blue-active;
 }
 
 .btn-open-project {
     -fx-background-color: transparent;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-cursor: hand;
@@ -72,15 +76,15 @@
     -fx-faint-focus-color: transparent;
 }
 .btn-open-project:hover {
-    -fx-background-color: #292C32;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -clr-surface;
+    -fx-text-fill: -clr-text-primary;
 }
 .btn-open-project:pressed {
-    -fx-background-color: #202227;
+    -fx-background-color: -clr-darkgrey;
 }
 
 .sidebar-divider {
-    -fx-background-color: #383C44;
+    -fx-background-color: -clr-border;
 }
 
 /* Navigation Links */
@@ -90,36 +94,35 @@
     -fx-background-radius: 6px;
 }
 .nav-item:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-color: rgba(255, 255, 255, 0.08);
 }
 
 .nav-item-active .nav-indicator {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: -clr-text-primary;
     -fx-background-radius: 2px;
 }
 
 .nav-label {
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
 }
 
-/* Main Content Area */
+/* Main Content Area (Darker middle panel) */
 .main-content {
-    -fx-background-color: #1E1E22;
+    -fx-background-color: -clr-almostdarkgrey;
 }
 
 .welcome-heading {
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-font-family: "Segoe UI Light", "Segoe UI", sans-serif;
     -fx-font-size: 44px;
     -fx-font-weight: 200;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -clr-text-primary;
 }
 
-/* Search Bar */
+/* Search Bar (Lighter container on top of darker main content) */
 .search-container {
-    -fx-background-color: #32363D;
+    -fx-background-color: -clr-surface-card;
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
     -fx-border-color: transparent;
@@ -127,20 +130,19 @@
     -fx-padding: 4px 14px;
 }
 .search-container:hover, .search-container:focused {
-    -fx-border-color: #4C525D;
+    -fx-border-color: -clr-border-subtle;
 }
 
 .search-field {
     -fx-background-color: transparent;
-    -fx-text-fill: #FFFFFF;
-    -fx-prompt-text-fill: #8D8D8D;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-text-fill: -clr-text-primary;
+    -fx-prompt-text-fill: -clr-text-muted;
     -fx-font-size: 16px;
     -fx-font-style: normal;
     -fx-font-weight: 300;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
-    -fx-padding: 6px 0;
+    -fx-padding: 2px 0;
 }
 .search-field *.text {
     -fx-font-style: normal;
@@ -163,26 +165,27 @@
 }
 
 .filter-label {
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
     -fx-font-size: 16px;
     -fx-font-weight: 200;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -clr-text-secondary;
     -fx-cursor: hand;
 }
 .filter-label:hover {
-    -fx-text-fill: #1D7CF0;
+    -fx-text-fill: -clr-blue-hover;
 }
 
 .sort-icon {
     -fx-opacity: 0.8;
     -fx-cursor: hand;
+    -fx-padding: 0 0 2px 0;
+    -fx-animated: true;
 }
 .sort-icon:hover {
     -fx-opacity: 1.0;
 }
 
 .table-divider {
-    -fx-background-color: #32363D;
+    -fx-background-color: -clr-surface-card;
 }
 
 /* ListView */
@@ -197,46 +200,52 @@
     -fx-background-color: transparent;
 }
 
+.bottom-list {
+    -fx-padding: 0 5em 0 0;
+}
+
 .catalog-list-cell {
     -fx-background-color: transparent;
-    -fx-padding: 2px 0;
+    -fx-padding: 3px 0;
 }
 .catalog-list-cell:empty {
     -fx-background-color: transparent;
 }
 
-/* Catalog Row Item */
+/* Catalog Row Item (Darker row inside darker middle panel with subtle divider) */
 .catalog-row {
-    -fx-background-color: #1E1E22;
-    -fx-border-color: transparent transparent #32363D transparent;
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: transparent transparent -clr-surface-card transparent;
     -fx-border-width: 0 0 1px 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
     -fx-cursor: hand;
 }
 
-/* Hover: brighter highlight & subtle opacity adjustment */
+/* Hover: highlight surface */
 .catalog-list-cell:hover .catalog-row {
-    -fx-background-color: #2D323B;
-    -fx-opacity: 0.95;
+    -fx-background-color: -clr-surface;
+    -fx-border-color: transparent transparent -clr-border transparent;
+    -fx-opacity: 0.98;
 }
 
 .catalog-list-cell:selected .catalog-row {
-    -fx-background-color: #2A2F38;
-    -fx-border-color: transparent transparent #1D7CF0 transparent;
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: transparent transparent -clr-blue-hover transparent;
+    -fx-border-width: 0 0 2px 0;
 }
 
 .catalog-cell-text {
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
     -fx-font-size: 16px;
     -fx-font-weight: 200;
 }
 
 .catalog-cell-name {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -clr-text-primary;
 }
 
 .catalog-cell-dim {
-    -fx-text-fill: #AAB8C2;
+    -fx-text-fill: -clr-text-secondary;
 }
 
 /* Options Button (3 dots) */
@@ -254,18 +263,20 @@
 .catalog-options-button:pressed {
     -fx-background-color: rgba(255, 255, 255, 0.20);
 }
+.catalog-options-button SVGPath,
 .catalog-options-button .svg-path {
-    -fx-fill: #AAB8C2;
+    -fx-fill: white;
 }
+.catalog-options-button:hover SVGPath,
 .catalog-options-button:hover .svg-path {
-    -fx-fill: #FFFFFF;
+    -fx-fill: white;
 }
 
 /* Context Menu / Popup Menu */
 .context-menu {
-    -fx-background-color: #24272D;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 8px;
-    -fx-border-color: #383C44;
+    -fx-border-color: -clr-border;
     -fx-border-radius: 8px;
     -fx-border-width: 1px;
     -fx-padding: 5px;
@@ -278,18 +289,17 @@
     -fx-cursor: hand;
 }
 .menu-item:hover, .menu-item:focused {
-    -fx-background-color: #32363D;
+    -fx-background-color: -clr-surface-card;
 }
 .menu-item .label {
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 13px;
 }
 .menu-item-danger:hover, .menu-item-danger:focused {
-    -fx-background-color: rgba(224, 36, 36, 0.22);
+    -fx-background-color: -clr-danger-glow;
 }
 .menu-item-danger .label {
-    -fx-text-fill: #F87171;
+    -fx-text-fill: -clr-danger-hover;
 }
 
 /* Clean Custom ScrollBar */
@@ -298,15 +308,15 @@
     -fx-pref-width: 8px;
 }
 .catalog-list-view .scroll-bar:vertical .track {
-    -fx-background-color: #1E1E22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-border-color: transparent;
 }
 .catalog-list-view .scroll-bar:vertical .thumb {
-    -fx-background-color: #555A64;
+    -fx-background-color: -clr-surface-card;
     -fx-background-radius: 4px;
 }
 .catalog-list-view .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #8D8D8D;
+    -fx-background-color: -clr-border-subtle;
 }
 .catalog-list-view .scroll-bar:vertical .increment-button,
 .catalog-list-view .scroll-bar:vertical .decrement-button {

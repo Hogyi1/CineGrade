@@ -18,11 +18,8 @@ import java.util.Optional;
 public class RequirementChecker {
 
     private static final Logger logger = LogManager.getLogger(RequirementChecker.class);
-    private final StringProperty currentCheck = new SimpleStringProperty();
 
     public void checkCriticalResources() {
-        currentCheck.set("Verifying core UI resources...");
-
         String[] critical = {
                 "/fxmls/splashScreen.fxml",
                 "/fxmls/errorModal.fxml",
@@ -40,8 +37,6 @@ public class RequirementChecker {
     }
 
     public void checkNativeBinaries() {
-        currentCheck.set("Checking native binaries...");
-
         if (NativeBinaryLocator.isAvailable("libraw.dll")) {
             try {
                 String version = LibRaw.INSTANCE.libraw_version();
@@ -57,8 +52,6 @@ public class RequirementChecker {
     }
 
     public void checkFFmpeg() {
-        currentCheck.set("Checking FFmpeg...");
-
         FFmpegService service = new FFmpegService();
         logger.debug("Checking ffmpeg version...");
         Optional<String> result = service.checkFFmpegVersion(null);
@@ -69,7 +62,6 @@ public class RequirementChecker {
             logger.debug("FFmpeg version set: {}", result.get());
         }
 
-        currentCheck.set("Checking FFprobe...");
         logger.debug("Checking ffprobe version...");
         result = service.checkFFprobeVersion(null);
         if (result.isEmpty()) {
@@ -82,8 +74,6 @@ public class RequirementChecker {
     }
 
     public void checkExiftool() {
-        currentCheck.set("Checking ExifTool...");
-
         logger.debug("Checking exiftool version");
         ExifToolService service = new ExifToolService();
         Optional<String> result = service.checkExifToolVersion(null);
@@ -96,11 +86,6 @@ public class RequirementChecker {
     }
 
     public boolean checkJavaVersion() {
-        currentCheck.set("Checking Java version...");
         return Runtime.version().feature() >= 21;
-    }
-
-    public ReadOnlyStringProperty currentCheckProperty() {
-        return currentCheck;
     }
 }

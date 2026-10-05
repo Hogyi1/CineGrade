@@ -10,7 +10,7 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 
 | File Path | Description | Tagging Status |
 | :--- | :--- | :--- |
-| `src/main/resources/fxmls/mainMenu.fxml` | Main dashboard view with catalog list, search, sorting, and user profile header | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/projectMenu.fxml` | Main dashboard view with catalog list, search, sorting, and user profile header | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/catalogFileViewItem.fxml` | List cell item component for displaying recent catalogs | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/newProjectModal.fxml` | Modal dialog for creating a new catalog / project | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/deleteConfirmationModal.fxml` | Modal dialog for confirming catalog removal or deletion | `<!-- [AI-GENERATED] -->` |
@@ -18,7 +18,10 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/resources/fxmls/errorToast.fxml` | Non-blocking toast notification banner for warnings/errors | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/splashScreen.fxml` | Startup splash screen with progress bar and status indicator | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/Test.fxml` | Testing / placeholder navigation view | `<!-- [AI-GENERATED] -->` |
-| `src/main/resources/fxmls/testEditPage.fxml` | Test edit page view for UI testing | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/editPage.fxml` | Test edit page view for UI testing | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/navigationPanel.fxml` | Top workspace navigation bar with animated selection bubble and clickable labels | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/importPanel.fxml` | Media import panel view with drag-and-drop plate, staging grid, and batch controls | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/importPhotoCard.fxml` | Staged import photo thumbnail card component with badges and selection toggle | `<!-- [AI-GENERATED] -->` |
 
 ---
 
@@ -26,12 +29,14 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 
 | File Path | Description | Tagging Status |
 | :--- | :--- | :--- |
-| `src/main/resources/css/mainMenu.css` | Stylesheet for main menu and catalog dashboard layout | `/* [AI-GENERATED] */` |
+| `src/main/resources/css/projectMenu.css` | Stylesheet for main menu and catalog dashboard layout | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/newProjectModal.css` | Stylesheet for new project modal dialog | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/deleteConfirmationModal.css` | Stylesheet for delete confirmation modal | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/modal.css` | Stylesheet for general error modals and popups | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/splash.css` | Stylesheet for splash screen elements and animations | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/theme.css` | Color tokens and theme definitions (dark / light) | `/* [AI-GENERATED] */` |
+| `src/main/resources/css/navigationPanel.css` | Stylesheet for workspace navigation bar, selection bubble, and inactive clickable label states | `/* [AI-GENERATED] */` |
+| `src/main/resources/css/importPanel.css` | Stylesheet for media import dropzone, responsive staging grid, cards, and sliders | `/* [AI-GENERATED] */` |
 
 ---
 
@@ -66,6 +71,11 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/editing/PhotoMetadata.java` | EXIF metadata model (ISO, lens, aperture, shutter speed) | `MetadataDao` | `// [AI-GENERATED]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/user/User.java` | User profile and authentication model | `UserDao` | `// [AI-GENERATED]` |
 
+### UI Component Controllers
+| File Path | Description | Associated FXML | Tagging Status |
+| :--- | :--- | :--- | :--- |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/components/ImportPhotoCard.java` | Controller for staged import photo cards with thumbnail loading and dynamic dimension binding | `importPhotoCard.fxml` | `// [AI-GENERATED]` |
+
 ---
 
 ## 4. Partial Code & Method-Level Generation
@@ -75,6 +85,7 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/java/hu/elte/ik/thesis/cinegrade/infra/process/NativeBinaryLocator.java` | `searchDirectory(Path baseDir, String targetFileName)` | Recursive file search method to locate native binaries | `// [AI-GENERATED METHOD]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/AppSchemaInitializer.java` | `CREATE_TABLE_*` & `CREATE_INDEX_*` SQL strings | DDL table creation queries (`app_settings`, `recent_catalogs`, `global_presets`, `user_session`, and indexes) | `// [AI-GENERATED TABLE STRINGS]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/CatalogSchemaInitializer.java` | `CREATE_TABLE_*` & index SQL strings | DDL table creation queries (`catalog_info`, `catalog_folders`, `photos`, `photo_metadata`, `edit_states`, `edit_history`, etc.) | `// [AI-GENERATED TABLE STRINGS]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/editing/NavigationController.java` | `animateBubbleTo`, `updateTabStyles`, `getTabForPanel`, `switchTo`, `setActiveTab`, `setWorkspaceMode` | Smooth selection bubble sliding animation, active/inactive CSS tab class toggling, and workspace mode transition animations | `// [AI-GENERATED METHOD]` |
 
 ---
 

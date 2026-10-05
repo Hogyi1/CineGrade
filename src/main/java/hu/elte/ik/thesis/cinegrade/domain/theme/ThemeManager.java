@@ -9,6 +9,7 @@ import hu.elte.ik.thesis.cinegrade.infra.database.dao.SettingsDao;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Scene;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +21,7 @@ public class ThemeManager {
     private static final Logger logger = LogManager.getLogger(ThemeManager.class);
     private static final ThemeManager INSTANCE = new ThemeManager();
     private static final String SETTING_KEY = "app.theme";
+    private static final String THEME_CSS = "/css/theme.css";
 
     private final Theme fallBackTheme = AppConfig.INSTANCE.getFallBackTheme();
     private final ObjectProperty<Theme> activeTheme = new SimpleObjectProperty<>(fallBackTheme);
@@ -80,5 +82,10 @@ public class ThemeManager {
 
     public Theme getTheme() {
         return activeTheme.get();
+    }
+
+    public static Scene setupStylesheet(Scene scene) {
+        scene.getStylesheets().add(ThemeManager.class.getResource(THEME_CSS).toExternalForm());
+        return scene;
     }
 }

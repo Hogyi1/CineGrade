@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root type="javafx.scene.layout.VBox" fx:id="cardRoot" alignment="TOP_CENTER" maxWidth="305.0" minWidth="180.0" prefWidth="285.0"
+      styleClass="import-card, import-card-selected"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@../css/theme.css"/>
+        <URL value="@../css/importPanel.css"/>
+    </stylesheets>
+
+    <!-- Thumbnail Section (Figma Height ~215) -->
+    <children>
+        <StackPane fx:id="thumbnailContainer" maxHeight="215.0" minHeight="120.0" prefHeight="210.0" styleClass="card-thumbnail-container">
+            <children>
+                <ImageView fx:id="thumbnailImageView" fitHeight="210.0" fitWidth="285.0" pickOnBounds="true" preserveRatio="true" smooth="true"/>
+
+                <!-- Top Overlay: Selection Checkbox & Remove Button [✕] -->
+                <HBox alignment="CENTER_LEFT" styleClass="card-overlay-top" StackPane.alignment="TOP_CENTER">
+                    <children>
+                        <CheckBox fx:id="selectCheckBox" mnemonicParsing="false" selected="true" styleClass="card-checkbox"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="removeButton" mnemonicParsing="false" styleClass="card-remove-button" text="✕"/>
+                    </children>
+                </HBox>
+
+                <!-- Bottom Overlay: RAW Format Badge on bottom right -->
+                <HBox alignment="BOTTOM_RIGHT" styleClass="card-overlay-bottom" StackPane.alignment="BOTTOM_RIGHT">
+                    <children>
+                        <Label fx:id="formatBadge" styleClass="card-raw-badge" text="RAW"/>
+                    </children>
+                </HBox>
+            </children>
+        </StackPane>
+
+        <!-- Card Metadata Footer (Figma Height 75, Background #212126) -->
+        <VBox spacing="4.0" styleClass="card-meta-container">
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="fileNameLabel" maxWidth="200.0" styleClass="card-filename" text="DSC_0941.CR3"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="fileSizeLabel" styleClass="card-filesize" text="48.2 MB"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="metaLabel" styleClass="card-meta-text" text="6000 × 4000 • RAW"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</fx:root>

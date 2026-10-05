@@ -7,9 +7,11 @@ import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.navigation.NavigationManager;
+import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.components.CatalogViewItem;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.NewProjectDialogController;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.editing.NavigationController;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -26,6 +28,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.*;
 import javafx.stage.Modality;
@@ -39,12 +42,12 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
-public class MainMenuController {
+public class ProjectMenuController {
 
-    private static final Logger logger = LogManager.getLogger(MainMenuController.class);
+    private static final Logger logger = LogManager.getLogger(ProjectMenuController.class);
     private final CatalogManager catalogManager;
     private final UserManager userManager;
-    private final NavigationManager navigationManager;
+    private final SceneManager sceneManager;
     private final ObjectProperty<Catalog> selectedProperty = new SimpleObjectProperty<>();
     private final Consumer<Catalog> removeRecentConsumer;
     private final Consumer<Catalog> deleteConsumer;
@@ -81,14 +84,17 @@ public class MainMenuController {
     private ImageView sortRecentIcon;
     @FXML
     private ImageView sortCreationIcon;
+    @FXML
+    private NavigationController navigationBarController;
+
     private ObservableList<Catalog> catalogObservableList;
     private FilteredList<Catalog> filteredList;
     private SortedList<Catalog> sortedList;
 
-    public MainMenuController(CatalogManager catalogManager, UserManager userManager, NavigationManager navigationManager) {
+    public ProjectMenuController(CatalogManager catalogManager, UserManager userManager, SceneManager sceneManager) {
         this.catalogManager = catalogManager;
         this.userManager = userManager;
-        this.navigationManager = navigationManager;
+        this.sceneManager = sceneManager;
         this.modalStage = new Stage();
 
         deleteConsumer = catalogManager::deleteCatalog;
@@ -97,6 +103,7 @@ public class MainMenuController {
 
     @FXML
     public void initialize() {
+        navigationBarController.setWorkspaceMode(false, "", null);
         catalogObservableList = catalogManager.getCatalogs();
         filteredList = new FilteredList<>(catalogObservableList, pr -> true);
         sortedList = new SortedList<>(filteredList, Comparator.comparing(Catalog::getCatalogName));
@@ -116,15 +123,14 @@ public class MainMenuController {
             fileChooser.setInitialDirectory(catalogManager.getDefaultPath().toFile());
             fileChooser.setTitle("Open CineGrade project");
             fileChooser.getExtensionFilters().addAll(new ExtensionFilter("CG projects", "*.cgproj"));
-            Window mainWindow = navigationManager.getActiveWindow();
+            Window mainWindow = sceneManager.getActiveWindow();
             File selectedFile = fileChooser.showOpenDialog(mainWindow);
             if (selectedFile != null) {
                 logger.info("Selected project file from chooser: {}", selectedFile.getAbsolutePath());
                 try {
                     catalogManager.openCatalog(selectedFile);
                     logger.info("Catalog opened successfully from file {} ", selectedFile);
-                    // navigationManager.switchView(ViewType.TEST_MENU);
-                    ErrorHandler.getInstance().handle(new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Catalog selected, database connection opened"));
+                    sceneManager.switchView(ViewType.EDIT_PAGE);
                     e.consume();
                 } catch (Exception ex) {
                     ErrorHandler.getInstance().handle(ex);
@@ -140,10 +146,8 @@ public class MainMenuController {
         socialNav.setOnMouseClicked(e -> {
             //TODO
             // Handle social navigation click
-            navigationManager.switchView(ViewType.TEST_MENU);
+            sceneManager.switchView(ViewType.TEST_MENU);
         });
-
-        //socialNav.setDisable(true);
     }
 
     private void setupWelcomeLabel() {
@@ -153,10 +157,7 @@ public class MainMenuController {
     }
 
     private void setupListView() {
-        catalogListView.setCellFactory(lvC -> {
-            CatalogViewItem viewItem = new CatalogViewItem(removeRecentConsumer, deleteConsumer);
-            return viewItem;
-        });
+        catalogListView.setCellFactory(lvC -> new CatalogViewItem(removeRecentConsumer, deleteConsumer));
 
         catalogListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != selectedProperty.getValue() && newValue != null) {
@@ -165,8 +166,7 @@ public class MainMenuController {
                 try {
                     catalogManager.openCatalog(newValue);
                     logger.info("Catalog opened successfully, switching view to {}", ViewType.EDIT_PAGE);
-                    // navigationManager.switchView(ViewType.TEST_MENU);
-                    ErrorHandler.getInstance().handle(new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Catalog selected, database connection opened"));
+                    sceneManager.switchView(ViewType.EDIT_PAGE);
                 } catch (Exception ex) {
                     ErrorHandler.getInstance().handle(ex);
                     Platform.runLater(() ->{
@@ -191,6 +191,12 @@ public class MainMenuController {
         setupSortFilter(sizeFilter, sortSizeIcon, sizeComparator);
         setupSortFilter(recentFilter, sortRecentIcon, recentComparator);
         setupSortFilter(creationFilter, sortCreationIcon, createdComparator);
+
+        activateSortFilter(recentFilter);
+    }
+
+    private void activateSortFilter(HBox filterBox) {
+        filterBox.getOnMouseClicked().handle(null);
     }
 
     private void setupSortFilter(HBox filterBox, ImageView sortIcon, Comparator<Catalog> baseComparator) {
@@ -223,7 +229,7 @@ public class MainMenuController {
             sortIcon.setVisible(true);
             sortIcon.setRotate(isReversed ? 180 : 0);
 
-            sortedList.setComparator(isReversed ? baseComparator.reversed() : baseComparator);
+            sortedList.setComparator(isReversed ? baseComparator : baseComparator.reversed());
         });
     }
 
@@ -237,20 +243,24 @@ public class MainMenuController {
     private void createNewProjectModal() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/newProjectModal.fxml"));
-            loader.setControllerFactory(factory -> new NewProjectDialogController(catalogManager::createNewProject, catalogManager.getDefaultPath(), navigationManager));
+            loader.setControllerFactory(factory -> new NewProjectDialogController(catalogManager::createNewProject, catalogManager.getDefaultPath(), sceneManager));
 
             Parent root = loader.load();
             NewProjectDialogController controller = loader.getController();
 
             root.getStyleClass().add(ThemeManager.get().getStyleClass());
 
-            modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle("CineGrade — New Project");
-            modalStage.setResizable(false);
-            modalStage.setScene(new Scene(root));
-            modalStage.centerOnScreen();
+            Stage projectModalStage = new Stage(javafx.stage.StageStyle.TRANSPARENT);
+            projectModalStage.initModality(Modality.APPLICATION_MODAL);
+            projectModalStage.initOwner(sceneManager.getActiveWindow());
+            projectModalStage.setTitle("CineGrade — New Project");
+            projectModalStage.setResizable(false);
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            projectModalStage.setScene(scene);
+            projectModalStage.centerOnScreen();
 
-            modalStage.showAndWait();
+            projectModalStage.showAndWait();
         } catch (IOException ex) {
             throw new CineGradeException(ErrorCode.REQ_RESOURCE_MISSING, ex, "/fxmls/newProjectModal.fxml");
         }

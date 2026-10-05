@@ -2,8 +2,8 @@ package hu.elte.ik.thesis.cinegrade.domain.enums;
 
 public enum ViewType {
     SPLASH("/fxmls/splashScreen.fxml", "CineGrade", false, false),
-    MAIN_MENU("/fxmls/mainMenu.fxml", "CineGrade — Projects", true, true),
-    EDIT_PAGE("/fxmls/testEditPage.fxml", "CineGrade — Edit", true, true),
+    PROJECT_MENU("/fxmls/projectMenu.fxml", "CineGrade — Projects", true, true),
+    EDIT_PAGE("/fxmls/editPage.fxml", "CineGrade — Workspace", true, true),
     TEST_MENU("/fxmls/Test.fxml", "CineGrade - Test panel", false, false);
 
     private final String fxmlPath;

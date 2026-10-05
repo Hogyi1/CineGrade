@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.javafx.ui.catalog;
+package hu.elte.ik.thesis.cinegrade.javafx.ui.components;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;

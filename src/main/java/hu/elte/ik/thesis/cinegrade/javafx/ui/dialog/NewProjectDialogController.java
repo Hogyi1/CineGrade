@@ -4,7 +4,7 @@ import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.navigation.NavigationManager;
+import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,7 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
@@ -25,7 +24,7 @@ public class NewProjectDialogController {
     private static final PseudoClass ERROR_PSEUDO = PseudoClass.getPseudoClass("error");
     private static Logger logger = LogManager.getLogger(NewProjectDialogController.class);
     private final BiConsumer<String, Path> createCatalogConsumer;
-    private final NavigationManager navigationManager;
+    private final SceneManager sceneManager;
     private File selectedFolder;
     @FXML
     private TextField projectNameField;
@@ -38,10 +37,10 @@ public class NewProjectDialogController {
     @FXML
     private Button createButton;
 
-    public NewProjectDialogController(BiConsumer<String, Path> createCatalogConsumer, Path basePath, NavigationManager navigationManager) {
+    public NewProjectDialogController(BiConsumer<String, Path> createCatalogConsumer, Path basePath, SceneManager sceneManager) {
         this.createCatalogConsumer = createCatalogConsumer;
         this.selectedFolder = basePath.toFile();
-        this.navigationManager = navigationManager;
+        this.sceneManager = sceneManager;
     }
 
     @FXML
@@ -67,8 +66,7 @@ public class NewProjectDialogController {
                     createCatalogConsumer.accept(projectNameField.getText(), Path.of(selectedFolder.toURI()));
                     Stage stage = (Stage) cancelButton.getScene().getWindow();
                     stage.close();
-                    // navigationManager.switchView(ViewType.TEST_MENU);
-                    ErrorHandler.getInstance().handle(new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Catalog created, database connection opened"));
+                    sceneManager.switchView(ViewType.EDIT_PAGE);
                 } catch (CineGradeException ex) {
                     ErrorHandler.getInstance().handle(ex);
                 }

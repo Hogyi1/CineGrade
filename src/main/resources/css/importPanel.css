@@ -1,0 +1,341 @@
+/* [AI-GENERATED] */
+/* ==========================================================================
+   CineGrade Media Import Panel Stylesheet (1:1 Figma pasted-image-11.png)
+   Outer Frame: #32363D | Inner Staging Plate: #1E1E22 with Blue Border Highlight
+   ========================================================================== */
+
+.import-panel-root {
+    -fx-background-color: #1E1E22;
+    -fx-padding: 20px 32px;
+    -fx-alignment: CENTER;
+}
+
+/* --------------------------------------------------------------------------
+   Outer Dialog Plate (Figma Rectangle 134)
+   -------------------------------------------------------------------------- */
+.import-plate {
+    -fx-background-color: #26282E;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 24, 0, 0, 6);
+}
+
+/* --------------------------------------------------------------------------
+   Inner Staging Plate (Figma Rectangle 138 with active blue glow border)
+   -------------------------------------------------------------------------- */
+.inner-plate {
+    -fx-background-color: #1B1C20;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-border-color: #1C7DF0;
+    -fx-border-width: 2px;
+    -fx-padding: 12px;
+    -fx-spacing: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Top Staging Toolbar inside Inner Plate (Figma StagingToolbar)
+   -------------------------------------------------------------------------- */
+.staging-toolbar {
+    -fx-background-color: #26272D;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 12px;
+    -fx-min-height: 44px;
+    -fx-pref-height: 44px;
+}
+
+.staged-count-text {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13.5px;
+    -fx-font-weight: bold;
+}
+
+.selected-badge {
+    -fx-background-color: #1C7DF0;
+    -fx-background-radius: 12px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 3px 12px;
+}
+
+.total-size-text {
+    -fx-text-fill: #8E8E99;
+    -fx-font-size: 12px;
+}
+
+.btn-batch-select {
+    -fx-background-color: #383842;
+    -fx-background-radius: 4px;
+    -fx-border-color: #484854;
+    -fx-border-radius: 4px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11.5px;
+    -fx-font-weight: 500;
+    -fx-padding: 5px 14px;
+    -fx-cursor: hand;
+}
+.btn-batch-select:hover {
+    -fx-background-color: #4A4A58;
+    -fx-border-color: #1C7DF0;
+}
+
+/* Zoom Slider in StagingToolbar */
+.thumb-zoom-label {
+    -fx-text-fill: #8E8E99;
+    -fx-font-size: 12px;
+}
+
+.thumbnail-slider .track {
+    -fx-background-color: #141416;
+    -fx-pref-height: 4px;
+    -fx-background-radius: 2px;
+}
+
+.thumbnail-slider .thumb {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 7px;
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+    -fx-cursor: hand;
+}
+.thumbnail-slider .thumb:hover {
+    -fx-background-color: #1C7DF0;
+}
+
+/* --------------------------------------------------------------------------
+   Staging Grid (ScrollPane & FlowPane)
+   -------------------------------------------------------------------------- */
+.staging-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 4px;
+}
+
+.staging-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.staging-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+.staging-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #383842;
+    -fx-background-radius: 4px;
+}
+.staging-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #1C7DF0;
+}
+
+.staging-flow-pane {
+    -fx-background-color: transparent;
+    -fx-alignment: TOP_LEFT;
+}
+
+/* --------------------------------------------------------------------------
+   Photo Card Component (Figma PhotoCard_DSC_0941.CR3)
+   -------------------------------------------------------------------------- */
+.import-card {
+    -fx-background-color: #26262B;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #383842;
+    -fx-border-width: 1.5px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 8, 0, 0, 2);
+}
+
+.import-card:hover {
+    -fx-border-color: #1C7DF0;
+    -fx-effect: dropshadow(gaussian, rgba(28, 125, 240, 0.35), 10, 0, 0, 2);
+}
+
+/* Selected Card (Vibrant Blue Outline like Figma pasted-image-11) */
+.import-card-selected {
+    -fx-border-color: #1C7DF0;
+    -fx-border-width: 2px;
+    -fx-opacity: 1.0;
+}
+
+/* Deselected Card (Muted, Dimmed Outline like DSC_0943) */
+.import-card-deselected {
+    -fx-opacity: 0.52;
+    -fx-border-color: #383840;
+    -fx-border-width: 1.5px;
+}
+
+/* Thumbnail Stack */
+.card-thumbnail-container {
+    -fx-background-color: #333842;
+    -fx-background-radius: 6px 6px 0 0;
+    -fx-alignment: CENTER;
+    -fx-padding: 0;
+}
+
+.card-overlay-top {
+    -fx-padding: 8px;
+    -fx-alignment: TOP_LEFT;
+}
+
+.card-overlay-bottom {
+    -fx-padding: 8px;
+    -fx-alignment: BOTTOM_RIGHT;
+}
+
+/* Checkbox (Square with checkmark) */
+.card-checkbox {
+    -fx-cursor: hand;
+}
+.card-checkbox .box {
+    -fx-background-color: #1E2024;
+    -fx-border-color: #6C707C;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-pref-width: 18px;
+    -fx-pref-height: 18px;
+}
+.card-checkbox:selected .box {
+    -fx-background-color: #1C7DF0;
+    -fx-border-color: #1C7DF0;
+}
+.card-checkbox:selected .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+/* Remove Button [✕] */
+.card-remove-button {
+    -fx-background-color: rgba(0, 0, 0, 0.65);
+    -fx-background-radius: 12px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 22px;
+    -fx-pref-height: 22px;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+.card-remove-button:hover {
+    -fx-background-color: #e02424;
+}
+
+/* RAW Badge on bottom right of thumbnail */
+.card-raw-badge {
+    -fx-background-color: rgba(0, 0, 0, 0.85);
+    -fx-background-radius: 4px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 9.5px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 6px;
+}
+
+/* Card Metadata Footer */
+.card-meta-container {
+    -fx-background-color: #212126;
+    -fx-background-radius: 0 0 6px 6px;
+    -fx-padding: 10px 14px;
+    -fx-spacing: 4px;
+}
+
+.card-filename {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.card-filesize {
+    -fx-text-fill: #8D8D94;
+    -fx-font-size: 11px;
+}
+
+.card-meta-text {
+    -fx-text-fill: #8D8D94;
+    -fx-font-size: 11px;
+}
+
+.card-meta-text-deselected {
+    -fx-text-fill: #E05656;
+    -fx-font-size: 11px;
+}
+
+/* --------------------------------------------------------------------------
+   Drop Hint Banner at Bottom of Inner Plate (Figma DropHintBanner)
+   -------------------------------------------------------------------------- */
+.drop-hint-banner {
+    -fx-background-color: #26262E;
+    -fx-background-radius: 6px;
+    -fx-padding: 9px 16px;
+    -fx-alignment: CENTER;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+}
+
+.drop-hint-text {
+    -fx-text-fill: #A6A6B8;
+    -fx-font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Plate Footer Bar (Below Inner Plate)
+   -------------------------------------------------------------------------- */
+.plate-footer {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 16px;
+    -fx-padding: 16px 8px 4px 8px;
+}
+
+.btn-open-files {
+    -fx-background-color: #6366F2;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 22px;
+    -fx-padding: 11px 28px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 242, 0.4), 10, 0, 0, 2);
+}
+.btn-open-files:hover {
+    -fx-background-color: #7477F5;
+}
+
+.btn-plate-cancel {
+    -fx-background-color: #6A6B70;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 22px;
+    -fx-padding: 11px 32px;
+    -fx-cursor: hand;
+}
+.btn-plate-cancel:hover {
+    -fx-background-color: #7A7C82;
+}
+
+.btn-import-commit {
+    -fx-background-color: #1C7DF0;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 22px;
+    -fx-padding: 11px 36px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(28, 125, 240, 0.4), 10, 0, 0, 2);
+}
+.btn-import-commit:hover {
+    -fx-background-color: #338DF5;
+}
+.btn-import-commit:disabled {
+    -fx-background-color: #383842;
+    -fx-text-fill: #727280;
+    -fx-opacity: 0.7;
+    -fx-effect: null;
+}

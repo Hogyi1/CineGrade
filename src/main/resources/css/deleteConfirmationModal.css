@@ -2,29 +2,29 @@
 /* ==========================================================================
    Delete Confirmation Modal Styles
    Matches Figma Frame 3 (Group 26)
+   Fully tokenized using centralized theme variables (-clr-*)
    ========================================================================== */
 
 .confirm-modal-root {
-    -fx-background-color: #32363d;
+    -fx-background-color: -clr-surface-card;
     -fx-background-radius: 20px;
     -fx-border-radius: 20px;
-    -fx-border-color: #383c44;
+    -fx-border-color: -clr-border;
     -fx-border-width: 1px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0, 0, 6);
 }
 
 /* Header Bar */
 .confirm-modal-header {
-    -fx-background-color: #1c1e22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 20px 20px 0 0;
     -fx-border-radius: 20px 20px 0 0;
 }
 
 .confirm-header-title {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 20px;
     -fx-font-weight: 400;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 /* Body */
@@ -33,51 +33,48 @@
 }
 
 .confirm-message-label {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 20px;
     -fx-font-weight: 400;
     -fx-alignment: CENTER;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 /* Buttons */
 .btn-cancel {
-    -fx-background-color: #1c1e22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 20px;
     -fx-border-radius: 20px;
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-cursor: hand;
     -fx-alignment: CENTER;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 .btn-cancel:hover {
-    -fx-background-color: #292d33;
+    -fx-background-color: -clr-surface;
 }
 
 .btn-cancel:pressed {
-    -fx-background-color: #15171a;
+    -fx-background-color: -clr-dark;
 }
 
 .btn-delete {
-    -fx-background-color: #f00000;
+    -fx-background-color: -clr-danger;
     -fx-background-radius: 20px;
     -fx-border-radius: 20px;
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-cursor: hand;
     -fx-alignment: CENTER;
-    -fx-effect: dropshadow(gaussian, rgba(240, 0, 0, 0.35), 8, 0, 0, 2);
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(224, 36, 36, 0.35), 8, 0, 0, 2);
 }
 
 .btn-delete:hover {
-    -fx-background-color: #ff2b2b;
+    -fx-background-color: -clr-danger-hover;
 }
 
 .btn-delete:pressed {
-    -fx-background-color: #c80000;
+    -fx-background-color: -clr-danger-active;
 }

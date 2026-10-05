@@ -2,29 +2,29 @@
 /* ==========================================================================
    Create New Project Modal Styles
    Matches Figma Frame 3
+   Fully tokenized using centralized theme variables (-clr-*)
    ========================================================================== */
 
 .new-project-modal-root {
-    -fx-background-color: #32363d;
+    -fx-background-color: -clr-surface-card;
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
-    -fx-border-color: #383c44;
+    -fx-border-color: -clr-border;
     -fx-border-width: 1px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0, 0, 6);
 }
 
 /* Header Bar */
 .modal-header {
-    -fx-background-color: #1c1e22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 10px 10px 0 0;
     -fx-border-radius: 10px 10px 0 0;
 }
 
 .modal-header-title {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 24px;
     -fx-font-weight: 400;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 /* Body */
@@ -34,25 +34,23 @@
 
 /* Field Labels */
 .modal-label {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 400;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 /* Editable Project Name TextField */
 .modal-text-field {
-    -fx-background-color: #1c1e22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
     -fx-border-color: transparent;
     -fx-border-width: 1.5px;
-    -fx-text-fill: #8d8d8d;
-    -fx-prompt-text-fill: #8d8d8d;
+    -fx-text-fill: -clr-text-muted;
+    -fx-prompt-text-fill: -clr-text-muted;
     -fx-font-size: 16px;
     -fx-font-style: normal;
     -fx-padding: 0 14px;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 .modal-text-field *.text {
@@ -60,17 +58,17 @@
 }
 
 .modal-text-field:error {
-    -fx-border-color: #e02424;
+    -fx-border-color: -clr-danger;
 }
 
 .modal-text-field:focused {
-    -fx-border-color: #1d7cf0;
-    -fx-text-fill: #ffffff;
+    -fx-border-color: -clr-blue-hover;
+    -fx-text-fill: -clr-text-primary;
 }
 
 /* Location Container & Read-only TextField */
 .modal-location-container {
-    -fx-background-color: #1c1e22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
     -fx-border-color: transparent;
@@ -81,11 +79,10 @@
 .modal-location-field {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-text-fill: #8d8d8d;
+    -fx-text-fill: -clr-text-muted;
     -fx-font-size: 16px;
     -fx-font-style: normal;
     -fx-padding: 0 14px;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
     -fx-cursor: default;
 }
 
@@ -101,9 +98,8 @@
 /* 3-dots Browse Button */
 .modal-ellipsis-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
     -fx-cursor: hand;
     -fx-background-radius: 6px;
     -fx-padding: 2px 8px;
@@ -112,7 +108,7 @@
 
 .modal-ellipsis-btn:hover {
     -fx-background-color: rgba(255, 255, 255, 0.12);
-    -fx-text-fill: #1d7cf0;
+    -fx-text-fill: -clr-blue-hover;
 }
 
 .modal-ellipsis-btn:pressed {
@@ -121,42 +117,40 @@
 
 /* Buttons */
 .btn-create {
-    -fx-background-color: #1d7cf0;
+    -fx-background-color: -clr-blue-hover;
     -fx-background-radius: 20px;
     -fx-border-radius: 20px;
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-cursor: hand;
     -fx-alignment: CENTER;
     -fx-effect: dropshadow(gaussian, rgba(29, 124, 240, 0.35), 8, 0, 0, 2);
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 .btn-create:hover {
-    -fx-background-color: #388ff7;
+    -fx-background-color: -clr-blue;
 }
 
 .btn-create:pressed {
-    -fx-background-color: #146bd1;
+    -fx-background-color: -clr-blue-active;
 }
 
 .btn-cancel {
-    -fx-background-color: #1c1e22;
+    -fx-background-color: -clr-almostdarkgrey;
     -fx-background-radius: 20px;
     -fx-border-radius: 20px;
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-cursor: hand;
     -fx-alignment: CENTER;
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
 }
 
 .btn-cancel:hover {
-    -fx-background-color: #292d33;
+    -fx-background-color: -clr-surface;
 }
 
 .btn-cancel:pressed {
-    -fx-background-color: #15171a;
+    -fx-background-color: -clr-dark;
 }

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane minHeight="600.0" minWidth="900.0" prefHeight="800.0" prefWidth="1280.0" styleClass="main-menu-root, theme-dark"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.catalog.ProjectMenuController">
+    <stylesheets>
+        <URL value="@../css/theme.css"/>
+        <URL value="@../css/projectMenu.css"/>
+    </stylesheets>
+
+    <!-- Top Navigation Bar -->
+    <top>
+        <fx:include fx:id="navigationBar" source="navigationPanel.fxml"/>
+    </top>
+
+    <center>
+        <BorderPane styleClass="main-body-container">
+            <left>
+                <VBox maxWidth="260.0" minWidth="200.0" prefWidth="220.0" spacing="16.0" styleClass="sidebar">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="90.0"/>
+                    </padding>
+                    <children>
+                        <!-- Top Action Buttons (Centered) -->
+                        <VBox alignment="CENTER" spacing="16.0">
+                            <children>
+                                <Button fx:id="newProjectButton" minWidth="150.0" prefWidth="150.0" maxWidth="150.0"
+                                        minHeight="40.0" prefHeight="40.0" maxHeight="40.0" mnemonicParsing="false"
+                                        styleClass="btn-new-project" text="New Project"/>
+
+                                <Button fx:id="openProjectButton" minWidth="150.0" prefWidth="150.0" maxWidth="150.0"
+                                        minHeight="36.0" prefHeight="36.0" maxHeight="36.0" mnemonicParsing="false"
+                                        styleClass="btn-open-project" text="Open Project"/>
+                            </children>
+                        </VBox>
+
+                        <!-- Sidebar Divider (Centered) -->
+                        <HBox alignment="CENTER">
+                            <children>
+                                <Region maxHeight="3.0" minHeight="3.0" prefHeight="3.0" maxWidth="170.0" prefWidth="170.0" HBox.hgrow="ALWAYS" styleClass="sidebar-divider"/>
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="8.0" top="8.0"/>
+                            </VBox.margin>
+                        </HBox>
+
+                        <!-- Navigation List -->
+                        <VBox spacing="8.0">
+                            <!-- Home (Active) -->
+                            <HBox fx:id="homeNav" alignment="CENTER_LEFT" spacing="10.0" styleClass="nav-item, nav-item-active">
+                                <children>
+                                    <Region minWidth="3.0" prefHeight="20.0" prefWidth="3.0" styleClass="nav-indicator"/>
+                                    <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                        <image>
+                                            <Image url="@../images/icons/Home.png"/>
+                                        </image>
+                                    </ImageView>
+                                    <Label styleClass="nav-label" text="Home"/>
+                                </children>
+                            </HBox>
+
+                            <!-- Social -->
+                            <HBox fx:id="socialNav" alignment="CENTER_LEFT" spacing="10.0" styleClass="nav-item">
+                                <children>
+                                    <Region minWidth="3.0" opacity="0.0" prefHeight="20.0" prefWidth="3.0"/>
+                                    <Region prefWidth="20.0"/>
+                                    <Label styleClass="nav-label" text="BACK TO TEST MENU"/>
+                                </children>
+                            </HBox>
+                        </VBox>
+
+                        <Pane VBox.vgrow="ALWAYS"/>
+                    </children>
+                </VBox>
+            </left>
+
+            <!-- Main Content Area (Responsive Catalog Explorer) -->
+            <center>
+                <VBox alignment="TOP_CENTER" spacing="18.0" styleClass="main-content" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets bottom="24.0" left="36.0" right="36.0" top="20.0"/>
+                    </padding>
+                    <children>
+                        <!-- Welcome Greeting Banner (Lowered spacing) -->
+                        <VBox alignment="CENTER" prefHeight="70.0">
+                            <VBox.margin>
+                                <Insets top="35.0" bottom="105.0"/>
+                            </VBox.margin>
+                            <children>
+                                <Label fx:id="welcomeLabel" alignment="CENTER" maxWidth="1.7976931348623157E308"
+                                       styleClass="welcome-heading" text="Welcome back, USER_NAME"/>
+                            </children>
+                        </VBox>
+
+                        <!-- Narrow Centered Table & Search Container -->
+                        <VBox alignment="TOP_CENTER"  spacing="18.0" VBox.vgrow="ALWAYS" styleClass="bottom-list">
+                            <children>
+                                <!-- Search Bar Row (Right-Aligned) -->
+                                <HBox alignment="CENTER_RIGHT">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" maxWidth="500.0" minWidth="260.0" prefHeight="38.0"
+                                              prefWidth="450.0" spacing="10.0" styleClass="search-container">
+                                            <children>
+                                                <TextField fx:id="searchField" promptText="Search" styleClass="search-field"
+                                                           HBox.hgrow="ALWAYS"/>
+                                                <ImageView fitHeight="18.0" fitWidth="18.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true"
+                                                           styleClass="search-icon">
+                                                    <image>
+                                                        <Image url="@../images/icons/Search.png"/>
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- Table Header / Interactive Filters -->
+                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" styleClass="table-header-row">
+                                    <padding>
+                                        <Insets left="16.0" right="16.0"/>
+                                    </padding>
+                                    <children>
+                                        <!-- Name Filter -->
+                                        <HBox fx:id="nameFilter" alignment="CENTER_LEFT" minWidth="220.0" prefWidth="380.0" maxWidth="500.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="filterNameLabel" styleClass="filter-label" text="Name"/>
+                                                <ImageView fx:id="sortNameIcon" fitHeight="13.0" fitWidth="13.0" pickOnBounds="true"
+                                                           preserveRatio="true" styleClass="sort-icon">
+                                                    <image>
+                                                        <Image url="@../images/icons/Sort Up.png"/>
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Size Filter with Sort Icon -->
+                                        <HBox fx:id="sizeFilter" alignment="CENTER_LEFT" minWidth="140.0" prefWidth="200.0" HBox.hgrow="ALWAYS" spacing="6.0">
+                                            <children>
+                                                <Label fx:id="filterSizeLabel" styleClass="filter-label" text="Size"/>
+                                                <ImageView fx:id="sortSizeIcon" fitHeight="13.0" fitWidth="13.0" pickOnBounds="true"
+                                                           preserveRatio="true" styleClass="sort-icon">
+                                                    <image>
+                                                        <Image url="@../images/icons/Sort Up.png"/>
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Recent Filter -->
+                                        <HBox fx:id="recentFilter" alignment="CENTER_LEFT" minWidth="160.0" prefWidth="260.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="filterRecentLabel" styleClass="filter-label" text="Recent"/>
+                                                <ImageView fx:id="sortRecentIcon" fitHeight="13.0" fitWidth="13.0" pickOnBounds="true"
+                                                           preserveRatio="true" styleClass="sort-icon">
+                                                    <image>
+                                                        <Image url="@../images/icons/Sort Up.png"/>
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Created At Filter -->
+                                        <HBox fx:id="creationFilter" alignment="CENTER_LEFT" minWidth="160.0" prefWidth="240.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="filterCreatedLabel" styleClass="filter-label" text="Created at"/>
+                                                <ImageView fx:id="sortCreationIcon" fitHeight="13.0" fitWidth="13.0" pickOnBounds="true"
+                                                           preserveRatio="true" styleClass="sort-icon">
+                                                    <image>
+                                                        <Image url="@../images/icons/Sort Up.png"/>
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Column Spacer for row options button -->
+                                        <Region maxWidth="40.0" minWidth="40.0" prefWidth="40.0"/>
+                                    </children>
+                                </HBox>
+
+                                <!-- Divider Below Headers -->
+                                <Region maxHeight="1.0" minHeight="1.0" prefHeight="1.0" styleClass="table-divider"/>
+
+                                <!-- Catalogs ListView -->
+                                <ListView fx:id="catalogListView" maxWidth="1.7976931348623157E308" styleClass="catalog-list-view"
+                                          VBox.vgrow="ALWAYS"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

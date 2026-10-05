@@ -3,14 +3,19 @@ package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoMetadata;
+import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
+import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
 import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -74,5 +79,31 @@ public class ExifToolService {
         boolean available = checkExifToolVersion(null).isPresent();
         logger.debug("ExifTool availability: {}", available);
         return available;
+    }
+
+    public boolean isImage(Path path, BooleanSupplier isCanceled) {
+        ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
+        builder.addTags(MIME_TYPE).addTarget(path);
+        ArrayList<String> commands = builder.buildCommands();
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
+        return pr.stdout().contains("image/");
+    }
+
+    public List<FileProbeResult> probeFiles(List<Path> pathList, BooleanSupplier isCanceled) {
+        ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
+        List<String> commands = builder.asJson()
+                .addTags(FILE_SIZE, FILE_TYPE, IMAGE_SIZE, MIME_TYPE)
+                .addTargets(pathList)
+                .buildCommands();
+
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
+        // Process the results and return a list of FileProbeResult objects
+        if (!pr.isSuccess()) {
+            logger.error("Failed to probe batch files exitCode={}, error={}", pr.exitCode(), pr.stderr());
+            return List.of();
+        }
+
+        Type listType = new TypeToken<ArrayList<FileProbeResult>>(){}.getType();
+        return new Gson().fromJson(pr.stdout(), listType);
     }
 }

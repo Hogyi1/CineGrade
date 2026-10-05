@@ -4,8 +4,12 @@
    Supports theme switching via .root or .theme-dark / .theme-light classes
    ========================================================================== */
 
-.root, .root.theme-dark {
-    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+.root, .theme-dark {
+    /* Centralized Font Families */
+    -font-family-primary: "Segoe UI", sans-serif;
+    -font-family-secondary: "Consolas", monospace;
+    -fx-font-family: -font-family-primary;
+
     /* Base Backgrounds & Surfaces */
     -clr-dark: #121316;
     -clr-almostdarkgrey: #1c1e22;
@@ -13,6 +17,9 @@
     -clr-surface: #292c31;
     -clr-surface-card: #32363d;
     -clr-surface-input: #181a1d;
+
+    /* Default Scene Root Background */
+    -fx-background-color: -clr-almostdarkgrey;
     
     /* Borders */
     -clr-border: #383c44;
@@ -43,7 +50,12 @@
 }
 
 /* Optional Light Theme definition for future switching */
-.root.theme-light {
+.theme-light {
+    /* Centralized Font Families */
+    -font-family-primary: "Segoe UI", sans-serif;
+    -font-family-secondary: "Consolas", monospace;
+    -fx-font-family: -font-family-primary;
+
     -clr-dark: #FFFFFF;
     -clr-almostdarkgrey: #F4F5F7;
     -clr-darkgrey: #E5E7EB;
@@ -124,7 +136,7 @@
 .btn-danger {
     -fx-background-color: -clr-danger;
     -fx-text-fill: #ffffff;
-    -fx-effect: dropshadow(gaussian, -clr-danger-glow, 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(224, 36, 36, 0.22), 8, 0, 0, 2);
 }
 .btn-danger:hover {
     -fx-background-color: -clr-danger-hover;
@@ -174,7 +186,8 @@
     -fx-text-fill: -clr-text-muted;
     -fx-font-size: 12px;
     -fx-cursor: hand;
-    -fx-padding: 2px 6px;
+    -fx-padding: 0;
+    -fx-alignment: center;
     -fx-background-radius: 4px;
 }
 .toast-close-btn:hover {

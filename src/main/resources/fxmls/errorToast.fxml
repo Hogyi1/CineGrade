@@ -29,9 +29,9 @@
         </VBox>
 
         <!-- Close 'X' Button -->
-        <VBox alignment="TOP_RIGHT">
+        <VBox alignment="TOP_RIGHT" minWidth="24.0" prefWidth="24.0" HBox.hgrow="NEVER">
             <children>
-                <Button fx:id="toastCloseButton" mnemonicParsing="false" styleClass="toast-close-btn" text="✕" />
+                <Button fx:id="toastCloseButton" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" styleClass="toast-close-btn" text="✕" />
             </children>
         </VBox>
     </children>

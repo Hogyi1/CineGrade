@@ -10,6 +10,8 @@ public enum ExifTag {
     EXPOSURE_TIME("ExposureTime"),
     ISO("ISO"),
     FILE_TYPE("FileType"),
+    IMAGE_SIZE("ImageSize"),
+    MIME_TYPE("MIMEType"),
     FILE_SIZE("FileSize"),
     COLOR_SPACE("ColorSpace"),
     COLOR_MODE("-PictureStyle -PictureControlName -FilmMode -CreativeStyle -PhotoStyle -PictureMode");
