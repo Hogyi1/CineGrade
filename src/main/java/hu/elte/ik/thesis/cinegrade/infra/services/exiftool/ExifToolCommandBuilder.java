@@ -67,7 +67,7 @@ public class ExifToolCommandBuilder implements CommandBuilder {
      */
     public ExifToolCommandBuilder addTag(ExifTag tag) {
         if (tag != null) {
-            args.add(tag.getTagName());
+            args.add("-" + tag.getTagName());
         }
         return this;
     }

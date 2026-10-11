@@ -92,7 +92,7 @@ public class ExifToolService {
     public List<FileProbeResult> probeFiles(List<Path> pathList, BooleanSupplier isCanceled) {
         ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
         List<String> commands = builder.asJson()
-                .addTags(FILE_SIZE, FILE_TYPE, IMAGE_SIZE, MIME_TYPE)
+                .addTags(FILE_SIZE, FILE_TYPE, IMAGE_SIZE, MIME_TYPE, ORIENTATION)
                 .addTargets(pathList)
                 .buildCommands();
 

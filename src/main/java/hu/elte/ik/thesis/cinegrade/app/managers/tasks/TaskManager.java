@@ -6,12 +6,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.WorkerStateEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class TaskManager {
 
     private final ThreadPoolManager threadPoolManager;
     private final ObservableList<Service<?>> completedServices;
     private final ObservableList<Service<?>> runningServices;
+
+    private final ConcurrentHashMap<Object, List<Service<?>>> groups = new ConcurrentHashMap<>();
+    private static final Logger logger = LogManager.getLogger(TaskManager.class);
 
     public TaskManager(ThreadPoolManager threadPoolManager) {
         this.threadPoolManager = threadPoolManager;
@@ -40,17 +50,39 @@ public class TaskManager {
                 case SCHEDULED, RUNNING -> {
                     if (!runningServices.contains(service)) {
                         runningServices.add(service);
+                        logger.debug("Task started: {}", service);
                     }
                 }
                 case SUCCEEDED, FAILED, CANCELLED -> {
                     runningServices.remove(service);
                     if (!completedServices.contains(service)) {
                         completedServices.add(service);
+                        logger.debug("Task completed: {}", service);
                     }
                 }
                 default -> {}
             }
         });
+    }
+
+    public void configure(Service<?> service, Object group) {
+        configure(service);
+        List<Service<?>> list = groups.computeIfAbsent(group, k -> new CopyOnWriteArrayList<>());
+        list.add(service);
+        service.stateProperty().addListener((obs, oldState, newState) -> {
+            switch (newState) {
+                case SUCCEEDED, FAILED, CANCELLED -> list.remove(service);
+                default -> {}
+            }
+        });
+    }
+
+    public void cancelGroup(Object group) {
+        List<Service<?>> servicesToCancel = groups.get(group);
+        if (servicesToCancel != null) {
+            servicesToCancel.forEach(Service::cancel);
+            logger.debug("Tasks cancelled for group: {}", group);
+        }
     }
 
     /**

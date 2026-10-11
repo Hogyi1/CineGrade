@@ -3,6 +3,7 @@ package hu.elte.ik.thesis.cinegrade.infra.services.libraw;
 import com.sun.jna.Pointer;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,9 +17,11 @@ public class LibrawService {
 
     private static final Logger logger = LogManager.getLogger(LibrawService.class);
     private final LibRaw libRaw;
+    private final StorageService storageService;
 
     public LibrawService() {
         this.libRaw = LibRaw.INSTANCE;
+        this.storageService = new StorageService();
     }
 
     public boolean extractThumbnail(File rawFile, Path destination) {
@@ -51,9 +54,13 @@ public class LibrawService {
                     return false;
                 }
 
-                Files.createDirectories(destination.getParent());
-                Files.write(destination, byteBuffer.array());
-                logger.debug("%dx%d decoded, %d bits, %d bytes%n",
+                byteBuffer.rewind();
+                byte[] jpegBytes = new byte[byteBuffer.remaining()];
+                byteBuffer.get(jpegBytes);
+
+                storageService.ensureDirectory(destination.getParent());
+                Files.write(destination, jpegBytes);
+                logger.debug("{}x{} decoded, {} bits, {} bytes",
                         (int) thumbnail.width, (int) thumbnail.height, (int) thumbnail.bits,
                         thumbnail.getByteBuffer().capacity());
 

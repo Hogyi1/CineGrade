@@ -12,9 +12,10 @@ public enum ExifTag {
     FILE_TYPE("FileType"),
     IMAGE_SIZE("ImageSize"),
     MIME_TYPE("MIMEType"),
+    ORIENTATION("Orientation"),
     FILE_SIZE("FileSize"),
     COLOR_SPACE("ColorSpace"),
-    COLOR_MODE("-PictureStyle -PictureControlName -FilmMode -CreativeStyle -PhotoStyle -PictureMode");
+    COLOR_MODE("PictureStyle -PictureControlName -FilmMode -CreativeStyle -PhotoStyle -PictureMode");
 
     private final String tagName;
 

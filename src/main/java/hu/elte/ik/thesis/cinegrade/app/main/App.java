@@ -99,11 +99,13 @@ public class App extends Application {
         controllerFactory.register(ProjectMenuController.class, () -> new ProjectMenuController(catalogManager, userManager, sceneManager));
         controllerFactory.register(ErrorTestController.class, () -> new ErrorTestController(sceneManager));
         controllerFactory.register(SplashScreenController.class, () -> new SplashScreenController(createAppInitService()));
+
+        // Created after catalog is selected
         controllerFactory.register(WorkspaceController.class, () -> new WorkspaceController(catalogManager.getCurrentCatalogContext(), controllerFactory));
         controllerFactory.register(NavigationController.class, () -> new NavigationController(sceneManager, userManager));
-        controllerFactory.register(ImportPanelController.class, ImportPanelController::new);
-        controllerFactory.register(DevelopmentPanelController.class, DevelopmentPanelController::new);
-        controllerFactory.register(ExportPanelController.class, ExportPanelController::new);
+        controllerFactory.register(ImportPanelController.class, () -> new ImportPanelController(catalogManager.getCurrentCatalogContext()));
+        controllerFactory.register(DevelopmentPanelController.class, () -> new DevelopmentPanelController(catalogManager.getCurrentCatalogContext()));
+        controllerFactory.register(ExportPanelController.class, () -> new ExportPanelController(catalogManager.getCurrentCatalogContext()));
     }
 
     /**

@@ -96,7 +96,7 @@ public class SceneManager {
     }
 
     public Window getActiveWindow() {
-        return Window.getWindows().stream().filter(Window::isShowing).findFirst().orElse(null);
+        return Window.getWindows().stream().filter(Window::isFocused).findFirst().orElse(null);
     }
 
     private FXMLLoader createLoader(String fxmlPath) {

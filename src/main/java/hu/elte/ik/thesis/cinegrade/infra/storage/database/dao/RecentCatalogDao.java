@@ -1,12 +1,11 @@
 // [AI-GENERATED]
-package hu.elte.ik.thesis.cinegrade.infra.database.dao;
+package hu.elte.ik.thesis.cinegrade.infra.storage.database.dao;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
-import java.util.Date;
 
 public class RecentCatalogDao {
 
@@ -32,7 +31,7 @@ public class RecentCatalogDao {
                 "RETURNING id, catalog_path, catalog_name, last_opened_at, created_at";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, catalog.getCatalogPath());
+            pstmt.setString(1, catalog.getCatalogDirectoryPath().toString());
             pstmt.setString(2, catalog.getCatalogName());
             pstmt.executeUpdate();
         }

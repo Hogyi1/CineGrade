@@ -4,6 +4,7 @@ import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.editing.NavigationController;
 
 public interface PanelController {
+    public void setNavigationController(NavigationController navigationController);
     public boolean canExit();
     public void onExit();
     public void onEnter();

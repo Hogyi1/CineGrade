@@ -1,5 +1,5 @@
 // [AI-GENERATED]
-package hu.elte.ik.thesis.cinegrade.infra.database.dao;
+package hu.elte.ik.thesis.cinegrade.infra.storage.database.dao;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.CatalogFolder;
 

@@ -11,7 +11,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root type="javafx.scene.layout.VBox" fx:id="cardRoot" alignment="TOP_CENTER" maxWidth="305.0" minWidth="180.0" prefWidth="285.0"
+<VBox fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.components.ImportPhotoCard" fx:id="cardRoot"
+      alignment="TOP_CENTER" maxWidth="305.0" minWidth="180.0" prefWidth="285.0"
       styleClass="import-card, import-card-selected"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <stylesheets>
@@ -21,22 +22,27 @@
 
     <!-- Thumbnail Section (Figma Height ~215) -->
     <children>
-        <StackPane fx:id="thumbnailContainer" maxHeight="215.0" minHeight="120.0" prefHeight="210.0" styleClass="card-thumbnail-container">
+        <StackPane fx:id="thumbnailContainer" maxHeight="215.0" minHeight="120.0" prefHeight="210.0"
+                   styleClass="card-thumbnail-container">
             <children>
-                <ImageView fx:id="thumbnailImageView" fitHeight="210.0" fitWidth="285.0" pickOnBounds="true" preserveRatio="true" smooth="true"/>
+                <ImageView fx:id="thumbnailImageView" fitHeight="206.0" fitWidth="281.0" pickOnBounds="true"
+                           preserveRatio="true" smooth="true"/>
 
                 <!-- Top Overlay: Selection Checkbox & Remove Button [✕] -->
                 <HBox alignment="CENTER_LEFT" styleClass="card-overlay-top" StackPane.alignment="TOP_CENTER">
                     <children>
-                        <CheckBox fx:id="selectCheckBox" mnemonicParsing="false" selected="true" styleClass="card-checkbox"/>
+                        <CheckBox fx:id="selectCheckBox" mnemonicParsing="false" selected="true"
+                                  styleClass="card-checkbox"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="removeButton" mnemonicParsing="false" styleClass="card-remove-button" text="✕"/>
                     </children>
                 </HBox>
 
-                <!-- Bottom Overlay: RAW Format Badge on bottom right -->
-                <HBox alignment="BOTTOM_RIGHT" styleClass="card-overlay-bottom" StackPane.alignment="BOTTOM_RIGHT">
+                <!-- Bottom Overlay: Duplicate Warning Badge (left) & Format Badge (right) -->
+                <HBox alignment="BOTTOM_LEFT" styleClass="card-overlay-bottom" StackPane.alignment="BOTTOM_CENTER">
                     <children>
+                        <Label fx:id="duplicateBadge" styleClass="card-duplicate-badge, card-raw-badge"
+                               style="-fx-background-color: #D97706;" text="Duplicate" visible="false"/>
+                        <Region HBox.hgrow="ALWAYS"/>
                         <Label fx:id="formatBadge" styleClass="card-raw-badge" text="RAW"/>
                     </children>
                 </HBox>
@@ -61,4 +67,4 @@
             </children>
         </VBox>
     </children>
-</fx:root>
+</VBox>

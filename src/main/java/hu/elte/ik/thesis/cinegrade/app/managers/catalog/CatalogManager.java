@@ -7,9 +7,10 @@ import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
-import hu.elte.ik.thesis.cinegrade.infra.database.CatalogDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.CatalogDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.services.database.CatalogService;
 import hu.elte.ik.thesis.cinegrade.infra.services.database.RecentCatalogService;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,22 +30,23 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CatalogManager {
 
     private static final byte[] SQLITE_HEADER = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
     private static final Logger logger = LogManager.getLogger(CatalogManager.class);
-    private static final int MAX_DELETE_DEPTH = 8;
     private final Path fallBackPath = Paths.get(AppConfig.INSTANCE.getProjectDirectory());
     private final RecentCatalogService recentCatalogService;
     private final ObservableList<Catalog> catalogObserVableList = FXCollections.observableArrayList();
     private final TaskManager taskManager;
+    private final StorageService storageService;
     private CatalogService catalogService;
     private CatalogContext currentCatalogContext;
 
     public CatalogManager(TaskManager taskManager) {
         recentCatalogService = new RecentCatalogService();
+        storageService = new StorageService();
         this.taskManager = taskManager;
         refreshCatalogs();
     }
@@ -71,18 +73,15 @@ public class CatalogManager {
      * @param catalog the catalog to delete
      */
     public void deleteCatalog(Catalog catalog) {
-        Path catalogPath = Path.of(catalog.getCatalogPath());
         CatalogDatabase.getInstance().closeConnection();
 
-        if (validatePath(catalogPath)) {
-            boolean isDeleted = deleteRecursively(catalogPath, 0);
-            if (isDeleted) {
-                removeFromRecent(catalog);
-                logger.info("Catalog is deleted: {}", catalog.getCatalogName());
-                return;
-            }
+        boolean isDeleted = storageService.deleteDirectory(catalog.getCatalogDirectoryPath());
+        if (isDeleted) {
+            removeFromRecent(catalog);
+            logger.info("Catalog is deleted: {}", catalog.getCatalogName());
+        } else {
+            throw new CineGradeException(ErrorCode.CATALOG_DELETE_FAILED, catalog.getCatalogDirectoryPath());
         }
-        throw new CineGradeException(ErrorCode.CATALOG_DELETE_FAILED, catalogPath);
     }
 
     /**
@@ -103,8 +102,7 @@ public class CatalogManager {
         if (catalog == null) {
             return;
         }
-        Path path = Path.of(catalog.getCatalogPath());
-        openProject(path, catalog.getCatalogName(), catalog.getId());
+        openProject(catalog.getCatalogDirectoryPath(), catalog.getCatalogName(), catalog.getId());
     }
 
     /**
@@ -153,7 +151,7 @@ public class CatalogManager {
 
             Optional<Catalog> existingInRecents = catalogObserVableList.stream()
                     .filter(c -> (catalogId != null && c.getId() == catalogId) ||
-                            (c.getCatalogPath() != null && Path.of(c.getCatalogPath()).toAbsolutePath().normalize().toString().equalsIgnoreCase(normalizedDirPath)))
+                            (c.getCatalogDirectoryPath() != null && c.getCatalogDirectoryPath().toAbsolutePath().normalize().toString().equalsIgnoreCase(normalizedDirPath)))
                     .findFirst();
 
             // Mismatching recent list and database on ids
@@ -194,10 +192,12 @@ public class CatalogManager {
 
         // Setup project directories
         try {
-            Files.createDirectories(projectDirectory);
-            Files.createDirectories(projectDirectory.resolve("temp"));
-            Files.createDirectories(projectDirectory.resolve("settings"));
-        } catch (IOException ex) {
+            storageService.ensureDirectory(projectDirectory);
+            storageService.ensureDirectory(projectDirectory.resolve("temp"));
+            storageService.ensureDirectory(projectDirectory.resolve("temp").resolve("imports"));
+            storageService.ensureDirectory(projectDirectory.resolve("settings"));
+            storageService.ensureDirectory(projectDirectory.resolve("imports"));
+        } catch (CineGradeException ex) {
             throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, projectDirectory.toString());
         }
 
@@ -261,10 +261,6 @@ public class CatalogManager {
 
         Path cgprojFile = result.get();
 
-        if (!validatePath(cgprojFile)) {
-            return false;
-        }
-
         // Read the first 16 bytes of the file and compare it to the SQLite header
         try (InputStream in = Files.newInputStream(cgprojFile)) {
             byte[] header = in.readNBytes(16);
@@ -321,98 +317,27 @@ public class CatalogManager {
     }
 
     /**
-     * Validates the provided path to ensure it points to a valid .cgproj file or directory containing one.
-     *
-     * @param path The path to validate.
-     * @return True if the path is valid, false otherwise.
-     */
-    private boolean validatePath(Path path) {
-        // Validate if the file exists and is readable
-        if (path == null || !Files.exists(path)) {
-            return false;
-        }
-
-        // If it's a directory, check for a .cgproj file inside
-        if (Files.isDirectory(path)) {
-            Optional<Path> cgproj = resolveCgprojPath(path, null);
-            return cgproj.isPresent() && Files.isRegularFile(cgproj.get()) && Files.isReadable(cgproj.get());
-        }
-
-        // If it's a file, check if it has the .cgproj extension and is readable
-        return path.getFileName().toString().endsWith(".cgproj") &&
-                Files.isRegularFile(path) &&
-                Files.isReadable(path);
-    }
-
-    /**
-     * Deletes a file or directory recursively.
-     * If MAX_ROUND deletions are reached, the deletion will stop to prevent infinite loops.
-     * Calls itself if a directory is found for each of the files in the directory.
-     *
-     * @param path  The path to delete.
-     * @param round The current deletion round.
-     * @return True if the deletion was successful, false otherwise.
-     */
-    private boolean deleteRecursively(Path path, int round) {
-        round++;
-        if (round >= MAX_DELETE_DEPTH)
-            return false;
-        try {
-            if (Files.isDirectory(path)) {
-                try (DirectoryStream<Path> entries = Files.newDirectoryStream(path)) {
-                    for (Path child : entries) {
-                        deleteRecursively(child, round);
-                    }
-                }
-            }
-            Files.deleteIfExists(path);
-            logger.debug("Deleting path: {} (round {})", path, round);
-        } catch (IOException e) {
-            logger.warn("Could not delete catalog: {}", path, e);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Retrieves the currently opened catalog, if any.
-     *
-     * @return An Optional containing the current Catalog, or empty if none is open.
-     */
-    public Optional<Catalog> getCurrentCatalog() {
-        if (catalogService != null && CatalogDatabase.getInstance().isOpen()) {
-            return Optional.of(catalogService.getCatalog());
-        }
-        return Optional.empty();
-    }
-
-    /**
      * Calculate the catalogs size based on the parent directory if it's possible
      * Otherwise calculate the sqlite database size
      *
      */
     private void calculateCatalogSize(Catalog catalog) {
-        if (catalog == null || catalog.getCatalogPath() == null) {
+        if (catalog == null || catalog.getCatalogDirectoryPath() == null) {
             logger.warn("Cannot calculate catalog size: catalog or catalog path is null");
             return;
         }
 
-        Path parentDirectory = Path.of(catalog.getCatalogPath());
-        if (Files.isDirectory(parentDirectory)) {
-            try (var paths = Files.walk(parentDirectory)) {
-                long size = paths
-                        .filter(p -> p.toFile().isFile())
-                        .mapToLong(p -> p.toFile().length())
-                        .sum();
-                catalog.setSize(size);
-                logger.debug("Calculated catalog size for '{}': {} bytes, started from: {}", catalog.getCatalogName(), size, parentDirectory);
-            } catch (IOException ex) {
-                logger.warn("Failed to calculate catalog size for '{}' at {}: {}", catalog.getCatalogName(), parentDirectory, ex.getMessage(), ex);
-            }
-        } else {
-            catalog.setSize(Path.of(catalog.getCatalogPath()).toFile().length());
+        try (Stream<Path> paths = Files.walk(catalog.getCatalogDirectoryPath())) {
+            long size = paths
+                    .filter(p -> p.toFile().isFile())
+                    .mapToLong(p -> p.toFile().length())
+                    .sum();
+            catalog.setSize(size);
+            logger.debug("Calculated catalog size for '{}': {} bytes, started from: {}", catalog.getCatalogName(), size, catalog.getCatalogDirectoryPath());
+        } catch (IOException ex) {
+            logger.warn("Failed to calculate catalog size for '{}' at {}: {}", catalog.getCatalogName(), catalog.getCatalogDirectoryPath(), ex.getMessage(), ex);
         }
+
     }
 
     /**

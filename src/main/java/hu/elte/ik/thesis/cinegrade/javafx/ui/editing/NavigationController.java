@@ -1,11 +1,8 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
 import hu.elte.ik.thesis.cinegrade.app.managers.user.UserManager;
-import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
-import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
-import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.animations.TransitionFactory;
 import javafx.animation.ParallelTransition;
@@ -24,6 +21,8 @@ import javafx.util.Duration;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class NavigationController {
+
+    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(NavigationController.class);
 
     private final SceneManager sceneManager;
     private final UserManager userManager;
@@ -58,25 +57,31 @@ public class NavigationController {
     public NavigationController(SceneManager sceneManager, UserManager userManager) {
         this.sceneManager = sceneManager;
         this.userManager = userManager;
+        logger.debug("NavigationController instantiated");
     }
 
     @FXML
     private void initialize() {
+        logger.debug("Initializing NavigationController UI bindings");
         selectionBubble.setManaged(false);
 
         importTab.setOnMouseClicked(e -> {
+            logger.debug("Import tab clicked");
             switchTo(WorkspacePanel.IMPORT);
         });
 
         developTab.setOnMouseClicked(e -> {
+            logger.debug("Development tab clicked");
             switchTo(WorkspacePanel.DEVELOPMENT);
         });
 
         exportTab.setOnMouseClicked(e -> {
+            logger.debug("Export tab clicked");
             switchTo(WorkspacePanel.EXPORT);
         });
 
         backToProjectsBtn.setOnMouseClicked(e -> {
+            logger.info("Back to projects button clicked, returning to PROJECT_MENU");
             sceneManager.switchView(ViewType.PROJECT_MENU);
         });
 
@@ -84,6 +89,7 @@ public class NavigationController {
         navPillContainer.widthProperty().addListener((obs, oldW, newW) -> {
             Label activeTab = getTabForPanel(currentPanelProperty.get());
             if (activeTab != null && activeTab.getWidth() > 0) {
+                logger.trace("Nav pill container width resized from {} to {}, updating bubble position", oldW, newW);
                 animateBubbleTo(activeTab, false);
             }
         });
@@ -92,15 +98,30 @@ public class NavigationController {
         Platform.runLater(() -> {
             Label activeTab = getTabForPanel(currentPanelProperty.get());
             if (activeTab != null) {
+                logger.debug("Performing initial layout snap for active tab: {}", activeTab.getText());
                 animateBubbleTo(activeTab, false);
                 updateTabStyles(activeTab);
             }
         });
     }
 
-    // [AI-GENERATED METHOD]
+    public void switchToPreviousPanel() {
+        ViewHistory viewHistory = viewHistories.poll();
+        if (viewHistory == null || viewHistory.previous == null) {
+            logger.debug("No previous panel found in history, switching to fallback DEVELOPMENT panel");
+            switchTo(WorkspacePanel.DEVELOPMENT);
+            return;
+        }
+
+        logger.debug("Switching to previous panel from history: {}", viewHistory.previous.current());
+        switchTo(viewHistory.previous.current());
+    }
+
     public void setWorkspaceMode(boolean isWorkspace, String catalogTitle, WorkspacePanel startingPanel) {
+        logger.info("Setting workspace mode: isWorkspace={}, catalogTitle='{}', startingPanel={}",
+                isWorkspace, catalogTitle, startingPanel);
         if (!isWorkspace) {
+            logger.debug("Disabling workspace mode and hiding navigation controls");
             navPillContainer.setVisible(false);
             navPillContainer.setManaged(false);
             catalogTitleLabel.setVisible(false);
@@ -112,6 +133,7 @@ public class NavigationController {
             return;
         }
 
+        logger.debug("Enabling workspace mode and playing entrance transitions");
         navPillContainer.setManaged(true);
         catalogTitleLabel.setManaged(true);
         brandSeparator.setManaged(true);
@@ -119,11 +141,11 @@ public class NavigationController {
         backToProjectsBtn.setManaged(true);
 
         ParallelTransition slideUp = TransitionFactory
-                .createFadeSlideUp(navPillContainer, Duration.millis(1000), 50, false, null);
+                .createFadeSlideUp(navPillContainer, Duration.millis(500), 25, false, null);
         ParallelTransition slideRight = TransitionFactory
-                .createFadeSlideRight(catalogTitleLabel, Duration.millis(1000), 50, false, null);
+                .createFadeSlideRight(catalogTitleLabel, Duration.millis(500), 25, false, null);
         ParallelTransition slideLeft = TransitionFactory
-                .createFadeSlideLeft(backToProjectsBtn, Duration.millis(1000), 50, false, null);
+                .createFadeSlideLeft(backToProjectsBtn, Duration.millis(500), 25, false, null);
         slideUp.play();
         slideRight.play();
         slideLeft.play();
@@ -139,20 +161,23 @@ public class NavigationController {
         return currentPanelProperty;
     }
 
-    private void switchTo(WorkspacePanel nextPanel) {
+    public void switchTo(WorkspacePanel nextPanel) {
         if (nextPanel == null) {
+            logger.warn("Attempted to switch to null workspace panel");
             return;
         }
 
         Label targetTab = getTabForPanel(nextPanel);
 
         if (nextPanel == currentPanelProperty.get()) {
+            logger.debug("Already on panel {}, skipping panel transition", nextPanel);
             if (selectionBubble.getWidth() <= 0 && targetTab != null) {
                 animateBubbleTo(targetTab, false);
             }
             return;
         }
 
+        logger.info("Switching workspace panel from {} to {}", currentPanelProperty.get(), nextPanel);
         ViewHistory previousHistory = viewHistories.peek();
         viewHistories.offer(new ViewHistory(previousHistory, currentPanelProperty.get(), nextPanel));
         currentPanelProperty.set(nextPanel);
@@ -166,10 +191,13 @@ public class NavigationController {
     // [AI-GENERATED METHOD]
     private void animateBubbleTo(Label targetTab, boolean animated) {
         if (targetTab == null || tabsContainer == null || navPillContainer == null) {
+            logger.trace("Skipping animateBubbleTo: targetTab={}, tabsContainer={}, navPillContainer={}",
+                    targetTab, tabsContainer, navPillContainer);
             return;
         }
 
         if (pendingTabWidthListener != null && pendingTab != null) {
+            logger.trace("Cleaning up previous pendingTabWidthListener");
             pendingTab.widthProperty().removeListener(pendingTabWidthListener);
             pendingTabWidthListener = null;
             pendingTab = null;
@@ -177,6 +205,8 @@ public class NavigationController {
 
         double targetWidth = targetTab.getWidth();
         if (targetWidth <= 0) {
+            logger.trace("Target tab {} not yet rendered (width={}), registering listener",
+                    targetTab.getText(), targetWidth);
             pendingTab = targetTab;
             pendingTabWidthListener = (obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() > 0) {
@@ -223,6 +253,7 @@ public class NavigationController {
 
         final double currentBubbleWidth = selectionBubble.getWidth();
         if (!animated || currentBubbleWidth <= 0) {
+            logger.trace("Relocating bubble instantly to x={}, y={}, w={}, h={}", targetX, targetY, targetWidth, targetHeight);
             selectionBubble.resizeRelocate(targetX, targetY, targetWidth, targetHeight);
             return;
         }
@@ -236,6 +267,7 @@ public class NavigationController {
         final double finalTargetY = targetY;
         final double finalTargetHeight = targetHeight;
 
+        logger.trace("Animating bubble from x={}, w={} to x={}, w={}", startX, startW, finalTargetX, finalTargetWidth);
         bubbleTransition = new javafx.animation.Transition() {
             {
                 setCycleDuration(Duration.millis(250));
@@ -278,6 +310,7 @@ public class NavigationController {
 
     // [AI-GENERATED METHOD]
     private void updateTabStyles(Label activeLabel) {
+        logger.trace("Updating tab styles for active tab: {}", activeLabel != null ? activeLabel.getText() : "none");
         Label[] tabs = {importTab, developTab, exportTab};
         for (Label tab : tabs) {
             if (tab == activeLabel) {

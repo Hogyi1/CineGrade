@@ -1,7 +1,4 @@
-// [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.domain.catalog;
-
-import org.sqlite.date.DateFormatUtils;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -16,15 +13,15 @@ public class Catalog {
 
     private int id;
     private String catalogName;
-    private String catalogPath;
+    private String catalogDirectoryPath;
     private Instant lastOpenedAt;
     private Instant createdAt;
     private transient long size = 0L;
 
-    public Catalog(int id, String catalogName, String catalogPath, Instant lastOpenedAt, Instant createdAt) {
+    public Catalog(int id, String catalogName, String catalogDirectoryPath, Instant lastOpenedAt, Instant createdAt) {
         this.id = id;
         this.catalogName = catalogName;
-        this.catalogPath = catalogPath;
+        this.catalogDirectoryPath = catalogDirectoryPath;
         this.lastOpenedAt = lastOpenedAt;
         this.createdAt = createdAt;
     }
@@ -47,8 +44,8 @@ public class Catalog {
         return catalogName;
     }
 
-    public String getCatalogPath() {
-        return catalogPath;
+    public Path getCatalogDirectoryPath() {
+        return Path.of(catalogDirectoryPath);
     }
 
     public int getId() {
@@ -100,23 +97,21 @@ public class Catalog {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Catalog catalog = (Catalog) o;
-        return id == catalog.id && Objects.equals(catalogName, catalog.catalogName) && Objects.equals(catalogPath, catalog.catalogPath);
+        return id == catalog.id && Objects.equals(catalogName, catalog.catalogName) && Objects.equals(catalogDirectoryPath, catalog.catalogDirectoryPath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, catalogName, catalogPath);
+        return Objects.hash(id, catalogName, catalogDirectoryPath);
     }
 
     public Path getTempDirectory() {
-        Path path = Path.of(catalogPath);
-        Path dir = path.toString().endsWith(".cgproj") ? path.getParent() : path;
-        return dir.resolve("temp");
+        return getCatalogDirectoryPath().resolve("temp");
     }
 
     public Path getSettingsDirectory() {
-        Path path = Path.of(catalogPath);
-        Path dir = path.toString().endsWith(".cgproj") ? path.getParent() : path;
-        return dir.resolve("settings");
+        return getCatalogDirectoryPath().resolve("settings");
     }
+
+    public Path getTempImportsDirectory() { return getTempDirectory().resolve("imports"); }
 }

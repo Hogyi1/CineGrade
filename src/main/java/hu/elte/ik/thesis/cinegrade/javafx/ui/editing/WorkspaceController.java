@@ -116,6 +116,7 @@ public class WorkspaceController {
         try {
             Parent root = loader.load();
             PanelController controller = loader.getController();
+            controller.setNavigationController(navigationBarController);
             logger.info("Workspace panel {} loaded successfully", panel);
             return new CachedPanel(controller, root);
         } catch (Exception e) {

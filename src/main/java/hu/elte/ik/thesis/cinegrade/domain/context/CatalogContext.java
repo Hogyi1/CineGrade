@@ -25,7 +25,7 @@ public class CatalogContext {
         this.connection = connection;
         this.photoManager = new PhotoManager(connection, catalog);
         this.catalogManager = catalogManager;
-        this.importManager = new ImportManager(connection, catalog, taskManager);
+        this.importManager = new ImportManager(connection, catalog, taskManager, photoManager);
         this.editingManager = new EditingManager(connection, catalog);
         this.exportManager = new ExportManager(connection, catalog);
         this.tagManager = new TagManager(connection, catalog);

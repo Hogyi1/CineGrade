@@ -4,11 +4,9 @@ import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.CatalogFolder;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
-import hu.elte.ik.thesis.cinegrade.infra.database.CatalogDatabase;
-import hu.elte.ik.thesis.cinegrade.infra.database.dao.CatalogSettingsDao;
-import hu.elte.ik.thesis.cinegrade.infra.database.dao.CatalogsFolderDao;
-import hu.elte.ik.thesis.cinegrade.infra.database.dao.UserDao;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.CatalogDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.CatalogSettingsDao;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.CatalogsFolderDao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -48,8 +46,8 @@ public class CatalogService {
             if (catalog.getCatalogName() != null) {
                 settingsDao.set(KEY_PROJECT_NAME, catalog.getCatalogName());
             }
-            if (catalog.getCatalogPath() != null) {
-                settingsDao.set(KEY_PROJECT_PATH, catalog.getCatalogPath());
+            if (catalog.getCatalogDirectoryPath() != null) {
+                settingsDao.set(KEY_PROJECT_PATH, catalog.getCatalogDirectoryPath().toString());
             }
             if (catalog.getLastOpenedAt() != null) {
                 settingsDao.set(KEY_LAST_OPENED_AT, catalog.getLastOpenedAt().toString());

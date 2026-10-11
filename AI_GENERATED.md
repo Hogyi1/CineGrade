@@ -20,8 +20,8 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/resources/fxmls/Test.fxml` | Testing / placeholder navigation view | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/editPage.fxml` | Test edit page view for UI testing | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/navigationPanel.fxml` | Top workspace navigation bar with animated selection bubble and clickable labels | `<!-- [AI-GENERATED] -->` |
-| `src/main/resources/fxmls/importPanel.fxml` | Media import panel view with drag-and-drop plate, staging grid, and batch controls | `<!-- [AI-GENERATED] -->` |
-| `src/main/resources/fxmls/importPhotoCard.fxml` | Staged import photo thumbnail card component with badges and selection toggle | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/importPanel.fxml` | Media import panel view with drag-and-drop plate, empty state plate, batch controls, and floating sidebar with File Handling selector (Add, Copy, Move), search bar, and dark token filter buttons | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/importPhotoCard.fxml` | Staged import photo thumbnail card component with format badges, duplicate warning badge, and selection toggle | `<!-- [AI-GENERATED] -->` |
 
 ---
 
@@ -36,7 +36,7 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/resources/css/splash.css` | Stylesheet for splash screen elements and animations | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/theme.css` | Color tokens and theme definitions (dark / light) | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/navigationPanel.css` | Stylesheet for workspace navigation bar, selection bubble, and inactive clickable label states | `/* [AI-GENERATED] */` |
-| `src/main/resources/css/importPanel.css` | Stylesheet for media import dropzone, responsive staging grid, cards, and sliders | `/* [AI-GENERATED] */` |
+| `src/main/resources/css/importPanel.css` | Stylesheet for media import dropzone, responsive staging grid, cards, sliders, empty state, red remove button, and floating sidebar with dark-themed filter buttons and File Handling ComboBox | `/* [AI-GENERATED] */` |
 
 ---
 
@@ -47,19 +47,20 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | :--- | :--- | :--- |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/enums/ErrorCode.java` | Central error codes enum with categories, error messages, and severity | `// [AI-GENERATED]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/infra/config/SystemInfo.java` | System hardware, OS, Java runtime, and native tool version holder | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/utils/FormatUtils.java` | Static utility class for formatting byte sizes (B, KB, MB, GB, TB) | `// [AI-GENERATED]` |
 
 ### Data Access Objects (DAOs)
 | File Path | Description | Respective Java Object | Tagging Status |
 | :--- | :--- | :--- | :--- |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/CatalogSettingsDao.java` | Key-value settings DAO for catalog-specific database | Key-value Strings (`catalog_info`) | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/CatalogsFolderDao.java` | DAO for catalog virtual folder hierarchy | `CatalogFolder.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/EditstateDao.java` | DAO for photo edit states | `EditState.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/MetadataDao.java` | DAO for photo EXIF and technical metadata | `PhotoMetadata.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/PhotoDao.java` | DAO for imported photos and thumbnails | `PhotoEntry.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/PresetDao.java` | DAO for grading presets | Grading Preset entity | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/RecentCatalogDao.java` | DAO for recently opened catalogs in app database | `Catalog.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/SettingsDao.java` | Key-value settings DAO for global application database | Key-value Strings (`app_settings`) | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/UserDao.java` | DAO for user session and authentication persistence | `User.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/CatalogSettingsDao.java` | Key-value settings DAO for catalog-specific database | Key-value Strings (`catalog_info`) | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/CatalogsFolderDao.java` | DAO for catalog virtual folder hierarchy | `CatalogFolder.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/EditstateDao.java` | DAO for photo edit states | `EditState.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/MetadataDao.java` | DAO for photo EXIF and technical metadata | `PhotoMetadata.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/PhotoDao.java` | DAO for imported photos and thumbnails | `PhotoEntry.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/PresetDao.java` | DAO for grading presets | Grading Preset entity | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/RecentCatalogDao.java` | DAO for recently opened catalogs in app database | `Catalog.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/SettingsDao.java` | Key-value settings DAO for global application database | Key-value Strings (`app_settings`) | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/UserDao.java` | DAO for user session and authentication persistence | `User.java` | `// [AI-GENERATED]` |
 
 ### Respective Domain Models / Java Objects
 | File Path | Description | Associated DAO | Tagging Status |
@@ -83,9 +84,10 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | File Path | Generated Section / Method | Description | Tagging Status |
 | :--- | :--- | :--- | :--- |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/infra/process/NativeBinaryLocator.java` | `searchDirectory(Path baseDir, String targetFileName)` | Recursive file search method to locate native binaries | `// [AI-GENERATED METHOD]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/AppSchemaInitializer.java` | `CREATE_TABLE_*` & `CREATE_INDEX_*` SQL strings | DDL table creation queries (`app_settings`, `recent_catalogs`, `global_presets`, `user_session`, and indexes) | `// [AI-GENERATED TABLE STRINGS]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/CatalogSchemaInitializer.java` | `CREATE_TABLE_*` & index SQL strings | DDL table creation queries (`catalog_info`, `catalog_folders`, `photos`, `photo_metadata`, `edit_states`, `edit_history`, etc.) | `// [AI-GENERATED TABLE STRINGS]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/AppSchemaInitializer.java` | `CREATE_TABLE_*` & `CREATE_INDEX_*` SQL strings | DDL table creation queries (`app_settings`, `recent_catalogs`, `global_presets`, `user_session`, and indexes) | `// [AI-GENERATED TABLE STRINGS]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/CatalogSchemaInitializer.java` | `CREATE_TABLE_*` & index SQL strings | DDL table creation queries (`catalog_info`, `catalog_folders`, `photos`, `photo_metadata`, `edit_states`, `edit_history`, etc.) | `// [AI-GENERATED TABLE STRINGS]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/editing/NavigationController.java` | `animateBubbleTo`, `updateTabStyles`, `getTabForPanel`, `switchTo`, `setActiveTab`, `setWorkspaceMode` | Smooth selection bubble sliding animation, active/inactive CSS tab class toggling, and workspace mode transition animations | `// [AI-GENERATED METHOD]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/components/ImportPhotoCard.java` | `updateSelectionStyle`, `bindSize` | Dynamic card selection style toggling (.import-card-selected vs .import-card-deselected) and responsive slider dimension binding | `// [AI-GENERATED METHOD]` |
 
 ---
 

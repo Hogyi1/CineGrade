@@ -162,7 +162,7 @@ public class ProjectMenuController {
         catalogListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != selectedProperty.getValue() && newValue != null) {
                 selectedProperty.set(null);
-                logger.info("Catalog selected from recent list: {} (path: {})", newValue.getCatalogName(), newValue.getCatalogPath());
+                logger.info("Catalog selected from recent list: {} (path: {})", newValue.getCatalogName(), newValue.getCatalogDirectoryPath());
                 try {
                     catalogManager.openCatalog(newValue);
                     logger.info("Catalog opened successfully, switching view to {}", ViewType.EDIT_PAGE);
@@ -258,7 +258,6 @@ public class ProjectMenuController {
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             projectModalStage.setScene(scene);
-            projectModalStage.centerOnScreen();
 
             projectModalStage.showAndWait();
         } catch (IOException ex) {

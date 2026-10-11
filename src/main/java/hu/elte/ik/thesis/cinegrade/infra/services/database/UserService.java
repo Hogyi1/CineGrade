@@ -3,8 +3,8 @@ package hu.elte.ik.thesis.cinegrade.infra.services.database;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.user.User;
-import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
-import hu.elte.ik.thesis.cinegrade.infra.database.dao.UserDao;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.AppDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.UserDao;
 
 import java.nio.file.Path;
 import java.sql.Connection;

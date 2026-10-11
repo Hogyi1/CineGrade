@@ -77,6 +77,7 @@ public class CatalogViewItem extends ListCell<Catalog> {
             if (current != null && onRemoveFromRecents != null) {
                 onRemoveFromRecents.accept(current);
             }
+            optionsMenu.hide();
         });
 
         MenuItem deleteCatalogItem = new MenuItem("Delete Catalog");
@@ -144,7 +145,6 @@ public class CatalogViewItem extends ListCell<Catalog> {
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             confirmStage.setScene(scene);
-            confirmStage.centerOnScreen();
 
             cancelButton.setOnAction(e -> confirmStage.close());
             deleteButton.setOnAction(e -> {

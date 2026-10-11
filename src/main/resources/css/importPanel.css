@@ -84,6 +84,31 @@
     -fx-border-color: #1C7DF0;
 }
 
+.btn-auto-pair {
+    -fx-background-color: #2D2E35;
+    -fx-border-color: #484854;
+    -fx-text-fill: #9E9EAA;
+    -fx-font-size: 11.5px;
+    -fx-font-weight: 500;
+    -fx-padding: 5px 12px;
+    -fx-cursor: hand;
+}
+.btn-auto-pair:hover {
+    -fx-background-color: #383944;
+    -fx-border-color: #1C7DF0;
+    -fx-text-fill: #FFFFFF;
+}
+.btn-auto-pair-active {
+    -fx-background-color: rgba(28, 125, 240, 0.18);
+    -fx-border-color: #1C7DF0;
+    -fx-text-fill: #58A6FF;
+}
+.btn-auto-pair-active:hover {
+    -fx-background-color: rgba(28, 125, 240, 0.28);
+    -fx-border-color: #388BFD;
+    -fx-text-fill: #FFFFFF;
+}
+
 /* Zoom Slider in StagingToolbar */
 .thumb-zoom-label {
     -fx-text-fill: #8E8E99;
@@ -146,14 +171,10 @@
     -fx-background-radius: 8px;
     -fx-border-radius: 8px;
     -fx-border-color: #383842;
-    -fx-border-width: 1.5px;
+    -fx-border-width: 2px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 8, 0, 0, 2);
-}
-
-.import-card:hover {
-    -fx-border-color: #1C7DF0;
-    -fx-effect: dropshadow(gaussian, rgba(28, 125, 240, 0.35), 10, 0, 0, 2);
+    -fx-padding: 2px;
 }
 
 /* Selected Card (Vibrant Blue Outline like Figma pasted-image-11) */
@@ -163,11 +184,23 @@
     -fx-opacity: 1.0;
 }
 
+.import-card-selected:hover {
+    -fx-border-color: #3895ff;
+    -fx-opacity: 1.0;
+    -fx-effect: dropshadow(gaussian, rgba(28, 125, 240, 0.45), 12, 0, 0, 2);
+}
+
 /* Deselected Card (Muted, Dimmed Outline like DSC_0943) */
 .import-card-deselected {
-    -fx-opacity: 0.52;
+    -fx-opacity: 0.5;
     -fx-border-color: #383840;
-    -fx-border-width: 1.5px;
+    -fx-border-width: 2px;
+}
+
+.import-card-deselected:hover {
+    -fx-opacity: 0.8;
+    -fx-border-color: #555562;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 8, 0, 0, 2);
 }
 
 /* Thumbnail Stack */
@@ -176,6 +209,8 @@
     -fx-background-radius: 6px 6px 0 0;
     -fx-alignment: CENTER;
     -fx-padding: 0;
+    -fx-border-color: transparent transparent #1C1D21 transparent;
+    -fx-border-width: 0 0 1px 0;
 }
 
 .card-overlay-top {
@@ -282,6 +317,35 @@
 }
 
 /* --------------------------------------------------------------------------
+   Drag & Drop Active Hint Overlay
+   -------------------------------------------------------------------------- */
+.drop-hint-overlay {
+    -fx-background-color: rgba(22, 23, 27, 0.90);
+    -fx-border-color: #1C7DF0;
+    -fx-border-width: 2px;
+    -fx-border-style: dashed;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 32px;
+}
+
+.drop-hint-icon {
+    -fx-font-size: 40px;
+}
+
+.drop-hint-title {
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1C7DF0;
+}
+
+.drop-hint-subtitle {
+    -fx-font-size: 12.5px;
+    -fx-text-fill: #A6A6B8;
+}
+
+/* --------------------------------------------------------------------------
    Bottom Plate Footer Bar (Below Inner Plate)
    -------------------------------------------------------------------------- */
 .plate-footer {
@@ -338,4 +402,259 @@
     -fx-text-fill: #727280;
     -fx-opacity: 0.7;
     -fx-effect: null;
+}
+
+/* --------------------------------------------------------------------------
+   Import Method Selector ComboBox (Sidebar)
+   -------------------------------------------------------------------------- */
+.import-method-selector-box {
+    -fx-background-color: -clr-surface-input;
+    -fx-background-radius: 8px;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 3px 12px;
+    -fx-cursor: hand;
+    -fx-pref-height: 38px;
+    -fx-min-height: 38px;
+    -fx-max-width: Infinity;
+}
+
+.import-method-selector-box:hover, .import-method-selector-box:focused {
+    -fx-border-color: -clr-blue;
+    -fx-background-color: -clr-almostdarkgrey;
+}
+
+.import-method-selector-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.import-method-selector-box .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 0 8px;
+}
+
+.import-method-selector-box .arrow {
+    -fx-background-color: -clr-text-secondary;
+    -fx-pref-width: 9px;
+    -fx-pref-height: 6px;
+}
+
+.import-method-selector-box:hover .arrow {
+    -fx-background-color: -clr-blue;
+}
+
+/* ComboBox Popup Dropdown List */
+.import-method-selector-box .combo-box-popup .list-view {
+    -fx-background-color: -clr-surface-input;
+    -fx-background-radius: 8px;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 14, 0, 0, 4);
+}
+
+.import-method-selector-box .combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 12px;
+    -fx-background-radius: 4px;
+}
+
+.import-method-selector-box .combo-box-popup .list-cell:hover {
+    -fx-background-color: -clr-darkgrey;
+}
+
+.import-method-selector-box .combo-box-popup .list-cell:selected {
+    -fx-background-color: -clr-blue;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   Red Remove Selected Button in Staging Toolbar
+   -------------------------------------------------------------------------- */
+.btn-remove-selected {
+    -fx-background-color: #E04444;
+    -fx-background-radius: 4px;
+    -fx-border-color: #E85555;
+    -fx-border-radius: 4px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11.5px;
+    -fx-font-weight: 500;
+    -fx-padding: 5px 14px;
+    -fx-cursor: hand;
+}
+
+.btn-remove-selected:hover {
+    -fx-background-color: #F05555;
+    -fx-border-color: #FF7777;
+}
+
+.btn-remove-selected:disabled {
+    -fx-background-color: #4A3333;
+    -fx-border-color: #553A3A;
+    -fx-text-fill: #8A6666;
+    -fx-opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   Empty Staging Plate State (Figma pasted-image-1.png)
+   -------------------------------------------------------------------------- */
+.empty-staging-container {
+    -fx-background-color: #16171B;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: #2A2D35;
+    -fx-border-style: dashed;
+    -fx-border-width: 1.5px;
+    -fx-padding: 60px 40px;
+    -fx-alignment: CENTER;
+}
+
+.empty-staging-title {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.empty-staging-subtitle {
+    -fx-text-fill: #8D8D94;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 12.5px;
+}
+
+/* --------------------------------------------------------------------------
+   Right Floating Sidebar Container
+   -------------------------------------------------------------------------- */
+.floating-sidebar {
+    -fx-background-color: #24262C;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 1px;
+    -fx-padding: 20px 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 20, 0, 0, 4);
+}
+
+.sidebar-section {
+    -fx-alignment: TOP_LEFT;
+}
+
+.sidebar-section-title {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-section-caption {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 11px;
+}
+
+.sidebar-divider {
+    -fx-background-color: -clr-border-subtle;
+    -fx-pref-height: 1px;
+    -fx-min-height: 1px;
+    -fx-max-height: 1px;
+}
+
+.sidebar-filters-container {
+    -fx-padding: 0;
+}
+
+.sidebar-filter-btn {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 1px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 9px 12px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-filter-btn:hover {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-blue;
+    -fx-effect: dropshadow(gaussian, rgba(20, 107, 209, 0.22), 8, 0, 0, 1);
+}
+
+.sidebar-filter-btn:pressed {
+    -fx-background-color: -clr-dark;
+    -fx-border-color: -clr-blue-active;
+}
+
+.sidebar-checkbox {
+    -fx-cursor: hand;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 500;
+}
+
+.sidebar-checkbox .box {
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-pref-width: 16px;
+    -fx-pref-height: 16px;
+}
+
+.sidebar-checkbox:hover .box {
+    -fx-border-color: -clr-blue;
+}
+
+.sidebar-checkbox:selected .box {
+    -fx-background-color: -clr-blue;
+    -fx-border-color: -clr-blue;
+}
+
+.sidebar-checkbox:selected .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   Search Bar (1:1 with projectMenu.css)
+   -------------------------------------------------------------------------- */
+.search-container {
+    -fx-background-color: -clr-surface-input;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 1px;
+    -fx-padding: 4px 12px;
+    -fx-pref-height: 38px;
+    -fx-min-height: 38px;
+}
+
+.search-container:hover, .search-container:focused {
+    -fx-border-color: -clr-blue;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-primary;
+    -fx-prompt-text-fill: -clr-text-muted;
+    -fx-font-size: 13px;
+    -fx-font-style: normal;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-padding: 2px 0;
+}
+
+.search-icon {
+    -fx-opacity: 0.65;
 }

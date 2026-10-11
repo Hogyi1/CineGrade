@@ -1,17 +1,12 @@
 // [CONTAINS AI-GENERATED CODE: Table SQL strings]
-package hu.elte.ik.thesis.cinegrade.infra.database;
+package hu.elte.ik.thesis.cinegrade.infra.storage.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
 import java.sql.*;
-import java.util.Calendar;
 
 public class CatalogSchemaInitializer {
 
@@ -28,15 +23,6 @@ public class CatalogSchemaInitializer {
             CREATE TABLE IF NOT EXISTS catalog_info (
                 key TEXT PRIMARY KEY,
                 value TEXT
-            );
-            """;
-
-    private static final String CREATE_TABLE_CATALOGFOLDER = """
-            CREATE TABLE IF NOT EXISTS catalog_folders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                parent_id INTEGER,
-                FOREIGN KEY (parent_id) REFERENCES catalog_folders(id) ON DELETE CASCADE
             );
             """;
 
@@ -122,7 +108,6 @@ public class CatalogSchemaInitializer {
 
     private static final SchemaEntity[] TABLES = {
             new SchemaEntity("catalog_info", CREATE_TABLE_CATALOG_INFO),
-            new SchemaEntity("catalog_folders", CREATE_TABLE_CATALOGFOLDER),
             new SchemaEntity("photos", CREATE_TABLE_PHOTOENTRY),
             new SchemaEntity("photo_metadata", CREATE_TABLE_PHOTO_METADATA),
             new SchemaEntity("edit_states", CREATE_TABLE_EDITSTATE),

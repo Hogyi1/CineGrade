@@ -3,9 +3,9 @@ package hu.elte.ik.thesis.cinegrade.infra.services.database;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
-import hu.elte.ik.thesis.cinegrade.infra.database.dao.RecentCatalogDao;
-import hu.elte.ik.thesis.cinegrade.infra.database.dao.SettingsDao;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.AppDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.RecentCatalogDao;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.SettingsDao;
 
 import java.nio.file.Path;
 import java.sql.Connection;
