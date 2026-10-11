@@ -139,6 +139,9 @@ public class CatalogManager {
         }
 
         var cgprojFile = resolveCgprojPath(path, name).orElse(null);
+        if (cgprojFile == null) {
+            throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, path.toAbsolutePath().toString());
+        }
 
         try {
             CatalogDatabase.getInstance().openConnection(cgprojFile);
@@ -197,6 +200,8 @@ public class CatalogManager {
             storageService.ensureDirectory(projectDirectory.resolve("temp").resolve("imports"));
             storageService.ensureDirectory(projectDirectory.resolve("settings"));
             storageService.ensureDirectory(projectDirectory.resolve("imports"));
+            storageService.ensureDirectory(projectDirectory.resolve("media"));
+            storageService.ensureDirectory(projectDirectory.resolve("cache").resolve("thumbnails"));
         } catch (CineGradeException ex) {
             throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, projectDirectory.toString());
         }

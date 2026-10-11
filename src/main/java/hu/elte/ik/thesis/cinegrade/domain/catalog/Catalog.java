@@ -11,11 +11,11 @@ import java.util.Objects;
 
 public class Catalog {
 
-    private int id;
-    private String catalogName;
-    private String catalogDirectoryPath;
-    private Instant lastOpenedAt;
-    private Instant createdAt;
+    private final int id;
+    private final String catalogName;
+    private final String catalogDirectoryPath;
+    private final Instant lastOpenedAt;
+    private final Instant createdAt;
     private transient long size = 0L;
 
     public Catalog(int id, String catalogName, String catalogDirectoryPath, Instant lastOpenedAt, Instant createdAt) {
@@ -114,4 +114,12 @@ public class Catalog {
     }
 
     public Path getTempImportsDirectory() { return getTempDirectory().resolve("imports"); }
+
+    public Path getMediaDirectory() {
+        return getCatalogDirectoryPath().resolve("media");
+    }
+
+    public Path getThumbnailsDirectory() {
+        return getCatalogDirectoryPath().resolve("cache").resolve("thumbnails");
+    }
 }
