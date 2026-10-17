@@ -119,6 +119,10 @@ public class Catalog {
         return getCatalogDirectoryPath().resolve("media");
     }
 
+    public Path getMediaImportDirectory() {
+        return getMediaDirectory().resolve("imports");
+    }
+
     public Path getThumbnailsDirectory() {
         return getCatalogDirectoryPath().resolve("cache").resolve("thumbnails");
     }

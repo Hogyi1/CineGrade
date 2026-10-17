@@ -5,6 +5,7 @@ public enum ExifTag {
     MAKE("Make"),
     MODEL("Model"),
     LENS_MODEL("LensModel"),
+    LENS_ID("LensID"),              // fallback when LensModel is missing
     FOCAL_LENGTH("FocalLength"),
     F_NUMBER("FNumber"),
     EXPOSURE_TIME("ExposureTime"),
@@ -15,7 +16,14 @@ public enum ExifTag {
     ORIENTATION("Orientation"),
     FILE_SIZE("FileSize"),
     COLOR_SPACE("ColorSpace"),
-    COLOR_MODE("PictureStyle -PictureControlName -FilmMode -CreativeStyle -PhotoStyle -PictureMode");
+
+    // Color style / picture profile, one tag per manufacturer
+    PICTURE_STYLE("PictureStyle"),              // Canon
+    PICTURE_CONTROL_NAME("PictureControlName"), // Nikon
+    FILM_MODE("FilmMode"),                      // Fujifilm
+    CREATIVE_STYLE("CreativeStyle"),            // Sony
+    PHOTO_STYLE("PhotoStyle"),                  // Panasonic
+    PICTURE_MODE("PictureMode");                // Olympus / Pentax
 
     private final String tagName;
 

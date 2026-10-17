@@ -1,13 +1,16 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.components;
 
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
+import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
+import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.utils.FormatUtils;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -16,21 +19,29 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.GridCell;
 
-import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
 /**
- * Controller for the staged photo card item in the media import panel.
+ * Controller and GridCell representation for a staged photo in ControlsFX GridView.
  */
-public class ImportPhotoCard {
+public class ImportPhotoCard extends GridCell<StageEntry> {
 
-    private final static Logger logger = LogManager.getLogger(ImportPhotoCard.class);
-    private final int BASE_CARD_WIDTH = 285;
-    private final double THUMBNAIL_ASPECT_RATIO = 3.0 / 2.0;
+    private static final Logger logger = LogManager.getLogger(ImportPhotoCard.class);
+    private static final double FOOTER_HEIGHT = 68.0;
+
+    // [AI-GENERATED] In-memory thumbnail cache for instant scrolling without disk re-reads
+    private static final int MAX_CACHE_SIZE = 300;
+    private static final java.util.Map<String, Image> IMAGE_CACHE = new java.util.LinkedHashMap<>(MAX_CACHE_SIZE, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(java.util.Map.Entry<String, Image> eldest) {
+            return size() > MAX_CACHE_SIZE;
+        }
+    };
 
     @FXML
     private VBox cardRoot;
@@ -59,91 +70,187 @@ public class ImportPhotoCard {
     @FXML
     private Label duplicateBadge;
 
-    private final StageEntry stageEntry;
     private final Consumer<StageEntry> removeAction;
-    private ContextMenu removeMenu;
+    private final org.controlsfx.control.GridView<StageEntry> parentGridView;
+    private ContextMenu optionsMenu;
 
-    public ImportPhotoCard(StageEntry stageEntry, Consumer<StageEntry> removeAction) {
-        this.stageEntry = stageEntry;
-        this.removeAction = removeAction;
+    private ChangeListener<Boolean> selectionListener;
+    private ChangeListener<Boolean> duplicateListener;
+    private StageEntry currentEntry;
+
+    public ImportPhotoCard() {
+        this(null, null);
     }
 
-    @FXML
-    private void initialize() throws MalformedURLException {
-        fileSizeLabel.setText(FormatUtils.formatBytes(stageEntry.size));
-        fileNameLabel.setText(stageEntry.getFile().getName());
-        String fileType = stageEntry.isRaw ? stageEntry.jpegPath != null ? "[RAW + JPEG]" : "RAW" : stageEntry.fileType;
-        metaLabel.setText("%s • %s".formatted(stageEntry.imageSize, fileType));
-        formatBadge.setText(stageEntry.fileType);
+    public ImportPhotoCard(Consumer<StageEntry> removeAction) {
+        this(removeAction, null);
+    }
 
-        selectCheckBox.selectedProperty().bindBidirectional(stageEntry.getIsSelectedProperty());
+    public ImportPhotoCard(Consumer<StageEntry> removeAction, org.controlsfx.control.GridView<StageEntry> gridView) {
+        this.removeAction = removeAction;
+        this.parentGridView = gridView;
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/importPhotoCard.fxml"));
+        loader.setController(this);
+
+        try {
+            loader.load();
+        } catch (IOException exception) {
+            logger.error("Failed to load /fxmls/importPhotoCard.fxml", exception);
+            throw new CineGradeException(ErrorCode.REQ_RESOURCE_MISSING, "/fxmls/importPhotoCard.fxml");
+        }
+
+        setupCellLayout();
+        setupOptionsMenu();
+    }
+
+    // [AI-GENERATED METHOD]
+    private void setupCellLayout() {
+        // Keep CheckBox visual only; card click controls selection state
         selectCheckBox.setDisable(true);
-        selectCheckBox.setStyle("-fx-opacity: 1");
+        selectCheckBox.setStyle("-fx-opacity: 1;");
 
         cardRoot.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.PRIMARY) {
                 e.consume();
-                selectCheckBox.setSelected(!selectCheckBox.isSelected());
+                if (currentEntry != null) {
+                    currentEntry.getIsSelectedProperty().set(!currentEntry.getIsSelectedProperty().get());
+                }
             }
         });
 
-        stageEntry.getIsSelectedProperty().addListener((obs, oldVal, newVal) -> updateSelectionStyle(newVal));
+        if (parentGridView != null) {
+            // Strictly bind cardRoot and thumbnailContainer to the GridView cell dimensions
+            cardRoot.prefWidthProperty().bind(parentGridView.cellWidthProperty().subtract(4));
+            cardRoot.prefHeightProperty().bind(parentGridView.cellHeightProperty().subtract(4));
+            cardRoot.maxWidthProperty().bind(parentGridView.cellWidthProperty().subtract(4));
+            cardRoot.maxHeightProperty().bind(parentGridView.cellHeightProperty().subtract(4));
+
+            thumbnailContainer.prefHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 4));
+            thumbnailContainer.minHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 4));
+            thumbnailContainer.maxHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 4));
+        } else {
+            cardRoot.setMaxWidth(Double.MAX_VALUE);
+            cardRoot.setMaxHeight(Double.MAX_VALUE);
+        }
+    }
+
+    @Override
+    protected void updateItem(StageEntry item, boolean empty) {
+        super.updateItem(item, empty);
+
+        // Clean up previous item bindings to prevent memory leaks and ghost toggles during scrolling
+        if (currentEntry != null) {
+            selectCheckBox.selectedProperty().unbindBidirectional(currentEntry.getIsSelectedProperty());
+            if (selectionListener != null) {
+                currentEntry.getIsSelectedProperty().removeListener(selectionListener);
+            }
+            if (duplicateListener != null) {
+                currentEntry.getIsMaybeDuplicateProperty().removeListener(duplicateListener);
+            }
+            currentEntry = null;
+        }
+
+        if (empty || item == null) {
+            setGraphic(null);
+            setText(null);
+            thumbnailImageView.setImage(null);
+            if (optionsMenu != null && optionsMenu.isShowing()) {
+                optionsMenu.hide();
+            }
+            return;
+        }
+
+        currentEntry = item;
+        setupCard(item);
+        setGraphic(cardRoot);
+    }
+
+    // [AI-GENERATED METHOD]
+    private void setupCard(StageEntry stageEntry) {
+        fileSizeLabel.setText(FormatUtils.formatBytes(stageEntry.size));
+        fileNameLabel.setText(stageEntry.getFile() != null ? stageEntry.getFile().getName() : "");
+        String fileType = stageEntry.isRaw ? (stageEntry.jpegPath != null ? "[RAW + JPEG]" : "RAW") : stageEntry.fileType;
+        metaLabel.setText("%s • %s".formatted(stageEntry.imageSize, fileType));
+        formatBadge.setText(stageEntry.fileType);
+
+        // Bind selection state
+        selectCheckBox.selectedProperty().bindBidirectional(stageEntry.getIsSelectedProperty());
+        selectionListener = (obs, oldVal, newVal) -> updateSelectionStyle(newVal);
+        stageEntry.getIsSelectedProperty().addListener(selectionListener);
         updateSelectionStyle(stageEntry.getIsSelectedProperty().get());
 
+        // Bind duplicate warning state
+        duplicateListener = (obs, oldVal, newVal) -> duplicateBadge.setVisible(newVal);
+        stageEntry.getIsMaybeDuplicateProperty().addListener(duplicateListener);
+        duplicateBadge.setVisible(stageEntry.getIsMaybeDuplicateProperty().get());
+
+        // Thumbnail and image orientation
+        applyThumbnail(stageEntry);
+    }
+
+    // [AI-GENERATED METHOD]
+    private void applyThumbnail(StageEntry stageEntry) {
         Path thumbPath = stageEntry.thumbnailPath;
         if (thumbPath != null && Files.exists(thumbPath)) {
-            thumbnailImageView.setImage(new Image(
-                    thumbPath.toUri().toString(),
+            String uri = thumbPath.toUri().toString();
+            Image image = IMAGE_CACHE.computeIfAbsent(uri, k -> new Image(
+                    k,
                     450, 300,
                     true, true, true
             ));
+
+            thumbnailImageView.setImage(image);
             thumbnailImageView.setRotate(stageEntry.rotation);
-        }
 
-        // [AI-GENERATED] Dynamic rounded clip ensuring thumbnails never bleed outside container
-        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
-        clip.widthProperty().bind(thumbnailContainer.widthProperty());
-        clip.heightProperty().bind(thumbnailContainer.heightProperty());
-        clip.setArcWidth(12.0);
-        clip.setArcHeight(12.0);
-        thumbnailContainer.setClip(clip);
+            thumbnailImageView.fitWidthProperty().unbind();
+            thumbnailImageView.fitHeightProperty().unbind();
 
-        setupOptionsMenu();
-
-        stageEntry.getIsMaybeDuplicateProperty().addListener((obs, oldVal, newVal) -> {
-            if (oldVal != newVal) {
-                duplicateBadge.setVisible(newVal);
+            boolean isRotated = stageEntry.rotation == 90 || stageEntry.rotation == 270;
+            if (parentGridView != null) {
+                if (isRotated) {
+                    thumbnailImageView.fitWidthProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
+                    thumbnailImageView.fitHeightProperty().bind(parentGridView.cellWidthProperty().subtract(12));
+                } else {
+                    thumbnailImageView.fitWidthProperty().bind(parentGridView.cellWidthProperty().subtract(12));
+                    thumbnailImageView.fitHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
+                }
+            } else {
+                thumbnailImageView.setFitWidth(240);
+                thumbnailImageView.setFitHeight(160);
             }
-        });
-        duplicateBadge.setVisible(stageEntry.getIsMaybeDuplicateProperty().get());
+        } else {
+            thumbnailImageView.setImage(null);
+        }
     }
 
     private void setupOptionsMenu() {
-        removeMenu = new ContextMenu();
+        optionsMenu = new ContextMenu();
 
         MenuItem menuItem = new MenuItem("Remove entry");
         menuItem.getStyleClass().add("menu-item-danger");
         menuItem.setOnAction(event -> {
             event.consume();
-            removeAction.accept(stageEntry);
-            removeMenu.hide();
+            if (removeAction != null && getItem() != null) {
+                removeAction.accept(getItem());
+            }
+            optionsMenu.hide();
         });
 
-        removeMenu.getItems().add(menuItem);
+        optionsMenu.getItems().add(menuItem);
 
         cardRoot.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton() == MouseButton.SECONDARY) {
-                if (!removeMenu.isShowing()) {
-                    removeMenu.show(cardRoot, event.getScreenX(), event.getScreenY());
+                if (!optionsMenu.isShowing()) {
+                    optionsMenu.show(cardRoot, event.getScreenX(), event.getScreenY());
                 } else {
-                    removeMenu.hide();
+                    optionsMenu.hide();
                 }
                 event.consume();
             }
         });
     }
 
-    // [AI-GENERATED METHOD]
     private void updateSelectionStyle(boolean isSelected) {
         if (isSelected) {
             cardRoot.getStyleClass().remove("import-card-deselected");
@@ -154,49 +261,6 @@ public class ImportPhotoCard {
             cardRoot.getStyleClass().remove("import-card-selected");
             if (!cardRoot.getStyleClass().contains("import-card-deselected")) {
                 cardRoot.getStyleClass().add("import-card-deselected");
-            }
-        }
-    }
-
-    /**
-     * Dynamically binds the card dimensions to the thumbnail slider value.
-     */
-    // [AI-GENERATED]
-    public void bindSize(DoubleProperty sizeProperty) {
-        if (sizeProperty == null) {
-            return;
-        }
-
-        // 1. Calculate dynamic card width: 285.0 * [0.5 ... 1.5] -> [142.5px ... 427.5px]
-        DoubleBinding cardWidth = sizeProperty.multiply(BASE_CARD_WIDTH);
-        DoubleBinding innerWidth = cardWidth.subtract(4.0); // Account for 2px card padding on left and right
-
-        // 2. Calculate dynamic thumbnail height for 3:2 ratio (height = width / 1.5): [95px ... 285px]
-        DoubleBinding thumbHeight = innerWidth.divide(THUMBNAIL_ASPECT_RATIO);
-
-        // Bind the card root width (FlowPane queries prefWidth to arrange columns)
-        if (cardRoot != null) {
-            cardRoot.prefWidthProperty().bind(cardWidth);
-            cardRoot.minWidthProperty().bind(cardWidth);
-            cardRoot.maxWidthProperty().bind(cardWidth);
-        }
-
-        // Bind thumbnail container height
-        if (thumbnailContainer != null) {
-            thumbnailContainer.prefHeightProperty().bind(thumbHeight);
-            thumbnailContainer.minHeightProperty().bind(thumbHeight);
-            thumbnailContainer.maxHeightProperty().bind(thumbHeight);
-        }
-
-        // Bind ImageView bounds so the thumbnail scales smoothly with the card and stays inside bounds
-        if (thumbnailImageView != null) {
-            boolean isRotated = stageEntry.rotation == 90 || stageEntry.rotation == 270;
-            if (isRotated) {
-                thumbnailImageView.fitWidthProperty().bind(thumbHeight);
-                thumbnailImageView.fitHeightProperty().bind(innerWidth);
-            } else {
-                thumbnailImageView.fitWidthProperty().bind(innerWidth);
-                thumbnailImageView.fitHeightProperty().bind(thumbHeight);
             }
         }
     }

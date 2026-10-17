@@ -25,7 +25,9 @@ public enum PhotoExtensions {
     PENTAX_RAW_PEF("PEF"),
     LEICA_RAW_RWL("RWL"),
     HASSELBLAD_RAW_3FR("3FR"),
-    HASSELBLAD_RAW_FFF("FFF");
+    HASSELBLAD_RAW_FFF("FFF"),
+    TIFF("TIF"),
+    TIFF_EXT("TIFF");
 
     private final String extension;
 
@@ -38,7 +40,7 @@ public enum PhotoExtensions {
     }
     public boolean isRaw() {
         return switch (this) {
-            case JPG, JPEG, PNG -> false;
+            case JPG, JPEG, PNG, TIFF, TIFF_EXT -> false;
             default -> true;
         };
     }

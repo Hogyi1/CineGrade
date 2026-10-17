@@ -122,14 +122,6 @@ public class CatalogViewItem extends ListCell<Catalog> {
         createdAtLabel.setText(item.getFormattedCreatedAt() != null ? item.getFormattedCreatedAt() : "");
     }
 
-    public void setOnRemoveFromRecents(Consumer<Catalog> onRemoveFromRecents) {
-        this.onRemoveFromRecents = onRemoveFromRecents;
-    }
-
-    public void setOnDelete(Consumer<Catalog> onDelete) {
-        this.onDelete = onDelete;
-    }
-
     private void createConfirmationModal() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/deleteConfirmationModal.fxml"));

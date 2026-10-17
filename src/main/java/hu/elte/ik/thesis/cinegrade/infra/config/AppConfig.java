@@ -6,7 +6,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Properties;
 
 public enum AppConfig {
@@ -20,6 +23,8 @@ public enum AppConfig {
     private final String presetDirectory;
     private final String javaVersion;
     private final Theme fallBackTheme;
+    private final long requiredSpace;
+    private final boolean developmentMode;
 
     private AppConfig() {
         Properties properties = new Properties();
@@ -32,6 +37,10 @@ public enum AppConfig {
             logger.debug("Could not load app.properties: " + e.getMessage());
         }
 
+        boolean isPackaged = System.getProperty("jpackage.app-path") != null;
+        String env = System.getProperty("app.env", properties.getProperty("app.env", "development"));
+        this.developmentMode = !isPackaged && "development".equalsIgnoreCase(env);
+
         this.appName = properties.getProperty("app.name", "cinegrade");
         this.appVersion = properties.getProperty("app.version", "1.0-SNAPSHOT");
         this.appDirectory = Paths.get(System.getProperty("user.home"), "." + this.appName).toString();
@@ -40,6 +49,7 @@ public enum AppConfig {
         this.presetDirectory = Paths.get(this.appDirectory, "presets").toString();
         this.javaVersion = properties.getProperty("app.java.version", System.getProperty("java.version"));
         this.fallBackTheme = Theme.DARK;
+        this.requiredSpace = 5L * 1024L * 1024L * 1024L;
     }
 
     public String getAppName() {
@@ -67,4 +77,22 @@ public enum AppConfig {
         return javaVersion;
     }
     public Theme getFallBackTheme() { return fallBackTheme; }
+
+    public long getRequiredSpace() { return requiredSpace; }
+
+    public Optional<Path> getPackagedConfigFile() {
+        if (!developmentMode) {
+            String appPath = System.getProperty("jpackage.app-path");
+            if (appPath != null) {
+
+                // In jpackage: <install_dir>/CineGrade.exe -> <install_dir>/app/CineGrade.cfg
+                Path exePath = Path.of(appPath);
+                Path cfgPath = exePath.getParent().resolve("app").resolve("CineGrade.cfg");
+                if (Files.exists(cfgPath)) {
+                    return Optional.of(cfgPath);
+                }
+            }
+        }
+        return Optional.empty();
+    }
 }

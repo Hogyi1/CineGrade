@@ -1,10 +1,9 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoMetadata;
+import hu.elte.ik.thesis.cinegrade.domain.editing.imports.ExifProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
@@ -14,9 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 
 import static hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
@@ -24,42 +21,84 @@ import static hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
 public class ExifToolService {
 
     private static final Logger logger = LogManager.getLogger(ExifToolService.class);
-    private final int TIMEOUT_MILLIS = 5000;
+    private static final int CHUNK_SIZE = 50;
+    private static final Gson GSON = new Gson();
+    private final int TIMEOUT_MILLIS = 60000;
 
-    public PhotoMetadata readMetaData(Path path, BooleanSupplier isCanceled) {
+    /**
+     * Reads metadata from a file.
+     *
+     * @param path       the file path to read metadata from
+     * @param photoId    the ID of the photo
+     * @param isCanceled a supplier to check if the operation is canceled
+     * @return an Optional containing the photo metadata if successful, empty otherwise
+     */
+    public Optional<PhotoMetadata> readMetaData(Path path, String photoId, BooleanSupplier isCanceled) {
         logger.debug("Reading metadata for: {}", path);
-        ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
-        String colorProfile = "";
 
-        ArrayList<String> commands = builder.addTags(MAKE, MODEL, F_NUMBER, EXPOSURE_TIME, ISO, FOCAL_LENGTH, DATE_TIME_ORIGINAL, COLOR_MODE)
+        List<String> commands = new ExifToolCommandBuilder()
+                .addTags(ExifTag.values())
                 .asJson()
                 .withUtf8()
                 .fastMode()
                 .addTarget(path)
                 .buildCommands();
+
         ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
-        if (!pr.isSuccess()) {
-            logger.debug("ExifTool process failed for '{}': exitCode={}, error={}", path, pr.exitCode(), pr.stderr());
+        if (!pr.isSuccess() || pr.stdout() == null || pr.stdout().isBlank()) {
+            logger.debug("ExifTool failed for '{}': exitCode={}, error={}", path, pr.exitCode(), pr.stderr());
+            return Optional.empty();
         }
 
-        JsonObject jsonObject = new Gson().fromJson(pr.stdout(), JsonObject.class);
+        JsonArray array = JsonParser.parseString(pr.stdout()).getAsJsonArray();
+        if (array.isEmpty()) return Optional.empty();
 
-        for (var entry : jsonObject.asMap().entrySet()) {
-            String key = entry.getKey();
-            JsonElement value = entry.getValue();
+        JsonObject obj = array.get(0).getAsJsonObject();
+        String rawJson = obj.toString();
+        ExifProbeResult exif = GSON.fromJson(obj, ExifProbeResult.class);
 
-            boolean hasColorProfile = COLOR_MODE.getTagName().toLowerCase().contains(key.toLowerCase());
-            if (hasColorProfile && !(value == null || value.isJsonNull())) {
-                colorProfile = value.getAsString();
-            }
-        }
-
-        PhotoMetadata photoMetadata = new Gson().fromJson(pr.stdout(), PhotoMetadata.class);
-        photoMetadata.setColorStyle(colorProfile);
-        logger.debug("Successfully read metadata for '{}', color profile: '{}'", path, colorProfile);
-        return photoMetadata;
+        PhotoMetadata metadata = exif.toPhotoMetadata(photoId, rawJson);
+        logger.debug("Read metadata for '{}', color style: '{}'", path, metadata.getColorStyle());
+        return Optional.of(metadata);
     }
 
+    /**
+     * Reads metadata from a batch of files.
+     *
+     * @param paths      the list of file paths to read metadata from
+     * @param isCanceled a supplier to check if the operation is canceled
+     * @return a map of file paths to their corresponding photo metadata
+     */
+    public HashMap<Path, PhotoMetadata> readMetaDataBatch(List<Path> paths, BooleanSupplier isCanceled) {
+        List<String> commands = new ExifToolCommandBuilder()
+                .addTags(ExifTag.values())
+                .asJson()
+                .withUtf8()
+                .fastMode()
+                .addTargets(paths)
+                .buildCommands();
+
+        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS * Math.max(1, paths.size() / 20), isCanceled);
+        if (!pr.isSuccess() || pr.stdout() == null || pr.stdout().isBlank()) {
+            logger.error("Failed to read metadata batch files exitCode={}, error={}", pr.exitCode(), pr.stderr());
+            return new HashMap<>();
+        }
+
+        HashMap<Path, PhotoMetadata> result = new HashMap<>();
+        for (JsonElement el : JsonParser.parseString(pr.stdout()).getAsJsonArray()) {
+            JsonObject obj = el.getAsJsonObject();
+            ExifProbeResult exif = GSON.fromJson(obj, ExifProbeResult.class);
+            result.put(Path.of(exif.sourceFile()).normalize(), exif.toPhotoMetadata(null, obj.toString()));
+        }
+        return result;
+    }
+
+    /**
+     * Checks the version of ExifTool.
+     *
+     * @param isCanceled a supplier to check if the operation is canceled
+     * @return an Optional containing the version string if successful, empty otherwise
+     */
     public Optional<String> checkExifToolVersion(BooleanSupplier isCanceled) {
         logger.debug("Checking ExifTool version...");
         ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
@@ -75,12 +114,24 @@ public class ExifToolService {
         return Optional.empty();
     }
 
+    /**
+     * Checks if ExifTool is available.
+     *
+     * @return true if ExifTool is available, false otherwise
+     */
     public boolean isAvailable() {
         boolean available = checkExifToolVersion(null).isPresent();
         logger.debug("ExifTool availability: {}", available);
         return available;
     }
 
+    /**
+     * Checks if a file is an image.
+     *
+     * @param path       the file path to check
+     * @param isCanceled a supplier to check if the operation is canceled
+     * @return true if the file is an image, false otherwise
+     */
     public boolean isImage(Path path, BooleanSupplier isCanceled) {
         ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
         builder.addTags(MIME_TYPE).addTarget(path);
@@ -89,21 +140,38 @@ public class ExifToolService {
         return pr.stdout().contains("image/");
     }
 
-    public List<FileProbeResult> probeFiles(List<Path> pathList, BooleanSupplier isCanceled) {
-        ExifToolCommandBuilder builder = new ExifToolCommandBuilder();
-        List<String> commands = builder.asJson()
-                .addTags(FILE_SIZE, FILE_TYPE, IMAGE_SIZE, MIME_TYPE, ORIENTATION)
-                .addTargets(pathList)
-                .buildCommands();
+    /**
+     * Probes multiple files and returns their probe results.
+     *
+     * @param pathList   the list of file paths to probe
+     * @param isCanceled a supplier to check if the operation is canceled
+     * @return a list of file probe results
+     */
+    public List<FileProbeResult> probeBatchFiles(List<Path> pathList, BooleanSupplier isCanceled) {
+        if (pathList == null || pathList.isEmpty()) return List.of();
 
-        ProcessResult pr = ProcessRunner.run(commands, TIMEOUT_MILLIS, isCanceled);
-        // Process the results and return a list of FileProbeResult objects
-        if (!pr.isSuccess()) {
-            logger.error("Failed to probe batch files exitCode={}, error={}", pr.exitCode(), pr.stderr());
-            return List.of();
+        List<FileProbeResult> allResults = new ArrayList<>(pathList.size());
+
+        for (int i = 0; i < pathList.size(); i += CHUNK_SIZE) {
+            if (isCanceled != null && isCanceled.getAsBoolean()) break;
+
+            List<Path> chunk = pathList.subList(i, Math.min(i + CHUNK_SIZE, pathList.size()));
+            int dynamicTimeout = 5000 + (chunk.size() * 150);
+
+            List<String> commands = new ExifToolCommandBuilder()
+                    .asJson()
+                    .addTags(FILE_SIZE, FILE_TYPE, IMAGE_SIZE, MIME_TYPE, ORIENTATION)
+                    .addTargets(chunk)
+                    .buildCommands();
+
+            ProcessResult pr = ProcessRunner.run(commands, dynamicTimeout, isCanceled);
+            if (pr.isSuccess() && pr.stdout() != null && !pr.stdout().isBlank()) {
+                Type listType = new TypeToken<ArrayList<FileProbeResult>>() {
+                }.getType();
+                List<FileProbeResult> chunkResults = GSON.fromJson(pr.stdout(), listType);
+                allResults.addAll(chunkResults);
+            }
         }
-
-        Type listType = new TypeToken<ArrayList<FileProbeResult>>(){}.getType();
-        return new Gson().fromJson(pr.stdout(), listType);
+        return allResults;
     }
 }

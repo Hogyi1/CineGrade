@@ -7,6 +7,7 @@ import hu.elte.ik.thesis.cinegrade.app.managers.editing.ExportManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.editing.ImportManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.tasks.TaskManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.user.UserManager;
+import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
@@ -15,6 +16,8 @@ import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.infra.logger.LoggerUtils;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.AppDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.CatalogDatabase;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.catalog.ProjectMenuController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.SplashScreenController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.editing.*;
@@ -128,5 +131,21 @@ public class App extends Application {
         logger.info("Creating database-dependent managers");
         catalogManager = new CatalogManager(taskManager);
         userManager = new UserManager();
+    }
+
+    @Override
+    public void stop() {
+        logger.info("Application stopped");
+        try {
+            taskManager.close();
+            threadPoolManager.close();
+            catalogManager.close();
+
+            AppDatabase.getInstance().close();
+            CatalogDatabase.getInstance().close();
+        } catch (Exception ex) {
+            logger.error("Error occurred while closing task manager", ex);
+        }
+
     }
 }

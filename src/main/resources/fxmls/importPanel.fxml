@@ -18,6 +18,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import org.controlsfx.control.GridView?>
 <StackPane alignment="CENTER" prefHeight="850.0" prefWidth="1380.0"
            styleClass="import-panel-root, theme-dark"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
@@ -55,33 +56,29 @@
                                                 <Button fx:id="deselectAllButton" mnemonicParsing="false" styleClass="btn-batch-select" text="Deselect All"/>
 
                                                 <!-- Thumbnail Zoom Slider -->
-                                                <HBox alignment="CENTER" spacing="6.0">
+                                                <HBox alignment="CENTER" spacing="7.0" styleClass="thumb-zoom-box">
                                                     <children>
-                                                        <Label styleClass="thumb-zoom-label" text="Thumbnail: —"/>
-                                                        <Slider fx:id="thumbnailSizeSlider" max="360.0" min="200.0" prefWidth="110.0" styleClass="thumbnail-slider" value="285.0"/>
-                                                        <Label styleClass="thumb-zoom-label" text="+"/>
+                                                        <Label styleClass="thumb-zoom-label" text="Thumbnail:"/>
+                                                        <Label styleClass="thumb-zoom-icon" text="−"/>
+                                                        <Slider fx:id="thumbnailSizeSlider" max="1.5" min="0.45" prefWidth="120.0" styleClass="thumbnail-slider" value="1.0"/>
+                                                        <Label styleClass="thumb-zoom-icon" text="+"/>
                                                     </children>
                                                 </HBox>
                                             </children>
                                         </HBox>
 
-                                        <!-- Staging Grid (Photos Container with Drag & Drop Overlay and Empty State) -->
+                                        <!-- Staging Grid (Photos Container with Drag & Drop Overlay, Empty State, and Progress Overlay) -->
                                         <StackPane VBox.vgrow="ALWAYS">
                                             <children>
                                                 <!-- Empty Staging State (matching Figma pasted-image-1.png) -->
                                                 <VBox fx:id="emptyStateContainer" alignment="CENTER" spacing="10.0" styleClass="empty-staging-container">
                                                     <children>
                                                         <Label styleClass="empty-staging-title" text="Drag &amp; Drop Photos or Folders Here"/>
-                                                        <Label styleClass="empty-staging-subtitle" text="Supports RAW camera formats (.CR2, .CR3, .ARW, .NEF, .RW2), JPEG, PNG"/>
+                                                        <Label styleClass="empty-staging-subtitle" text="Supports RAW camera formats (.CR2, .CR3, .ARW, .NEF, .RW2), JPEG, PNG, TIFF"/>
                                                     </children>
                                                 </VBox>
 
-                                                <!-- Staged ScrollPane with Photos -->
-                                                <ScrollPane fx:id="stagedScrollPane" fitToWidth="true" styleClass="staging-scroll-pane">
-                                                    <content>
-                                                        <FlowPane fx:id="cardsFlowPane" hgap="16.0" styleClass="staging-flow-pane" vgap="16.0" />
-                                                    </content>
-                                                </ScrollPane>
+                                                <GridView fx:id="cardsGridView" styleClass="staging-flow-pane" />
 
                                                 <!-- Drop Hint Overlay (Visible on Drag Over) -->
                                                 <VBox fx:id="dropHint" alignment="CENTER" mouseTransparent="true" spacing="12.0" styleClass="drop-hint-overlay" visible="false">
@@ -89,6 +86,15 @@
                                                         <Label styleClass="drop-hint-icon" text="📥" />
                                                         <Label styleClass="drop-hint-title" text="Drop photos or folders to stage" />
                                                         <Label styleClass="drop-hint-subtitle" text="Release files to append them to the import queue" />
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Import Progress / Spinner Overlay (Active during Import) -->
+                                                <VBox fx:id="importProgressOverlay" alignment="CENTER" mouseTransparent="false" spacing="14.0" styleClass="import-loading-overlay" visible="false" managed="false">
+                                                    <children>
+                                                        <ProgressIndicator fx:id="importProgressIndicator" prefHeight="48.0" prefWidth="48.0" styleClass="import-spinner"/>
+                                                        <Label fx:id="importProgressTitle" styleClass="import-progress-title" text="Importing Photos..."/>
+                                                        <Label fx:id="importProgressSubtitle" styleClass="import-progress-subtitle" text="Registering media and processing thumbnails"/>
                                                     </children>
                                                 </VBox>
                                             </children>

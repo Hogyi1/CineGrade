@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ThreadPoolManager {
+public class ThreadPoolManager implements AutoCloseable {
 
     private static final Logger logger = LogManager.getLogger(ThreadPoolManager.class);
     private final ThreadPoolExecutor mainExecutorService;
@@ -117,5 +117,10 @@ public class ThreadPoolManager {
 
     public ExecutorService getExecutorService() {
         return mainExecutorService;
+    }
+
+    @Override
+    public void close() throws Exception {
+        shutdown();
     }
 }

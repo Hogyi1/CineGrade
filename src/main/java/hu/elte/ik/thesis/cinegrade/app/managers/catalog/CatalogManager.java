@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class CatalogManager {
+public class CatalogManager implements AutoCloseable {
 
     private static final byte[] SQLITE_HEADER = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
     private static final Logger logger = LogManager.getLogger(CatalogManager.class);
@@ -170,10 +170,18 @@ public class CatalogManager {
                 catalog = newRecent;
             }
 
+            ensureDirectories(catalog.getCatalogDirectoryPath());
+
+            if (currentCatalogContext != null) {
+                currentCatalogContext.close();
+            }
+
             this.currentCatalogContext = new CatalogContext(connection, catalog, this, taskManager, WorkspacePanel.DEVELOPMENT);
             logger.info("Catalog opened successfully: {}", cgprojFile);
         } catch (CineGradeException ex) {
             throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, ex, path.toString());
+        } catch (Exception e) {
+            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, e);
         }
 
         refreshCatalogs();
@@ -194,17 +202,7 @@ public class CatalogManager {
         }
 
         // Setup project directories
-        try {
-            storageService.ensureDirectory(projectDirectory);
-            storageService.ensureDirectory(projectDirectory.resolve("temp"));
-            storageService.ensureDirectory(projectDirectory.resolve("temp").resolve("imports"));
-            storageService.ensureDirectory(projectDirectory.resolve("settings"));
-            storageService.ensureDirectory(projectDirectory.resolve("imports"));
-            storageService.ensureDirectory(projectDirectory.resolve("media"));
-            storageService.ensureDirectory(projectDirectory.resolve("cache").resolve("thumbnails"));
-        } catch (CineGradeException ex) {
-            throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, projectDirectory.toString());
-        }
+        ensureDirectories(projectDirectory);
 
         // Open up catalog connection
         Path dbFile = projectDirectory.resolve(name + ".cgproj");
@@ -220,12 +218,34 @@ public class CatalogManager {
         // Save project metadata first
         catalogService = new CatalogService(connection);
         catalogService.setMetaData(catalog);
+
+        try {
+            if (currentCatalogContext != null) {
+                currentCatalogContext.close();
+            }
+        } catch (Exception ex) {
+            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, ex);
+        }
         // Create the context for that catalog
         this.currentCatalogContext = new CatalogContext(connection, catalog, this, taskManager, WorkspacePanel.IMPORT);
         logger.info("New project created: {}", projectDirectory);
 
         // Refresh the list
         refreshCatalogs();
+    }
+
+    private void ensureDirectories(Path projectDirectory) {
+        try {
+            storageService.ensureDirectory(projectDirectory);
+            storageService.ensureDirectory(projectDirectory.resolve("temp"));
+            storageService.ensureDirectory(projectDirectory.resolve("temp").resolve("imports"));
+            storageService.ensureDirectory(projectDirectory.resolve("settings"));
+            storageService.ensureDirectory(projectDirectory.resolve("imports"));
+            storageService.ensureDirectory(projectDirectory.resolve("media"));
+            storageService.ensureDirectory(projectDirectory.resolve("cache").resolve("thumbnails"));
+        } catch (CineGradeException ex) {
+            throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, projectDirectory.toString());
+        }
     }
 
     /**
@@ -242,7 +262,7 @@ public class CatalogManager {
      * Refresh the catalogs that can be shown.
      * Get the catalogs from db and show them
      */
-    private void refreshCatalogs() {
+    public void refreshCatalogs() {
         Platform.runLater(() -> {
             List<Catalog> recentCatalogs = recentCatalogService.getRecentCatalogs().stream().peek(this::calculateCatalogSize).toList();
             catalogObserVableList.setAll(recentCatalogs);
@@ -352,5 +372,14 @@ public class CatalogManager {
      */
     public CatalogContext getCurrentCatalogContext() {
         return currentCatalogContext;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (currentCatalogContext != null) {
+            currentCatalogContext.close();
+        }
+
+        CatalogDatabase.getInstance().close();
     }
 }

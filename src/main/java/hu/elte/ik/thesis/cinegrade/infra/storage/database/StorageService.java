@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashSet;
+import java.util.UUID;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -45,15 +46,15 @@ public class StorageService {
      *
      * @param dir the directory to ensure
      */
-    public void ensureDirectory(Path dir) {
+    public Path ensureDirectory(Path dir) {
         if (!Files.exists(dir)) {
             try {
-                Files.createDirectories(dir);
-                logger.info("Directory created: {}", dir);
+                return Files.createDirectories(dir);
             } catch (Exception e) {
                 throw new CineGradeException(ErrorCode.FOLDER_CREATE_FAILED, e);
             }
         }
+        return dir;
     }
 
     /**
@@ -135,21 +136,19 @@ public class StorageService {
      *
      * @param source the source path
      * @param target the target path
-     * @return {@code true} if the operation was successful, {@code false} otherwise
+     * @return the target path if the operation was successful, {@code null} otherwise
      */
-    public boolean atomicMove(Path source, Path target) {
+    public Path atomicMove(Path source, Path target) {
         try {
             ensureDirectory(target.getParent());
             try {
-                Files.move(source, target, ATOMIC_MOVE, REPLACE_EXISTING);
-                return true;
+                return Files.move(source, target, ATOMIC_MOVE, REPLACE_EXISTING);
             } catch (AtomicMoveNotSupportedException ex) {
-                Files.move(source, target, REPLACE_EXISTING);
-                return true;
+                return Files.move(source, target, REPLACE_EXISTING);
             }
         } catch (IOException ex) {
             logger.warn("Failed to perform atomic move: {}", source, ex);
-            return false;
+            return null;
         }
     }
 
@@ -158,21 +157,24 @@ public class StorageService {
      *
      * @param source the source path
      * @param target the target path
-     * @return {@code true} if the operation was successful, {@code false} otherwise
+     * @return the target path if the operation was successful, {@code null} otherwise
      */
-    public boolean atomicCopy(Path source, Path target) {
+    public Path atomicCopy(Path source, Path target) {
         try {
             ensureDirectory(target.getParent());
+
+            Path tempTarget = target.resolveSibling(target.getFileName() + "." + UUID.randomUUID() + ".tmp");
+            Files.copy(source, tempTarget, StandardCopyOption.REPLACE_EXISTING);
+
             try {
-                Files.copy(source, target, ATOMIC_MOVE, REPLACE_EXISTING);
-                return true;
-            } catch (UnsupportedOperationException ex) {
-                Files.copy(source, target, REPLACE_EXISTING);
-                return true;
+                Files.move(tempTarget, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(tempTarget, target, StandardCopyOption.REPLACE_EXISTING);
             }
+            return target;
         } catch (IOException ex) {
-            logger.warn("Failed to perform atomic copy: {}", source, ex);
-            return false;
+            logger.error("Failed to copy file atomically from {} to {}", source, target, ex);
+            throw new CineGradeException(ErrorCode.FILE_WRITE_FAILED, ex, target.toString());
         }
     }
 

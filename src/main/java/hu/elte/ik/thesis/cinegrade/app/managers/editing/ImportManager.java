@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Predicate;
@@ -41,7 +42,7 @@ import java.util.function.Predicate;
  * exposes selection state for import, and coordinates the background task lifecycle for
  * import preparation and final import execution.
  */
-public class ImportManager {
+public class ImportManager implements AutoCloseable {
 
     private static final Logger logger = LogManager.getLogger(ImportManager.class);
 
@@ -65,6 +66,7 @@ public class ImportManager {
     private final BooleanProperty hideDuplicatesProperty = new SimpleBooleanProperty(true);
     private final StringProperty nameProperty = new SimpleStringProperty("");
 
+    private final Connection connection;
     private final Catalog catalog;
     private final TaskManager taskManager;
     private final PhotoManager photoManager;
@@ -72,8 +74,9 @@ public class ImportManager {
     private final StorageService storageService;
 
     // private final ChangeListener<Boolean> selectionListener;
-    private ArrayDeque<List<FileProbeResult>> pendingBatches = new ArrayDeque<>();
+    private final ArrayDeque<List<FileProbeResult>> pendingBatches = new ArrayDeque<>();
     private Path sessionDirectory;
+
 
     /**
      * Creates a new import manager bound to the given catalog and photo manager.
@@ -89,6 +92,7 @@ public class ImportManager {
         this.catalog = catalog;
         this.taskManager = taskManager;
         this.photoManager = photoManager;
+        this.connection = connection;
 
         logger.info("ImportManager initialized for catalog '{}'", catalog != null ? catalog.getCatalogName() : "unknown");
 
@@ -99,7 +103,7 @@ public class ImportManager {
         });
 
         stagedFilesProperty.bind(Bindings.size(filteredEntries));
-        sortedEntries.setComparator(Comparator.comparing(StageEntry::getFile));
+        sortedEntries.setComparator(Comparator.comparing(StageEntry::getFileNameWithoutExtension));
 //        selectionListener = (observable, oldValue, newValue) -> {
 //            if (newValue != oldValue) {
 //                updateSelectedCount();
@@ -138,22 +142,32 @@ public class ImportManager {
             return;
         }
 
-        resetAll();
         ImportService importService = createImportService(requests, method, catalog);
         logger.info("importPhotos triggered, Currently {} entries selected for import out of {}", requests.size(), masterEntries.size());
         importService.start();
     }
 
     private ImportService createImportService(List<ImportRequest> requests, ImportMethod method , Catalog catalog) {
-        ImportService importService = new ImportService(requests, method, catalog);
+        photoManager.startImportSession();
+
+        ImportService importService = new ImportService(requests, method, catalog, connection, photoManager::addImportedBatch);
         // New type of tasks incoming, these can be stopped from ui
         taskManager.configure(importService, IMPORT_GROUP);
 
         importService.setOnSucceeded(e -> {
             List<PhotoEntry> photoEntries = importService.getValue();
-            for (PhotoEntry photoEntry : photoEntries) {
-                photoManager.addPhoto(photoEntry);
+            photoManager.addAll(photoEntries);
+            resetAll();
+        });
+
+        importService.setOnFailed(e -> {
+            Throwable exception = importService.getException();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new CineGradeException(ErrorCode.DB_EXECUTION_FAILED, "Background photo import failed", ex);
             }
+            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Background photo import failed", exception);
         });
 
         return importService;
@@ -364,5 +378,11 @@ public class ImportManager {
 
     public void toggleHideDuplicates() {
         hideDuplicatesProperty.set(!hideDuplicatesProperty.get());
+    }
+
+    @Override
+    public void close() throws Exception {
+        cancelStaging();
+        deleteThumbnailCache();
     }
 }

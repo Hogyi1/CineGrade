@@ -204,25 +204,3 @@ Bridge --> Angular : Callback Resolution
 Angular -> User : Display "Preset Applied" Toast Banner
 @enduml
 ```
-
----
-
-## 6. Implementation Roadmap & Development Milestones
-
-```
-2026 Q3               2026 Q4               2027 Q1               2027 Q2
-[ Milestone 1 ] ----> [ Milestone 2 ] ----> [ Milestone 3 ] ----> [ Milestone 4 ]
-  Core Engine           Social Web Backend    Bridge & Integration   Thesis & Polish
-```
-
-* **Milestone 1: Native Core Engine (Months 1-2)**
-  - Integrate hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw wrapper for RAW file loading.
-  - Implement LWJGL viewport with custom GLSL shaders for basic exposure, white balance, and 3D LUT mapping.
-* **Milestone 2: Web Platform & API (Months 3-4)**
-  - Build Spring Boot REST backend with PostgreSQL schemas.
-  - Develop Angular SPA for profile management, post creation, preset downloading, and feeds.
-* **Milestone 3: WebView Bridge & Desktop Integration (Month 5)**
-  - Integrate Angular web app inside JavaFX `WebView`.
-  - Implement bi-directional JS-Java bridge for seamless local file passing and preset injection.
-* **Milestone 4: Polish, Testing & Thesis Documentation (Month 6)**
-  - End-to-end integration testing, GPU performance optimization, and thesis writing."

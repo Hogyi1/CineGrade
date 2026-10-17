@@ -1,5 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.domain.tasks;
 
+import com.sun.jna.platform.unix.X11;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.results.AppInitResult;
@@ -19,15 +20,17 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AppInitService extends Service<AppInitResult> {
 
     private final RequirementChecker requirementChecker;
     private final StorageService storageService;
+    private final AtomicInteger stepCounter = new AtomicInteger(0);
 
     public AppInitService(RequirementChecker requirementChecker) {
-        this.requirementChecker = requirementChecker;
         this.storageService = new StorageService();
+        this.requirementChecker = requirementChecker;
     }
 
     @Override
@@ -36,47 +39,56 @@ public class AppInitService extends Service<AppInitResult> {
         return new Task<AppInitResult>() {
             @Override
             protected AppInitResult call() throws Exception {
-                int totalSteps = 8;
+                int totalSteps = 10;
+                stepCounter.set(0);
 
                 updateMessage("Checking Java version...");
-                updateProgress(0, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 boolean success = requirementChecker.checkJavaVersion();
                 if (!success) {
                     throw new CineGradeException(ErrorCode.REQ_JAVA_VERSION_INCOMPATIBLE);
                 }
-                updateProgress(1, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
                 PauseTransition pause = new PauseTransition(Duration.millis(1000));
                 pause.play();
 
                 updateMessage("Checking native binaries...");
                 requirementChecker.checkNativeBinaries();
-                updateProgress(2, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Verifying core UI resources...");
                 requirementChecker.checkCriticalResources();
-                updateProgress(3, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Checking ExifTool...");
                 requirementChecker.checkExiftool();
-                updateProgress(4, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Checking FFmpeg...");
                 requirementChecker.checkFFmpeg();
-                updateProgress(5, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
+
+                updateMessage("Checking available space...");
+                storageService.sufficientSpace(Path.of(AppConfig.INSTANCE.getRootDirectory()), AppConfig.INSTANCE.getRequiredSpace());
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Preparing workspace directories and cleaning temp files...");
                 setupStorageAndCleanTemp();
-                updateProgress(6, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Setting up app database connection...");
                 AppDatabase.getInstance().openConnection(Path.of(AppConfig.INSTANCE.getRootDirectory(), "app.db"));
                 ThemeManager.getInstance().initDatabase(AppDatabase.getInstance().getConnection());
-                updateProgress(7, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
+
+                updateMessage("Running benchmarks...");
+                requirementChecker.runPerformanceBenchmark();
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Engine warmup...");
                 // TODO add engine warmup method
-                updateProgress(8, totalSteps);
+                updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Ready!");
                 return AppInitResult.success("Application started successfully");

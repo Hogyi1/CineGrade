@@ -1,6 +1,9 @@
 // [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.infra.config;
 
+import com.sun.prism.GraphicsPipeline;
+import hu.elte.ik.thesis.cinegrade.domain.enums.PerformanceTier;
+
 /**
  * Singleton class to hold system information.
  */
@@ -27,6 +30,8 @@ public enum SystemInfo {
     private String ffprobeVersion;
     private String exiftoolVersion;
     private String librawVersion;
+    private PerformanceTier performanceTier = PerformanceTier.LOW;
+    private double latencyRatio = 1.0;
 
     public String getOsName() {
         return osName;
@@ -96,4 +101,12 @@ public enum SystemInfo {
     public void setFfmpegVersion(String ffmpegVersion) { this.ffmpegVersion = ffmpegVersion; }
     public void setFfprobeVersion(String ffprobeVersion) { this.ffprobeVersion = ffprobeVersion; }
     public void setLibrawVersion(String librawVersion) { this.librawVersion = librawVersion; }
+
+    public void setBenchmarkLatencyRatio(double latencyRatio) {
+        this.latencyRatio = latencyRatio;
+    }
+
+    public void setPerformanceTier(PerformanceTier performanceTier) {
+        this.performanceTier = performanceTier;
+    }
 }

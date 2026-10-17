@@ -108,9 +108,14 @@ public class ImportStageService extends Service<StageResult> {
                 .map(p -> getBaseKey(p.getFile()))
                 .collect(Collectors.toSet());
 
-        Set<String> importedFileNames = importedPhotos.stream()
+        Set<String> importedFileNamesWithoutExtension = importedPhotos.stream()
                 .filter(Objects::nonNull)
                 .map(p -> getFileNameWithoutExtension(p.getFile()))
+                .collect(Collectors.toSet());
+
+        Set<String> importedFileNames = importedPhotos.stream()
+                .filter(Objects::nonNull)
+                .map(p -> p.getFile().getName())
                 .collect(Collectors.toSet());
 
         Set<String> existingStagedPaths = stageEntries.stream()
@@ -147,13 +152,13 @@ public class ImportStageService extends Service<StageResult> {
                             File file = result.toFile();
                             String exactPath = file.getAbsolutePath().toLowerCase(Locale.ROOT);
                             return (!importedExactPaths.contains(exactPath) && !existingStagedPaths.contains(exactPath));
-                        })
+                        }) // TODO
                         .map(result -> {
                             StageEntry e = new StageEntry(result);
                             e.getIsMaybeDuplicateProperty()
-                                    .set(importedBaseKeys.contains(e.getBaseKey()) ||
-                                            importedFileNames.contains(e.getFileNameWithoutExtension()) ||
-                                            stagedFileNames.contains(e.getFile().getName()));
+                                    .set( (importedBaseKeys.contains(e.getBaseKey())) ||
+                                            importedFileNames.contains(e.getFile().getName()) ||
+                                            (stagedFileNames.contains(e.getFile().getName())));
                             return e;
                         })
                         .toList();
@@ -163,7 +168,7 @@ public class ImportStageService extends Service<StageResult> {
 
                 // 3. Staging Deduplication & Companion Pairing
                 List<Runnable> fxUpdates = new ArrayList<>();
-                List<StageEntry> finalNewEntries = pairAndStage(candidates, stagedSnapshot, fxUpdates, existingStagedPaths);
+                List<StageEntry> finalNewEntries = pairAndStage(candidates, stagedSnapshot, fxUpdates);
                 logger.debug("pairAndStage produced {} new staged entries", finalNewEntries.size());
 
                 // 4. Attach thumbnails for entries that need one (RAWs without JPEG companions)
@@ -186,10 +191,9 @@ public class ImportStageService extends Service<StageResult> {
      * Pairs RAW files with matching JPEG companions and assembles the entries to stage.
      *
      * @param candidates          candidate entries identified by the import task
-     * @param existingStagedPaths lower-case absolute paths of files already staged
      * @return entries to stage, including companion JPEG entries
      */
-    private List<StageEntry> pairAndStage(List<StageEntry> candidates, List<StageEntry> stagedSnapshot, List<Runnable> fxUpdates, Set<String> existingStagedPaths) {
+    private List<StageEntry> pairAndStage(List<StageEntry> candidates, List<StageEntry> stagedSnapshot, List<Runnable> fxUpdates) {
         if (candidates == null || candidates.isEmpty()) {
             return List.of();
         }
@@ -335,14 +339,18 @@ public class ImportStageService extends Service<StageResult> {
             }
         }
 
-        LibrawService librawService = new LibrawService();
-        logger.debug("Extracting thumbnail for entry: '{}' -> '{}'", entry.getFile().getName(), targetPath);
-        boolean isSuccess = librawService.extractThumbnail(entry.getFile(), targetPath);
-        if (isSuccess) {
-            entry.thumbnailPath = targetPath;
-            logger.debug("Thumbnail successfully extracted for: '{}'", entry.getFile().getName());
-        } else {
-            logger.error("Failed to extract thumbnail for entry: {}", entry.getFile().getName());
+        try (LibrawService librawService = new LibrawService()) {
+            logger.debug("Extracting thumbnail for entry: '{}' -> '{}'", entry.getFile().getName(), targetPath);
+            boolean isSuccess = librawService.extractThumbnail(entry.getFile(), targetPath);
+            if (isSuccess) {
+                entry.thumbnailPath = targetPath;
+                logger.debug("Thumbnail successfully extracted for: '{}'", entry.getFile().getName());
+            } else {
+                logger.error("Failed to extract thumbnail for entry: {}", entry.getFile().getName());
+                entry.thumbnailPath = null;
+            }
+        } catch (Exception e) {
+            logger.error("Error occurred while extracting thumbnail for entry: {}", entry.getFile().getName(), e);
             entry.thumbnailPath = null;
         }
     }

@@ -11,7 +11,7 @@ import java.sql.*;
 public class CatalogSchemaInitializer {
 
     private static final Logger logger = LogManager.getLogger(CatalogSchemaInitializer.class);
-    private static final String META_DATA_SQL = "INSERT OR IGNORE INTO catalog_info (key, value) VALUES ('app', 'CineGrade'), ('schema_version', '1.0.2');";
+    private static final String META_DATA_SQL = "INSERT OR IGNORE INTO catalog_info (key, value) VALUES ('app', 'CineGrade'), ('schema_version', '1.0.4');";
 
     private CatalogSchemaInitializer() {
     }
@@ -29,15 +29,16 @@ public class CatalogSchemaInitializer {
     private static final String CREATE_TABLE_PHOTOENTRY = """
             CREATE TABLE IF NOT EXISTS photos (
                 id TEXT PRIMARY KEY,
-                folder_id INTEGER,
+                original_path TEXT NOT NULL,
+                import_method TEXT NOT NULL,
                 file_path TEXT NOT NULL,
                 file_name TEXT NOT NULL,
                 file_size INTEGER,
+                import_id TEXT NOT NULL,
                 thumbnail_path TEXT,
                 rating INTEGER DEFAULT 0,
                 color_label TEXT,
-                date_imported DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (folder_id) REFERENCES catalog_folders(id) ON DELETE SET NULL
+                date_imported DATETIME DEFAULT CURRENT_TIMESTAMP
             );
             """;
 
@@ -102,7 +103,7 @@ public class CatalogSchemaInitializer {
 
     private static final String CREATE_INDEX_PHOTOPATH = "CREATE INDEX IF NOT EXISTS idx_photos_path ON photos(file_path);";
     private static final String CREATE_INDEX_RATING = "CREATE INDEX IF NOT EXISTS idx_photos_rating ON photos(rating);";
-    private static final String CREATE_INDEX_FOLDER = "CREATE INDEX IF NOT EXISTS idx_photos_folder ON photos(folder_id);";
+    private static final String CREATE_INDEX_IMPORT = "CREATE INDEX IF NOT EXISTS idx_photos_import ON photos(import_id);";
     private static final String CREATE_INDEX_METADATA_DATE = "CREATE INDEX IF NOT EXISTS idx_metadata_date ON photo_metadata(capture_date);";
     private static final String CREATE_INDEX_HISTORY_PHOTO = "CREATE INDEX IF NOT EXISTS idx_edit_history_photo ON edit_history(photo_id, step_order);";
 
@@ -118,7 +119,7 @@ public class CatalogSchemaInitializer {
     private static final SchemaEntity[] INDEXES = {
             new SchemaEntity("idx_photos_path", CREATE_INDEX_PHOTOPATH),
             new SchemaEntity("idx_photos_rating", CREATE_INDEX_RATING),
-            new SchemaEntity("idx_photos_folder", CREATE_INDEX_FOLDER),
+            new SchemaEntity("idx_photos_import", CREATE_INDEX_IMPORT),
             new SchemaEntity("idx_metadata_date", CREATE_INDEX_METADATA_DATE),
             new SchemaEntity("idx_edit_history_photo", CREATE_INDEX_HISTORY_PHOTO)
     };

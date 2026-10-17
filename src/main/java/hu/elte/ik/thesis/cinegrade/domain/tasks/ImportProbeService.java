@@ -63,7 +63,7 @@ public class ImportProbeService extends Service<List<FileProbeResult>> {
                 logger.debug("Candidate files expanded from {} dropped item(s) to {} valid regular file(s)", droppedFiles.size(), paths.size());
 
                 // 1. Probe candidate files with ExifTool
-                List<FileProbeResult> probeResults = exifToolService.probeFiles(paths, this::isCancelled);
+                List<FileProbeResult> probeResults = exifToolService.probeBatchFiles(paths, this::isCancelled);
                 logger.debug("ExifTool probe finished with {} result(s)", probeResults.size());
 
                 return probeResults;

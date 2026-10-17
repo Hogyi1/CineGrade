@@ -15,6 +15,7 @@ public enum ErrorCode {
     REQ_RESOURCE_MISSING(1007, "Required application resource is missing: %s", Severity.FATAL),
     REQ_OPENGL_UNSUPPORTED(1008, "OpenGL 3.3+ context could not be created or is unsupported by hardware.", Severity.FATAL),
     REQ_JAVA_VERSION_INCOMPATIBLE(1009, "Incompatible Java runtime version. Java 21 or higher is required.", Severity.FATAL),
+    REQ_INSUFFICIENT_SPACE(1010, "Insufficient disk space available in directory: %s", Severity.FATAL),
 
     // ==========================================
     // 1100–1199: Native Tools & Process Execution

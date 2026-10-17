@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class TaskManager {
+public class TaskManager implements AutoCloseable {
 
     private final ThreadPoolManager threadPoolManager;
     private final ObservableList<Service<?>> completedServices;
@@ -99,5 +99,10 @@ public class TaskManager {
      */
     public ObservableList<Service<?>> completedTasks() {
         return completedServices;
+    }
+
+    @Override
+    public void close() throws Exception {
+        new ArrayList<>(runningServices).forEach(Service::cancel);
     }
 }

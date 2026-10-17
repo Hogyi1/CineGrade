@@ -20,8 +20,8 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/resources/fxmls/Test.fxml` | Testing / placeholder navigation view | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/editPage.fxml` | Test edit page view for UI testing | `<!-- [AI-GENERATED] -->` |
 | `src/main/resources/fxmls/navigationPanel.fxml` | Top workspace navigation bar with animated selection bubble and clickable labels | `<!-- [AI-GENERATED] -->` |
-| `src/main/resources/fxmls/importPanel.fxml` | Media import panel view with drag-and-drop plate, empty state plate, batch controls, and floating sidebar with File Handling selector (Add, Copy, Move), search bar, and dark token filter buttons | `<!-- [AI-GENERATED] -->` |
-| `src/main/resources/fxmls/importPhotoCard.fxml` | Staged import photo thumbnail card component with format badges, duplicate warning badge, and selection toggle | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/importPanel.fxml` | Media import panel view with drag-and-drop plate, empty state plate, batch controls, thumbnail zoom slider (0.45x-1.5x), import spinner overlay, and floating sidebar with File Handling selector (Add, Copy, Move), search bar, and dark token filter buttons | `<!-- [AI-GENERATED] -->` |
+| `src/main/resources/fxmls/importPhotoCard.fxml` | Staged import photo thumbnail card component with format badges, duplicate & missing photo/thumbnail badges, text truncation with ellipsis, and selection toggle | `<!-- [AI-GENERATED] -->` |
 
 ---
 
@@ -36,7 +36,7 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | `src/main/resources/css/splash.css` | Stylesheet for splash screen elements and animations | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/theme.css` | Color tokens and theme definitions (dark / light) | `/* [AI-GENERATED] */` |
 | `src/main/resources/css/navigationPanel.css` | Stylesheet for workspace navigation bar, selection bubble, and inactive clickable label states | `/* [AI-GENERATED] */` |
-| `src/main/resources/css/importPanel.css` | Stylesheet for media import dropzone, responsive staging grid, cards, sliders, empty state, red remove button, and floating sidebar with dark-themed filter buttons and File Handling ComboBox | `/* [AI-GENERATED] */` |
+| `src/main/resources/css/importPanel.css` | Stylesheet for media import dropzone, responsive staging grid, cards, missing badges, sleek zoom slider (0.45x-1.5x), import loading overlay with vector spinner, and floating sidebar | `/* [AI-GENERATED] */` |
 
 ---
 
@@ -67,7 +67,7 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | :--- | :--- | :--- | :--- |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/catalog/Catalog.java` | Catalog representation with path, name, timestamps, and size | `RecentCatalogDao` | `// [AI-GENERATED]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/catalog/CatalogFolder.java` | Tree folder model for organizing catalog photos | `CatalogsFolderDao` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/domain/editing/EditState.java` | Grading parameters model (exposure, contrast, LUT, curves) | `EditstateDao` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/domain/editing/EditState.java` | Grading parameters model (exposure, contrast, LUT, curves) | `EditStateDao` | `// [AI-GENERATED]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/editing/PhotoEntry.java` | Photo record entry model | `PhotoDao` | `// [AI-GENERATED]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/editing/PhotoMetadata.java` | EXIF metadata model (ISO, lens, aperture, shutter speed) | `MetadataDao` | `// [AI-GENERATED]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/domain/user/User.java` | User profile and authentication model | `UserDao` | `// [AI-GENERATED]` |

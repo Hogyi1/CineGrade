@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:sqlite:C:\Users\hogyo\.cinegrade\app.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="Import test.cgproj" uuid="1490e95a-f42c-4519-bb04-3ecb69464e07">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\hogyo\.cinegrade\projects\Import test\Import test.cgproj</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

@@ -8,7 +8,7 @@ import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 
 import java.sql.Connection;
 
-public class CatalogContext {
+public class CatalogContext implements AutoCloseable {
     public final Catalog catalog;
     public final Connection connection;
     public final PhotoManager photoManager;
@@ -19,17 +19,36 @@ public class CatalogContext {
     public final TagManager tagManager;
     public final TaskManager taskManager;
     public final WorkspacePanel startingPanel;
+    private boolean closed = false;
 
     public CatalogContext(Connection connection, Catalog catalog, CatalogManager catalogManager, TaskManager taskManager, WorkspacePanel startingPanel) {
+
+        // Catalog
         this.catalog = catalog;
         this.connection = connection;
+
+        // Per context
         this.photoManager = new PhotoManager(connection, catalog);
-        this.catalogManager = catalogManager;
         this.importManager = new ImportManager(connection, catalog, taskManager, photoManager);
         this.editingManager = new EditingManager(connection, catalog);
         this.exportManager = new ExportManager(connection, catalog);
         this.tagManager = new TagManager(connection, catalog);
+
+        // Permanent
+        this.catalogManager = catalogManager;
         this.taskManager = taskManager;
+
         this.startingPanel = startingPanel;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (closed) return;
+        closed = true;
+
+        importManager.close();
+        photoManager.close();
+        editingManager.close();
+        exportManager.close();
     }
 }
