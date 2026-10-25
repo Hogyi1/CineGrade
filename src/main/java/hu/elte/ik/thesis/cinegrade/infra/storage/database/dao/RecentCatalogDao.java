@@ -9,6 +9,8 @@ import java.util.*;
 
 public class RecentCatalogDao {
 
+    private static final String COLUMNS = "id, catalog_name, project_directory, project_file_path, last_opened_at, created_at";
+
     private final Connection connection;
     private static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
@@ -26,26 +28,32 @@ public class RecentCatalogDao {
         }
     }
 
-    public void insert(Catalog catalog) throws SQLException {
-        String sql = "INSERT INTO recent_catalogs (catalog_path, catalog_name) VALUES (?, ?) " +
-                "RETURNING id, catalog_path, catalog_name, last_opened_at, created_at";
+    public Optional<Catalog> insert(String name, String projectDirectory, String projectFilePath) throws SQLException {
+        String sql = "INSERT INTO recent_catalogs (catalog_name, project_directory, project_file_path) VALUES (?, ?, ?) " +
+                "RETURNING " + COLUMNS;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, catalog.getCatalogDirectoryPath().toString());
-            pstmt.setString(2, catalog.getCatalogName());
-            pstmt.executeUpdate();
+            pstmt.setString(1, name);
+            pstmt.setString(2, projectDirectory);
+            pstmt.setString(3, projectFilePath);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToCatalog(rs));
+                }
+            }
         }
+
+        return Optional.empty();
     }
 
-    public Optional<Catalog> insert(String name, String path) throws SQLException {
-        String sql = "INSERT INTO recent_catalogs (catalog_path, catalog_name) VALUES (?, ?) " +
-                "RETURNING id, catalog_path, catalog_name, last_opened_at, created_at";
+    public Optional<Catalog> findByProjectFilePath(String projectFilePath) throws SQLException {
+        // Windows paths are case-insensitive
+        String sql = "SELECT " + COLUMNS + " FROM recent_catalogs WHERE project_file_path = ? COLLATE NOCASE";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, path);
-            pstmt.setString(2, name);
+            pstmt.setString(1, projectFilePath);
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()){
+                if (rs.next()) {
                     return Optional.of(mapRowToCatalog(rs));
                 }
             }
@@ -56,7 +64,7 @@ public class RecentCatalogDao {
 
     public List<Catalog> findAll() throws SQLException {
         List<Catalog> catalogs = new ArrayList<>();
-        String sql = "SELECT id, catalog_path, catalog_name, last_opened_at, created_at FROM recent_catalogs ORDER BY last_opened_at";
+        String sql = "SELECT " + COLUMNS + " FROM recent_catalogs ORDER BY last_opened_at";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -79,7 +87,8 @@ public class RecentCatalogDao {
         return new Catalog(
                 rs.getInt("id"),
                 rs.getString("catalog_name"),
-                rs.getString("catalog_path"),
+                rs.getString("project_directory"),
+                rs.getString("project_file_path"),
                 lastOpenedAt,
                 createdAt
         );
@@ -94,4 +103,3 @@ public class RecentCatalogDao {
         }
     }
 }
-

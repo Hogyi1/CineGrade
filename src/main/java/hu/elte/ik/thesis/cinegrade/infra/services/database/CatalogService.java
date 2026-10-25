@@ -1,12 +1,11 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
-import hu.elte.ik.thesis.cinegrade.domain.catalog.CatalogFolder;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.CatalogDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.CatalogSettingsDao;
 import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.CatalogsFolderDao;
+import lombok.Getter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,26 +16,28 @@ import java.util.Optional;
 public class CatalogService {
 
     public static final String KEY_PROJECT_NAME = "project_name";
-    public static final String KEY_PROJECT_PATH = "project_path";
+    public static final String KEY_PROJECT_DIRECTORY = "project_directory";
+    public static final String KEY_PROJECT_FILE_PATH = "project_file_path";
     public static final String KEY_LAST_OPENED_AT = "last_opened_at";
     public static final String KEY_CREATED_AT = "created_at";
     public static final String KEY_RECENT_CATALOG_ID = "recent_catalog_id";
     public static final String KEY_SCHEMA_VERSION = "schema_version";
 
     private final CatalogSettingsDao settingsDao;
-    private final CatalogsFolderDao folderDao;
+    @Getter
     private final Connection connection;
 
     public CatalogService(Connection connection) {
         this.connection = connection;
         this.settingsDao = new CatalogSettingsDao(connection);
-        this.folderDao = new CatalogsFolderDao(connection);
     }
 
-    public CatalogService() {
-        this(CatalogDatabase.getInstance().getConnection());
-    }
-
+    /**
+     * Writes the catalog's identity and current location into catalog_info.
+     * Called on every open, so a moved project folder records where it lives now.
+     * created_at is only written the first time.
+     */
+    // [AI-GENERATED METHOD]
     public void setMetaData(Catalog catalog) {
         if (catalog == null) {
             return;
@@ -46,37 +47,24 @@ public class CatalogService {
             if (catalog.getCatalogName() != null) {
                 settingsDao.set(KEY_PROJECT_NAME, catalog.getCatalogName());
             }
-            if (catalog.getCatalogDirectoryPath() != null) {
-                settingsDao.set(KEY_PROJECT_PATH, catalog.getCatalogDirectoryPath().toString());
+            if (catalog.getProjectDirectory() != null) {
+                settingsDao.set(KEY_PROJECT_DIRECTORY, catalog.getProjectDirectory().toString());
+            }
+            if (catalog.getProjectFilePath() != null) {
+                settingsDao.set(KEY_PROJECT_FILE_PATH, catalog.getProjectFilePath().toString());
             }
             if (catalog.getLastOpenedAt() != null) {
                 settingsDao.set(KEY_LAST_OPENED_AT, catalog.getLastOpenedAt().toString());
             } else {
                 settingsDao.set(KEY_LAST_OPENED_AT, Instant.now().toString());
             }
-            if (catalog.getCreatedAt() != null) {
-                settingsDao.set(KEY_CREATED_AT, catalog.getCreatedAt().toString());
-            } else {
-                settingsDao.set(KEY_CREATED_AT, Instant.now().toString());
+            if (settingsDao.get(KEY_CREATED_AT) == null) {
+                Instant createdAt = catalog.getCreatedAt() != null ? catalog.getCreatedAt() : Instant.now();
+                settingsDao.set(KEY_CREATED_AT, createdAt.toString());
             }
             if (catalog.getId() > 0) {
                 settingsDao.set(KEY_RECENT_CATALOG_ID, String.valueOf(catalog.getId()));
             }
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Failed to save catalog metadata");
-        }
-    }
-
-    public void setMetaData(String projectName, String projectPath, Instant lastOpenedAt, Instant createdAt) {
-        try {
-            if (projectName != null) {
-                settingsDao.set(KEY_PROJECT_NAME, projectName);
-            }
-            if (projectPath != null) {
-                settingsDao.set(KEY_PROJECT_PATH, projectPath);
-            }
-            settingsDao.set(KEY_LAST_OPENED_AT, (lastOpenedAt != null ? lastOpenedAt : Instant.now()).toString());
-            settingsDao.set(KEY_CREATED_AT, (createdAt != null ? createdAt : Instant.now()).toString());
         } catch (SQLException ex) {
             throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Failed to save catalog metadata");
         }
@@ -91,11 +79,19 @@ public class CatalogService {
         }
     }
 
-    public void setProjectPath(String path) {
+    public void setProjectDirectory(String directory) {
         try {
-            settingsDao.set(KEY_PROJECT_PATH, path);
+            settingsDao.set(KEY_PROJECT_DIRECTORY, directory);
         } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Failed to set project_path");
+            throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Failed to set project_directory");
+        }
+    }
+
+    public void setProjectFilePath(String filePath) {
+        try {
+            settingsDao.set(KEY_PROJECT_FILE_PATH, filePath);
+        } catch (SQLException ex) {
+            throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Failed to set project_file_path");
         }
     }
 
@@ -125,12 +121,21 @@ public class CatalogService {
         }
     }
 
-    public Optional<String> getProjectPath() {
+    public Optional<String> getProjectDirectory() {
         try {
-            String val = settingsDao.get(KEY_PROJECT_PATH);
+            String val = settingsDao.get(KEY_PROJECT_DIRECTORY);
             return (val == null || val.isBlank()) ? Optional.empty() : Optional.of(val);
         } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "project_path");
+            throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "project_directory");
+        }
+    }
+
+    public Optional<String> getProjectFilePath() {
+        try {
+            String val = settingsDao.get(KEY_PROJECT_FILE_PATH);
+            return (val == null || val.isBlank()) ? Optional.empty() : Optional.of(val);
+        } catch (SQLException ex) {
+            throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "project_file_path");
         }
     }
 
@@ -174,61 +179,10 @@ public class CatalogService {
         }
     }
 
-    public CatalogFolder createFolder(String name, Integer parentId) {
-        try {
-            return folderDao.insert(name, parentId);
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.FOLDER_CREATE_FAILED, ex, name);
-        }
-    }
-
-    public CatalogFolder createFolder(String name) {
-        return createFolder(name, null);
-    }
-
-    public List<CatalogFolder> getAllFolders() {
-        try {
-            return folderDao.findAll();
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "Folders");
-        }
-    }
-
-    public List<CatalogFolder> getRootFolders() {
-        try {
-            return folderDao.getRootFolders();
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "Root folders");
-        }
-    }
-
-    public List<CatalogFolder> getSubFolders(int parentId) {
-        try {
-            return folderDao.findByParentId(parentId);
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "Subfolders of " + parentId);
-        }
-    }
-
-    public boolean deleteFolder(int id) {
-        try {
-            return folderDao.delete(id);
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_EXECUTION_FAILED, ex, "deleteFolder: " + id);
-        }
-    }
-
-    public boolean renameFolder(int id, String newName) {
-        try {
-            return folderDao.updateName(id, newName);
-        } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_EXECUTION_FAILED, ex, "renameFolder: " + id);
-        }
-    }
-
     public Catalog getCatalog() {
         String name = getProjectName().orElse("Untitled");
-        String path = getProjectPath().orElse("");
+        String directory = getProjectDirectory().orElse("");
+        String filePath = getProjectFilePath().orElse("");
         Instant lastOpenedAt = getLastOpenedAt().orElse(Instant.now());
         Instant createdAt = getCreatedAt().orElse(Instant.now());
 
@@ -240,10 +194,6 @@ public class CatalogService {
             }
         } catch (NumberFormatException ignored) {}
 
-        return new Catalog(recentId, name, path, lastOpenedAt, createdAt);
-    }
-
-    public Connection getConnection() {
-        return connection;
+        return new Catalog(recentId, name, directory, filePath, lastOpenedAt, createdAt);
     }
 }

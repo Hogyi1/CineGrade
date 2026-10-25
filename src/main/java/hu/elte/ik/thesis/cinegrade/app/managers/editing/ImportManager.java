@@ -1,6 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.app.managers.editing;
 
-import hu.elte.ik.thesis.cinegrade.app.managers.tasks.TaskManager;
+import hu.elte.ik.thesis.cinegrade.app.managers.concurrency.tasks.TaskManager;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
@@ -14,7 +14,7 @@ import hu.elte.ik.thesis.cinegrade.domain.tasks.ImportService;
 import hu.elte.ik.thesis.cinegrade.domain.tasks.ImportProbeService;
 import hu.elte.ik.thesis.cinegrade.domain.tasks.ImportStageService;
 import hu.elte.ik.thesis.cinegrade.infra.services.exiftool.ExifToolService;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -65,6 +65,7 @@ public class ImportManager implements AutoCloseable {
     private final BooleanProperty autoPairProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty hideDuplicatesProperty = new SimpleBooleanProperty(true);
     private final StringProperty nameProperty = new SimpleStringProperty("");
+    private final BooleanProperty stagingProperty = new SimpleBooleanProperty(false);
 
     private final Connection connection;
     private final Catalog catalog;
@@ -103,7 +104,8 @@ public class ImportManager implements AutoCloseable {
         });
 
         stagedFilesProperty.bind(Bindings.size(filteredEntries));
-        sortedEntries.setComparator(Comparator.comparing(StageEntry::getFileNameWithoutExtension));
+        sortedEntries.setComparator(Comparator.comparing(StageEntry::getFileNameWithoutExtension)
+                .thenComparing((StageEntry e) -> e.isRaw ? 0 : 1));
 //        selectionListener = (observable, oldValue, newValue) -> {
 //            if (newValue != oldValue) {
 //                updateSelectedCount();
@@ -147,7 +149,7 @@ public class ImportManager implements AutoCloseable {
         importService.start();
     }
 
-    private ImportService createImportService(List<ImportRequest> requests, ImportMethod method , Catalog catalog) {
+    private ImportService createImportService(List<ImportRequest> requests, ImportMethod method, Catalog catalog) {
         photoManager.startImportSession();
 
         ImportService importService = new ImportService(requests, method, catalog, connection, photoManager::addImportedBatch);
@@ -196,6 +198,8 @@ public class ImportManager implements AutoCloseable {
      * @return the configured probe service that will emit file metadata results
      */
     private ImportProbeService createStagingServices(ExifToolService exifToolService, List<File> files) {
+        stagingProperty.set(true);
+
         ImportProbeService probeService = new ImportProbeService(exifToolService, files);
         taskManager.configure(probeService, STAGE_GROUP);
 
@@ -210,6 +214,7 @@ public class ImportManager implements AutoCloseable {
         });
 
         probeService.setOnFailed(e -> {
+            stagingProperty.set(false);
             Throwable ex = probeService.getException();
             throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Background photo probing failed", ex);
         });
@@ -223,7 +228,10 @@ public class ImportManager implements AutoCloseable {
      */
     private void stageNextBatch(Path session) {
         List<FileProbeResult> batch = pendingBatches.poll();
-        if (batch == null) return;
+        if (batch == null) {
+            stagingProperty.set(false);
+            return;
+        }
 
         ImportStageService service =
                 new ImportStageService(batch, masterEntries, photoManager.getPhotos(), session);
@@ -243,6 +251,8 @@ public class ImportManager implements AutoCloseable {
         });
 
         service.setOnFailed(e -> {
+            if (pendingBatches.peek() == null) stagingProperty.set(false);
+            stageNextBatch(session);
             throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Background photo staging failed", service.getException());
         });
 
@@ -378,6 +388,10 @@ public class ImportManager implements AutoCloseable {
 
     public void toggleHideDuplicates() {
         hideDuplicatesProperty.set(!hideDuplicatesProperty.get());
+    }
+
+    public ReadOnlyBooleanProperty getStagingProperty() {
+        return stagingProperty;
     }
 
     @Override

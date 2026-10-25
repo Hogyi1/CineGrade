@@ -109,4 +109,8 @@ public enum SystemInfo {
     public void setPerformanceTier(PerformanceTier performanceTier) {
         this.performanceTier = performanceTier;
     }
+
+    public double getLatencyRatio() {
+        return latencyRatio;
+    }
 }

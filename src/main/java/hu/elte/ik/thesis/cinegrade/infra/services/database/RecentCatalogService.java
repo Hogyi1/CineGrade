@@ -61,16 +61,40 @@ public class RecentCatalogService {
         }
     }
 
-    public Catalog addCatalog(String name, Path path) {
+    /**
+     * Adds a project to the recent list.
+     *
+     * @param name            the catalog name
+     * @param projectFilePath the absolute path of the .cgproj file, its parent is stored as the project directory
+     */
+    public Catalog addCatalog(String name, Path projectFilePath) {
+        Path file = projectFilePath.toAbsolutePath().normalize();
         try {
-            Optional<Catalog> catalog = dao.insert(name, path.toFile().getAbsolutePath());
+            Optional<Catalog> catalog = dao.insert(name, file.getParent().toString(), file.toString());
             if (catalog.isPresent()) {
                 return catalog.get();
             }
             throw new CineGradeException(ErrorCode.DB_RECORD_NOT_FOUND, "New Catalog");
         } catch (SQLException ex) {
-            throw new CineGradeException(ErrorCode.DB_EXECUTION_FAILED, ex, "");
+            throw new CineGradeException(ErrorCode.DB_EXECUTION_FAILED, ex, "addCatalog: " + file);
         }
+    }
+
+    // [AI-GENERATED METHOD]
+    /**
+     * Returns the recent entry of the given .cgproj file, adding it first if it was never opened.
+     */
+    public Catalog findOrAddCatalog(String name, Path projectFilePath) {
+        Path file = projectFilePath.toAbsolutePath().normalize();
+        try {
+            Optional<Catalog> existing = dao.findByProjectFilePath(file.toString());
+            if (existing.isPresent()) {
+                return existing.get();
+            }
+        } catch (SQLException ex) {
+            throw new CineGradeException(ErrorCode.DB_EXECUTION_FAILED, ex, "findByProjectFilePath: " + file);
+        }
+        return addCatalog(name, file);
     }
 
     public void updateLastOpenedAt(int id, Instant now) {

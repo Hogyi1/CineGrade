@@ -27,7 +27,7 @@ public class PhotoManager implements AutoCloseable {
     private final Catalog catalog;
 
     public PhotoManager(Connection connection, Catalog catalog) {
-        this.photoDao = new PhotoDao(connection, catalog.getCatalogDirectoryPath());
+        this.photoDao = new PhotoDao(connection, catalog.getProjectDirectory());
         this.catalog = catalog;
 
         loadCatalogPhotos();
@@ -126,7 +126,7 @@ public class PhotoManager implements AutoCloseable {
         });
 
         try {
-            File thumbFile = photo.getResolvedThumbnailFile(catalog.getCatalogDirectoryPath());
+            File thumbFile = photo.getResolvedThumbnailFile(catalog.getProjectDirectory());
             if (thumbFile != null && thumbFile.exists()) {
                 boolean deleted = thumbFile.delete();
                 logger.debug("Deleted thumbnail file for photo {}: {}", photo.getId(), deleted);

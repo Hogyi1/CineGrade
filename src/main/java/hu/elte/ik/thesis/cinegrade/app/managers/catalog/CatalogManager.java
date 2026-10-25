@@ -1,19 +1,21 @@
 package hu.elte.ik.thesis.cinegrade.app.managers.catalog;
 
-import hu.elte.ik.thesis.cinegrade.app.managers.tasks.TaskManager;
+import hu.elte.ik.thesis.cinegrade.app.managers.concurrency.tasks.TaskManager;
+import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScope;
+import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScopeFactory;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.CatalogDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.services.database.CatalogService;
 import hu.elte.ik.thesis.cinegrade.infra.services.database.RecentCatalogService;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 
 public class CatalogManager implements AutoCloseable {
 
+    public static final String PROJECT_EXTENSION = ".cgproj";
     private static final byte[] SQLITE_HEADER = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
     private static final Logger logger = LogManager.getLogger(CatalogManager.class);
     private final Path fallBackPath = Paths.get(AppConfig.INSTANCE.getProjectDirectory());
@@ -41,13 +43,22 @@ public class CatalogManager implements AutoCloseable {
     private final ObservableList<Catalog> catalogObserVableList = FXCollections.observableArrayList();
     private final TaskManager taskManager;
     private final StorageService storageService;
-    private CatalogService catalogService;
+    private final CatalogScopeFactory scopeFactory;
+    private CatalogScope currentScope;
+    /**
+     * -- GETTER --
+     *  Retrieves the context of the currently opened catalog.
+     *
+     * @return The current CatalogContext.
+     */
+    @Getter
     private CatalogContext currentCatalogContext;
 
-    public CatalogManager(TaskManager taskManager) {
+    public CatalogManager(TaskManager taskManager, CatalogScopeFactory scopeFactory) {
         recentCatalogService = new RecentCatalogService();
         storageService = new StorageService();
         this.taskManager = taskManager;
+        this.scopeFactory = scopeFactory;
         refreshCatalogs();
     }
 
@@ -68,19 +79,21 @@ public class CatalogManager implements AutoCloseable {
     }
 
     /**
-     * Deletes a catalog.
+     * Deletes a catalog. Only closes the open catalog if it is the one being deleted.
      *
      * @param catalog the catalog to delete
      */
     public void deleteCatalog(Catalog catalog) {
-        CatalogDatabase.getInstance().closeConnection();
+        if (currentScope != null && currentScope.catalog().getId() == catalog.getId()) {
+            closeCurrentScope();
+        }
 
-        boolean isDeleted = storageService.deleteDirectory(catalog.getCatalogDirectoryPath());
+        boolean isDeleted = storageService.deleteDirectory(catalog.getProjectDirectory());
         if (isDeleted) {
             removeFromRecent(catalog);
             logger.info("Catalog is deleted: {}", catalog.getCatalogName());
         } else {
-            throw new CineGradeException(ErrorCode.CATALOG_DELETE_FAILED, catalog.getCatalogDirectoryPath());
+            throw new CineGradeException(ErrorCode.CATALOG_DELETE_FAILED, catalog.getProjectDirectory());
         }
     }
 
@@ -94,7 +107,7 @@ public class CatalogManager implements AutoCloseable {
     }
 
     /**
-     * Opens a catalog.
+     * Opens a catalog from the recent list.
      *
      * @param catalog the catalog to open
      */
@@ -102,87 +115,37 @@ public class CatalogManager implements AutoCloseable {
         if (catalog == null) {
             return;
         }
-        openProject(catalog.getCatalogDirectoryPath(), catalog.getCatalogName(), catalog.getId());
+        openProject(catalog.getProjectFilePath(), WorkspacePanel.DEVELOPMENT);
     }
 
     /**
-     * Opens a catalog from a file.
+     * Opens a catalog from a .cgproj file.
      *
-     * @param file the file to open
+     * @param file the .cgproj file to open
      */
     public void openCatalog(File file) {
         if (file == null) {
             throw new CineGradeException(ErrorCode.FILE_NOT_FOUND, "Selected file is null");
         }
-        openCatalog(file.toPath());
+        openProject(file.toPath(), WorkspacePanel.DEVELOPMENT);
     }
 
-    /**
-     * Opens a catalog from a path.
-     *
-     * @param path the path to the catalog
-     */
-    public void openCatalog(Path path) {
-        if (path == null) {
-            return;
+    // [AI-GENERATED METHOD]
+    private void openProject(Path projectFilePath, WorkspacePanel startingPanel) {
+        Path cgprojFile = projectFilePath.toAbsolutePath().normalize();
+        if (!Files.isRegularFile(cgprojFile)) {
+            throw new CineGradeException(ErrorCode.CATALOG_NOT_FOUND, cgprojFile);
         }
-        String name = path.getFileName().toString();
-        if (name.endsWith(".cgproj")) {
-            name = name.substring(0, name.length() - ".cgproj".length());
-        }
-        openProject(path, name, null);
-    }
-
-    private void openProject(Path path, String name, Integer catalogId) {
-        if (!validateProject(path, name)) {
-            throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, path.toAbsolutePath().toString());
+        if (!validateProject(cgprojFile)) {
+            throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, cgprojFile);
         }
 
-        var cgprojFile = resolveCgprojPath(path, name).orElse(null);
-        if (cgprojFile == null) {
-            throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, path.toAbsolutePath().toString());
-        }
+        Catalog catalog = recentCatalogService.findOrAddCatalog(stripExtension(cgprojFile), cgprojFile);
+        recentCatalogService.updateLastOpenedAt(catalog.getId(), Instant.now());
+        ensureDirectories(catalog.getProjectDirectory());
 
-        try {
-            CatalogDatabase.getInstance().openConnection(cgprojFile);
-            Connection connection = CatalogDatabase.getInstance().getConnection();
-            catalogService = new CatalogService(connection);
-            catalogService.setLastOpenedAt(Instant.now());
-
-            Path dirPath = cgprojFile.getParent() != null ? cgprojFile.getParent() : cgprojFile;
-            String normalizedDirPath = dirPath.toAbsolutePath().normalize().toString();
-
-            Optional<Catalog> existingInRecents = catalogObserVableList.stream()
-                    .filter(c -> (catalogId != null && c.getId() == catalogId) ||
-                            (c.getCatalogDirectoryPath() != null && c.getCatalogDirectoryPath().toAbsolutePath().normalize().toString().equalsIgnoreCase(normalizedDirPath)))
-                    .findFirst();
-
-            // Mismatching recent list and database on ids
-            Catalog catalog;
-            if (existingInRecents.isPresent()) {
-                Catalog existing = existingInRecents.get();
-                recentCatalogService.updateLastOpenedAt(existing.getId(), Instant.now());
-                catalogService.setSetting(CatalogService.KEY_RECENT_CATALOG_ID, String.valueOf(existing.getId()));
-                catalog = existing;
-            } else {
-                Catalog newRecent = recentCatalogService.addCatalog(name, dirPath);
-                catalogService.setMetaData(newRecent);
-                catalog = newRecent;
-            }
-
-            ensureDirectories(catalog.getCatalogDirectoryPath());
-
-            if (currentCatalogContext != null) {
-                currentCatalogContext.close();
-            }
-
-            this.currentCatalogContext = new CatalogContext(connection, catalog, this, taskManager, WorkspacePanel.DEVELOPMENT);
-            logger.info("Catalog opened successfully: {}", cgprojFile);
-        } catch (CineGradeException ex) {
-            throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, ex, path.toString());
-        } catch (Exception e) {
-            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, e);
-        }
+        openScope(catalog, startingPanel);
+        logger.info("Catalog opened successfully: {}", cgprojFile);
 
         refreshCatalogs();
     }
@@ -191,47 +154,71 @@ public class CatalogManager implements AutoCloseable {
      * Creates a new project with the specified name and path.
      *
      * @param name the name of the project
-     * @param path the path where the project will be created
+     * @param path the parent directory, the project gets its own folder inside it
      */
+    // [AI-GENERATED METHOD]
     public void createNewProject(String name, Path path) {
-        Path projectDirectory = path.resolve(name);
+        Path projectDirectory = path.resolve(name).toAbsolutePath().normalize();
+        Path projectFilePath = projectDirectory.resolve(name + PROJECT_EXTENSION);
 
         // Check if project already exists there
-        if (Files.exists(projectDirectory.resolve(name + ".cgproj"))) {
-            throw new CineGradeException(ErrorCode.CATALOG_ALREADY_EXISTS, projectDirectory.toString());
+        if (Files.exists(projectFilePath)) {
+            throw new CineGradeException(ErrorCode.CATALOG_ALREADY_EXISTS, projectFilePath.toString());
         }
 
-        // Setup project directories
+        // Setup project directories, the database files are created inside them when the scope opens
         ensureDirectories(projectDirectory);
 
-        // Open up catalog connection
-        Path dbFile = projectDirectory.resolve(name + ".cgproj");
+        // findOrAdd: a stale recents row may still point to this file if it was deleted by hand
+        Catalog catalog = recentCatalogService.findOrAddCatalog(name, projectFilePath);
         try {
-            CatalogDatabase.getInstance().openConnection(dbFile);
-        } catch (Exception ex) {
-            throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, dbFile.toString());
+            openScope(catalog, WorkspacePanel.IMPORT);
+        } catch (RuntimeException ex) {
+            throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, projectFilePath.toString());
         }
-
-        Connection connection = CatalogDatabase.getInstance().getConnection();
-        // Add to recent catalogs
-        Catalog catalog = recentCatalogService.addCatalog(name, projectDirectory);
-        // Save project metadata first
-        catalogService = new CatalogService(connection);
-        catalogService.setMetaData(catalog);
-
-        try {
-            if (currentCatalogContext != null) {
-                currentCatalogContext.close();
-            }
-        } catch (Exception ex) {
-            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, ex);
-        }
-        // Create the context for that catalog
-        this.currentCatalogContext = new CatalogContext(connection, catalog, this, taskManager, WorkspacePanel.IMPORT);
-        logger.info("New project created: {}", projectDirectory);
+        logger.info("New project created: {}", projectFilePath);
 
         // Refresh the list
         refreshCatalogs();
+    }
+
+    /**
+     * Closes the open catalog (if any), opens the scope of the given one and records
+     * its current location in catalog_info.
+     */
+    // [AI-GENERATED METHOD]
+    private void openScope(Catalog catalog, WorkspacePanel startingPanel) {
+        closeCurrentScope();
+
+        currentScope = scopeFactory.open(catalog);
+        try {
+            Connection connection = currentScope.catalogDatabase().getConnection();
+            new CatalogService(connection).setMetaData(catalog);
+
+            // TODO S0.1: once the managers live in CatalogScope, controllers take them from there and CatalogContext goes
+            currentCatalogContext = new CatalogContext(connection, catalog, this, taskManager, startingPanel);
+        } catch (RuntimeException ex) {
+            closeCurrentScope();
+            throw ex;
+        }
+    }
+
+    /**
+     * try-with-resources closes in reverse order: the context (managers) first, then the scope (databases).
+     * Null resources are skipped.
+     */
+    // [AI-GENERATED METHOD]
+    private void closeCurrentScope() {
+        try (CatalogScope scope = currentScope; CatalogContext context = currentCatalogContext) {
+            if (scope != null) {
+                logger.info("Closing catalog: {}", scope.catalog().getCatalogName());
+            }
+        } catch (Exception ex) {
+            throw new CineGradeException(ErrorCode.DB_CLOSE_FAILED, ex, "catalog scope");
+        } finally {
+            currentScope = null;
+            currentCatalogContext = null;
+        }
     }
 
     private void ensureDirectories(Path projectDirectory) {
@@ -270,21 +257,17 @@ public class CatalogManager implements AutoCloseable {
     }
 
     /**
-     * Validate the project by reading the first 16 bytes
-     * of the projects header and compare it to the SQLite header.
+     * Validate the project: it has to be a .cgproj file whose first 16 bytes
+     * are the SQLite header.
      *
-     * @param path The path to the project directory or .cgproj file.
+     * @param cgprojFile The .cgproj file.
      * @return true if the project is valid, false otherwise.
-     *
      */
-    public boolean validateProject(Path path, String name) {
-        // Get path resolved to .cgproj file
-        Optional<Path> result = resolveCgprojPath(path, name);
-        if (result.isEmpty()) {
+    public boolean validateProject(Path cgprojFile) {
+        if (cgprojFile == null || !cgprojFile.getFileName().toString().toLowerCase().endsWith(PROJECT_EXTENSION)) {
+            logger.warn("Not a {} file: {}", PROJECT_EXTENSION, cgprojFile);
             return false;
         }
-
-        Path cgprojFile = result.get();
 
         // Read the first 16 bytes of the file and compare it to the SQLite header
         try (InputStream in = Files.newInputStream(cgprojFile)) {
@@ -301,44 +284,9 @@ public class CatalogManager implements AutoCloseable {
         return true;
     }
 
-    /**
-     * Resolves the path to a .cgproj file based on the provided path and catalog name.
-     *
-     * @param path The base path to resolve from.
-     * @return The resolved path to the .cgproj file, or null if not found.
-     */
-    private Optional<Path> resolveCgprojPath(Path path, String catalogName) {
-        if (path == null) {
-            return Optional.empty();
-        }
-
-        // If it's a file and ends with .cgproj, return it directly
-        if (Files.isRegularFile(path) && path.getFileName().toString().endsWith(".cgproj")) {
-            return Optional.of(path);
-        }
-
-        if (Files.isDirectory(path)) {
-            if (catalogName != null && !catalogName.isBlank()) {
-                String expectedFile = catalogName.endsWith(".cgproj") ? catalogName : (catalogName + ".cgproj");
-                Path direct = path.resolve(expectedFile);
-                if (Files.isRegularFile(direct)) {
-                    return Optional.of(direct);
-                }
-            }
-
-            // Search the directory for a .cgproj file
-            // glob == *.cgproj aka all files with .cgproj extension
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.cgproj")) {
-                for (Path entry : stream) {
-                    // return first instance of .cgproj file found in the directory
-                    return Optional.of(entry);
-                }
-            } catch (IOException ignored) {
-                logger.warn("Failed to read directory {}: {}", path, ignored);
-            }
-        }
-
-        return Optional.empty();
+    private static String stripExtension(Path cgprojFile) {
+        String fileName = cgprojFile.getFileName().toString();
+        return fileName.substring(0, fileName.length() - PROJECT_EXTENSION.length());
     }
 
     /**
@@ -347,39 +295,26 @@ public class CatalogManager implements AutoCloseable {
      *
      */
     private void calculateCatalogSize(Catalog catalog) {
-        if (catalog == null || catalog.getCatalogDirectoryPath() == null) {
+        if (catalog == null || catalog.getProjectDirectory() == null) {
             logger.warn("Cannot calculate catalog size: catalog or catalog path is null");
             return;
         }
 
-        try (Stream<Path> paths = Files.walk(catalog.getCatalogDirectoryPath())) {
+        try (Stream<Path> paths = Files.walk(catalog.getProjectDirectory())) {
             long size = paths
                     .filter(p -> p.toFile().isFile())
                     .mapToLong(p -> p.toFile().length())
                     .sum();
             catalog.setSize(size);
-            logger.debug("Calculated catalog size for '{}': {} bytes, started from: {}", catalog.getCatalogName(), size, catalog.getCatalogDirectoryPath());
+            logger.debug("Calculated catalog size for '{}': {} bytes, started from: {}", catalog.getCatalogName(), size, catalog.getProjectDirectory());
         } catch (IOException ex) {
-            logger.warn("Failed to calculate catalog size for '{}' at {}: {}", catalog.getCatalogName(), catalog.getCatalogDirectoryPath(), ex.getMessage(), ex);
+            logger.warn("Failed to calculate catalog size for '{}' at {}: {}", catalog.getCatalogName(), catalog.getProjectDirectory(), ex.getMessage(), ex);
         }
 
-    }
-
-    /**
-     * Retrieves the context of the currently opened catalog.
-     *
-     * @return The current CatalogContext.
-     */
-    public CatalogContext getCurrentCatalogContext() {
-        return currentCatalogContext;
     }
 
     @Override
-    public void close() throws Exception {
-        if (currentCatalogContext != null) {
-            currentCatalogContext.close();
-        }
-
-        CatalogDatabase.getInstance().close();
+    public void close() {
+        closeCurrentScope();
     }
 }

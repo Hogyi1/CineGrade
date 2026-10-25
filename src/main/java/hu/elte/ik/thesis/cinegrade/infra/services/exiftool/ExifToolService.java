@@ -7,7 +7,8 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.imports.ExifProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
-import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
+import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.ProcessRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,9 +22,9 @@ import static hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag.*;
 public class ExifToolService {
 
     private static final Logger logger = LogManager.getLogger(ExifToolService.class);
-    private static final int CHUNK_SIZE = 50;
+    private static final int CHUNK_SIZE = 250;
     private static final Gson GSON = new Gson();
-    private final int TIMEOUT_MILLIS = 60000;
+    private final int TIMEOUT_MILLIS = (int) Math.round(15000 * SystemInfo.INSTANCE.getLatencyRatio());
 
     /**
      * Reads metadata from a file.
@@ -160,6 +161,7 @@ public class ExifToolService {
 
             List<String> commands = new ExifToolCommandBuilder()
                     .asJson()
+                    .fastMode()
                     .addTags(FILE_SIZE, FILE_TYPE, IMAGE_SIZE, MIME_TYPE, ORIENTATION)
                     .addTargets(chunk)
                     .buildCommands();

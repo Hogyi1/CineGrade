@@ -5,8 +5,10 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageResult;
 import hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibrawService;
+import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,6 +47,8 @@ public class ImportStageService extends Service<StageResult> {
      */
     private final List<FileProbeResult> probeResults;
 
+    private final StorageService storageService;
+
     /**
      * Creates a service that filters, pairs, and stages probed import files.
      *
@@ -58,6 +62,7 @@ public class ImportStageService extends Service<StageResult> {
         this.stageEntries = stageEntries;
         this.importedPhotos = importedPhotos;
         this.sessionDirectory = sessionDirectory;
+        this.storageService = new StorageService(sessionDirectory);
     }
 
     /**
@@ -118,6 +123,11 @@ public class ImportStageService extends Service<StageResult> {
                 .map(p -> p.getFile().getName())
                 .collect(Collectors.toSet());
 
+        Set<String> importedOriginalPaths = importedPhotos.stream()
+                .filter(Objects::nonNull)
+                .map(p -> p.getOriginalPath().toLowerCase(Locale.ROOT))
+                .collect(Collectors.toSet());
+
         Set<String> existingStagedPaths = stageEntries.stream()
                 .filter(Objects::nonNull)
                 .map(s -> s.getFile().getAbsolutePath().toLowerCase(Locale.ROOT))
@@ -151,8 +161,10 @@ public class ImportStageService extends Service<StageResult> {
                         .filter(result -> {
                             File file = result.toFile();
                             String exactPath = file.getAbsolutePath().toLowerCase(Locale.ROOT);
-                            return (!importedExactPaths.contains(exactPath) && !existingStagedPaths.contains(exactPath));
-                        }) // TODO
+                            return (!importedExactPaths.contains(exactPath) &&
+                                    !existingStagedPaths.contains(exactPath) &&
+                                    !importedOriginalPaths.contains(exactPath));
+                        })
                         .map(result -> {
                             StageEntry e = new StageEntry(result);
                             e.getIsMaybeDuplicateProperty()
@@ -283,8 +295,7 @@ public class ImportStageService extends Service<StageResult> {
                 continue;
             }
 
-            // Standalone JPEG
-            jpeg.thumbnailPath = jpeg.getFile().toPath();
+            // Standalone
             resultList.add(jpeg);
         }
 
@@ -324,6 +335,7 @@ public class ImportStageService extends Service<StageResult> {
      * @param entry entry whose thumbnail should be attached
      */
     private void attachThumbnail(StageEntry entry) {
+
         String hash = Integer.toHexString(entry.getFile().getAbsolutePath().hashCode());
         String thumbnailName = hash + "_" + entry.getFile().getName() + "_thumb.jpg";
         Path targetPath = sessionDirectory.resolve(thumbnailName);
@@ -339,19 +351,48 @@ public class ImportStageService extends Service<StageResult> {
             }
         }
 
-        try (LibrawService librawService = new LibrawService()) {
-            logger.debug("Extracting thumbnail for entry: '{}' -> '{}'", entry.getFile().getName(), targetPath);
-            boolean isSuccess = librawService.extractThumbnail(entry.getFile(), targetPath);
-            if (isSuccess) {
-                entry.thumbnailPath = targetPath;
-                logger.debug("Thumbnail successfully extracted for: '{}'", entry.getFile().getName());
-            } else {
-                logger.error("Failed to extract thumbnail for entry: {}", entry.getFile().getName());
+        if (entry.isRaw) {
+            try (LibrawService librawService = new LibrawService()) {
+                logger.debug("Extracting thumbnail for entry: '{}' -> '{}'", entry.getFile().getName(), targetPath);
+                boolean isSuccess = librawService.extractThumbnail(entry.getFile(), targetPath);
+                if (isSuccess) {
+                    entry.thumbnailPath = targetPath;
+                    logger.debug("Thumbnail successfully extracted for: '{}'", entry.getFile().getName());
+                } else {
+                    logger.error("Failed to extract thumbnail for entry: {}", entry.getFile().getName());
+                    entry.thumbnailPath = null;
+                }
+            } catch (Exception e) {
+                logger.error("Error occurred while extracting thumbnail for entry: {}", entry.getFile().getName(), e);
                 entry.thumbnailPath = null;
             }
-        } catch (Exception e) {
-            logger.error("Error occurred while extracting thumbnail for entry: {}", entry.getFile().getName(), e);
+        } else {
+            if (downScaleJpeg(entry.getFile().toPath(), targetPath)) {
+                entry.thumbnailPath = targetPath;
+                return;
+            }
             entry.thumbnailPath = null;
+        }
+    }
+
+    private boolean downScaleJpeg(Path sourcePath, Path targetPath) {
+        if (sourcePath == null || !Files.exists(sourcePath)) {
+            logger.warn("Cannot downscale JPEG: source file does not exist ({})", sourcePath);
+            return false;
+        }
+        try {
+            storageService.ensureDirectory(targetPath.getParent());
+            logger.debug("Downscaling thumbnail: '{}' -> '{}' ({}x{}, quality={})",
+                    sourcePath.getFileName(), targetPath.getFileName(), 450, 300, 0.8);
+            Thumbnails.of(sourcePath.toFile())
+                    .size(450, 300)
+                    .outputQuality(0.8)
+                    .allowOverwrite(true)
+                    .toFile(targetPath.toFile());
+            return true;
+        } catch (IOException ex) {
+            logger.error("Failed to generate thumbnail for: {}", sourcePath, ex);
+            return false;
         }
     }
 }

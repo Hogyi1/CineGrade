@@ -7,4 +7,5 @@ public interface Database extends AutoCloseable{
     boolean openConnection(Path path);
     void closeConnection();
     Connection getConnection();
+    boolean isOpen();
 }

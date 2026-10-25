@@ -5,12 +5,10 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.EditState;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoMetadata;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.ImportRequest;
-import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
-import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.services.exiftool.ExifToolService;
 import hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibrawService;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
 import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.EditStateDao;
 import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.MetadataDao;
 import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.PhotoDao;
@@ -20,7 +18,6 @@ import net.coobird.thumbnailator.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,8 +53,8 @@ public class ImportService extends Service<List<PhotoEntry>> {
         this.connection = connection;
         this.onBatchCommitted = onBatchCommitted;
 
-        this.storageService = new StorageService(catalog.getCatalogDirectoryPath());
-        this.photoDao = new PhotoDao(connection, catalog.getCatalogDirectoryPath());
+        this.storageService = new StorageService(catalog.getProjectDirectory());
+        this.photoDao = new PhotoDao(connection, catalog.getProjectDirectory());
         this.editStateDao = new EditStateDao(connection);
         this.metadataDao = new MetadataDao(connection);
         this.exifToolService = new ExifToolService();
