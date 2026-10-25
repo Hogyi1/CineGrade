@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="editPanelRoot" prefWidth="350.0" minWidth="330.0" maxWidth="380.0"
+      styleClass="sidebar-panel-right"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Histogram Section (Always visible at top of sidebar) -->
+        <VBox styleClass="histogram-container">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                    <children>
+                        <Label styleClass="clipping-badge-shadow" text="◀ SHADOWS"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="cameraExifLabel" styleClass="histogram-exif" text="ISO 400 • 50mm • ƒ/2.8 • 1/250s"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label styleClass="clipping-badge-highlight" text="HIGHLIGHTS ▶"/>
+                    </children>
+                </HBox>
+                <StackPane alignment="CENTER" styleClass="histogram-canvas">
+                    <children>
+                        <Canvas fx:id="histogramCanvas" height="110.0" width="318.0"/>
+                    </children>
+                </StackPane>
+            </children>
+        </VBox>
+
+        <!-- Scrollable TitledPanes / Collapsible Groups -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox fx:id="panelsContainer" spacing="1.0">
+                    <children>
+                        <!-- 1. Basics Group -->
+                        <TitledPane fx:id="basicsPane" animated="false" expanded="true" styleClass="collapsible-group" text="Basic">
+                            <graphic>
+                                <ToggleButton fx:id="basicsEyeToggle" mnemonicParsing="false" selected="true" styleClass="group-eye-toggle" text="👁"/>
+                            </graphic>
+                            <content>
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <!-- White Balance -->
+                                        <Label styleClass="edit-subsection-header" text="WHITE BALANCE"/>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Temp"/>
+                                                <Slider fx:id="tempSlider" max="12000.0" min="2000.0" styleClass="grade-slider" value="5500.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="tempValueLabel" styleClass="slider-value-label" text="5500 K"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Tint"/>
+                                                <Slider fx:id="tintSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="tintValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Tone -->
+                                        <Label styleClass="edit-subsection-header" text="TONE"/>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Exposure"/>
+                                                <Slider fx:id="exposureSlider" max="5.0" min="-5.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="exposureValueLabel" styleClass="slider-value-label" text="0.00 EV"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Contrast"/>
+                                                <Slider fx:id="contrastSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="contrastValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Highlights"/>
+                                                <Slider fx:id="highlightsSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="highlightsValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Shadows"/>
+                                                <Slider fx:id="shadowsSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="shadowsValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Whites"/>
+                                                <Slider fx:id="whitesSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="whitesValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Blacks"/>
+                                                <Slider fx:id="blacksSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="blacksValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Presence -->
+                                        <Label styleClass="edit-subsection-header" text="PRESENCE"/>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Texture"/>
+                                                <Slider fx:id="textureSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="textureValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Clarity"/>
+                                                <Slider fx:id="claritySlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="clarityValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Dehaze"/>
+                                                <Slider fx:id="dehazeSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="dehazeValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Color -->
+                                        <Label styleClass="edit-subsection-header" text="COLOR"/>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Vibrance"/>
+                                                <Slider fx:id="vibranceSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="vibranceValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Saturation"/>
+                                                <Slider fx:id="saturationSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="saturationValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                        <!-- 2. Tone Curve Group -->
+                        <TitledPane fx:id="curvesPane" animated="false" expanded="false" styleClass="collapsible-group" text="Tone Curve">
+                            <graphic>
+                                <ToggleButton fx:id="curvesEyeToggle" mnemonicParsing="false" selected="true" styleClass="group-eye-toggle" text="👁"/>
+                            </graphic>
+                            <content>
+                                <VBox spacing="10.0">
+                                    <children>
+                                        <!-- Channel Selector -->
+                                        <HBox alignment="CENTER" spacing="6.0">
+                                            <children>
+                                                <ToggleButton fx:id="curveRgbBtn" mnemonicParsing="false" selected="true" styleClass="curve-channel-btn" text="RGB"/>
+                                                <ToggleButton fx:id="curveRedBtn" mnemonicParsing="false" styleClass="curve-channel-btn" text="Red"/>
+                                                <ToggleButton fx:id="curveGreenBtn" mnemonicParsing="false" styleClass="curve-channel-btn" text="Green"/>
+                                                <ToggleButton fx:id="curveBlueBtn" mnemonicParsing="false" styleClass="curve-channel-btn" text="Blue"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Curve Canvas Container -->
+                                        <VBox styleClass="curve-canvas-box">
+                                            <children>
+                                                <Canvas fx:id="curveCanvas" height="190.0" width="298.0"/>
+                                            </children>
+                                        </VBox>
+
+                                        <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                                            <children>
+                                                <Button fx:id="resetCurveBtn" mnemonicParsing="false" styleClass="hud-btn" text="Reset Curve"/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                        <!-- 3. Color Wheels Group -->
+                        <TitledPane fx:id="wheelsPane" animated="false" expanded="false" styleClass="collapsible-group" text="Color Wheels (3-Way)">
+                            <graphic>
+                                <ToggleButton fx:id="wheelsEyeToggle" mnemonicParsing="false" selected="true" styleClass="group-eye-toggle" text="👁"/>
+                            </graphic>
+                            <content>
+                                <VBox spacing="12.0" styleClass="color-wheels-container">
+                                    <children>
+                                        <!-- Lift (Shadows) -->
+                                        <VBox styleClass="wheel-card">
+                                            <children>
+                                                <Label styleClass="wheel-title" text="SHADOWS (LIFT)"/>
+                                                <StackPane styleClass="wheel-disc-placeholder">
+                                                    <children>
+                                                        <Label styleClass="histogram-exif" text="Lift Disc"/>
+                                                    </children>
+                                                </StackPane>
+                                                <HBox styleClass="slider-row">
+                                                    <children>
+                                                        <Label styleClass="slider-label" text="Level"/>
+                                                        <Slider fx:id="liftSlider" max="1.0" min="-1.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                        <Label fx:id="liftValueLabel" styleClass="slider-value-label" text="0.00"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Gamma (Midtones) -->
+                                        <VBox styleClass="wheel-card">
+                                            <children>
+                                                <Label styleClass="wheel-title" text="MIDTONES (GAMMA)"/>
+                                                <StackPane styleClass="wheel-disc-placeholder">
+                                                    <children>
+                                                        <Label styleClass="histogram-exif" text="Gamma Disc"/>
+                                                    </children>
+                                                </StackPane>
+                                                <HBox styleClass="slider-row">
+                                                    <children>
+                                                        <Label styleClass="slider-label" text="Level"/>
+                                                        <Slider fx:id="gammaSlider" max="1.0" min="-1.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                        <Label fx:id="gammaValueLabel" styleClass="slider-value-label" text="0.00"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Gain (Highlights) -->
+                                        <VBox styleClass="wheel-card">
+                                            <children>
+                                                <Label styleClass="wheel-title" text="HIGHLIGHTS (GAIN)"/>
+                                                <StackPane styleClass="wheel-disc-placeholder">
+                                                    <children>
+                                                        <Label styleClass="histogram-exif" text="Gain Disc"/>
+                                                    </children>
+                                                </StackPane>
+                                                <HBox styleClass="slider-row">
+                                                    <children>
+                                                        <Label styleClass="slider-label" text="Level"/>
+                                                        <Slider fx:id="gainSlider" max="1.0" min="-1.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                        <Label fx:id="gainValueLabel" styleClass="slider-value-label" text="0.00"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                        <!-- 4. Detail & Spatial Group -->
+                        <TitledPane fx:id="spatialPane" animated="false" expanded="false" styleClass="collapsible-group" text="Detail &amp; Spatial">
+                            <graphic>
+                                <ToggleButton fx:id="spatialEyeToggle" mnemonicParsing="false" selected="true" styleClass="group-eye-toggle" text="👁"/>
+                            </graphic>
+                            <content>
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Sharpening"/>
+                                                <Slider fx:id="sharpenSlider" max="100.0" min="0.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="sharpenValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Noise Red."/>
+                                                <Slider fx:id="noiseSlider" max="100.0" min="0.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="noiseValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Grain"/>
+                                                <Slider fx:id="grainSlider" max="100.0" min="0.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="grainValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="slider-row">
+                                            <children>
+                                                <Label styleClass="slider-label" text="Vignette"/>
+                                                <Slider fx:id="vignetteSlider" max="100.0" min="-100.0" styleClass="grade-slider" value="0.0" HBox.hgrow="ALWAYS"/>
+                                                <Label fx:id="vignetteValueLabel" styleClass="slider-value-label" text="0"/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</VBox>

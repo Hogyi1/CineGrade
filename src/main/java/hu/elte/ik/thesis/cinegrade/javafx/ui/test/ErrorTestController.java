@@ -40,9 +40,7 @@ public class ErrorTestController {
 
     @FXML
     private void initialize() {
-        themeToggleBtn.setOnAction(e -> {
-            ThemeManager.toggle();
-        });
+
 
         uncaughtExceptionBtn.setOnMouseClicked(e -> {
             sceneManager.switchView(ViewType.PROJECT_MENU);

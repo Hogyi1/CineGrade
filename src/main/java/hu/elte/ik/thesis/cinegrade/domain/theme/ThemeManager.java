@@ -19,7 +19,6 @@ import java.sql.SQLException;
 public class ThemeManager {
 
     private static final Logger logger = LogManager.getLogger(ThemeManager.class);
-    private static final ThemeManager INSTANCE = new ThemeManager();
     private static final String SETTING_KEY = "app.theme";
     private static final String THEME_CSS = "/css/theme.css";
 
@@ -27,22 +26,19 @@ public class ThemeManager {
     private final ObjectProperty<Theme> activeTheme = new SimpleObjectProperty<>(fallBackTheme);
     private SettingsDao settingsDao;
 
-    private ThemeManager() {}
+    public ThemeManager() {}
 
-    public static ThemeManager getInstance() {
-        return INSTANCE;
+
+    public void toggle() {
+        toggleTheme();
     }
 
-    public static void toggle() {
-        getInstance().toggleTheme();
+    public void set(Theme theme) {
+        setTheme(theme);
     }
 
-    public static void set(Theme theme) {
-        getInstance().setTheme(theme);
-    }
-
-    public static Theme get() {
-        return getInstance().getTheme();
+    public Theme get() {
+        return getTheme();
     }
 
     public void initDatabase(Connection connection) {

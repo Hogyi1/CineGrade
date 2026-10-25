@@ -1,0 +1,507 @@
+/* [AI-GENERATED] */
+/* ==========================================================================
+   CineGrade Development Panel Stylesheet
+   Uses Theme Tokens from theme.css (-clr-*) for seamless dark/light toggle
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Root Development Layout
+   -------------------------------------------------------------------------- */
+.development-panel-root {
+    -fx-background-color: -clr-dark;
+}
+
+/* --------------------------------------------------------------------------
+   Center Viewport
+   -------------------------------------------------------------------------- */
+.viewport-root {
+    -fx-background-color: -clr-dark;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 1px 1px 1px;
+}
+
+.viewport-stack {
+    -fx-background-color: -clr-dark;
+    -fx-alignment: center;
+}
+
+.viewport-image-view {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.65), 30, 0, 0, 8);
+}
+
+/* Floating Viewport HUD Bar */
+.viewport-hud {
+    -fx-background-color: -clr-surface;
+    -fx-background-radius: 8px;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 6px 14px;
+    -fx-spacing: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 12, 0, 0, 4);
+}
+
+.hud-filename {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.hud-meta {
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-family: -font-family-secondary;
+    -fx-font-size: 11px;
+}
+
+.hud-btn {
+    -fx-background-color: -clr-surface-card;
+    -fx-background-radius: 6px;
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 11px;
+    -fx-padding: 4px 10px;
+    -fx-cursor: hand;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+}
+.hud-btn:hover {
+    -fx-background-color: -clr-almostgrey;
+    -fx-text-fill: -clr-text-primary;
+    -fx-border-color: -clr-blue;
+}
+.hud-btn:selected {
+    -fx-background-color: -clr-blue;
+    -fx-text-fill: -clr-text-primary;
+    -fx-border-color: -clr-blue;
+}
+
+/* --------------------------------------------------------------------------
+   Left & Right Sidebars Common Styles
+   -------------------------------------------------------------------------- */
+.sidebar-panel {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.sidebar-panel-right {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 0 1px;
+}
+
+.sidebar-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+.sidebar-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+.sidebar-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 7px;
+}
+.sidebar-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: -clr-border;
+    -fx-background-radius: 4px;
+}
+.sidebar-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -clr-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Histogram Section in Right Panel
+   -------------------------------------------------------------------------- */
+.histogram-container {
+    -fx-background-color: -clr-dark;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 10px 14px;
+    -fx-spacing: 6px;
+}
+
+.histogram-canvas {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+}
+
+.histogram-exif {
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-family: -font-family-secondary;
+    -fx-font-size: 10.5px;
+}
+
+.clipping-badge-shadow {
+    -fx-background-color: -clr-darkblue;
+    -fx-text-fill: -clr-blue-hover;
+    -fx-font-size: 9.5px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 3px;
+    -fx-padding: 1px 5px;
+}
+
+.clipping-badge-highlight {
+    -fx-background-color: -clr-almostgrey;
+    -fx-text-fill: -clr-danger-hover;
+    -fx-font-size: 9.5px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 3px;
+    -fx-padding: 1px 5px;
+}
+
+/* --------------------------------------------------------------------------
+   Collapsible Groups & TitledPanes (Right Panel)
+   -------------------------------------------------------------------------- */
+.collapsible-group {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.collapsible-group > .title {
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+.collapsible-group > .title:hover {
+    -fx-background-color: -clr-surface;
+}
+
+/* Move TitledPane arrow button to the far right */
+.collapsible-group > .title > .arrow-button {
+    -fx-padding: 0 4px 0 0;
+    -fx-alignment: center-right;
+}
+.collapsible-group > .title > .arrow-button > .arrow {
+    -fx-background-color: -clr-text-muted;
+}
+
+.collapsible-group > .content {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: transparent;
+    -fx-padding: 12px 14px;
+}
+
+/* Eye Toggle in Pane Graphic */
+.group-eye-toggle {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 2px 6px;
+    -fx-font-size: 11px;
+    -fx-text-fill: -clr-blue;
+}
+.group-eye-toggle:hover {
+    -fx-background-color: rgba(20, 107, 209, 0.15);
+    -fx-background-radius: 4px;
+}
+.group-eye-toggle:selected {
+    -fx-text-fill: -clr-blue;
+}
+.group-eye-toggle:hover:selected {
+    -fx-text-fill: -clr-blue-hover;
+}
+
+/* --------------------------------------------------------------------------
+   Edit Controls & Sliders
+   -------------------------------------------------------------------------- */
+.slider-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 8px;
+    -fx-pref-height: 26px;
+}
+
+.slider-label {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 11.5px;
+    -fx-min-width: 76px;
+    -fx-pref-width: 76px;
+}
+
+.slider-value-label {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-family: -font-family-secondary;
+    -fx-font-size: 11px;
+    -fx-alignment: center-right;
+    -fx-min-width: 42px;
+    -fx-pref-width: 42px;
+}
+
+.grade-slider {
+    -fx-pref-height: 18px;
+}
+.grade-slider .track {
+    -fx-background-color: -clr-border-subtle;
+    -fx-pref-height: 3px;
+    -fx-background-radius: 2px;
+}
+.grade-slider .thumb {
+    -fx-background-color: -clr-text-secondary;
+    -fx-pref-width: 11px;
+    -fx-pref-height: 11px;
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 4, 0, 0, 1);
+}
+.grade-slider:hover .thumb {
+    -fx-background-color: -clr-blue-hover;
+    -fx-pref-width: 13px;
+    -fx-pref-height: 13px;
+    -fx-background-radius: 7px;
+}
+
+/* Section Subheaders */
+.edit-subsection-header {
+    -fx-text-fill: -clr-text-dim;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 0 2px 0;
+}
+
+/* --------------------------------------------------------------------------
+   Tone Curves Component
+   -------------------------------------------------------------------------- */
+.curve-canvas-box {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-padding: 8px;
+    -fx-alignment: center;
+}
+
+.curve-channel-btn {
+    -fx-background-color: -clr-darkgrey;
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
+    -fx-padding: 3px 10px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+.curve-channel-btn:hover {
+    -fx-background-color: -clr-surface;
+}
+.curve-channel-btn:selected {
+    -fx-background-color: -clr-blue;
+    -fx-text-fill: -clr-text-primary;
+}
+
+/* --------------------------------------------------------------------------
+   Color Wheels Component Placeholder
+   -------------------------------------------------------------------------- */
+.color-wheels-container {
+    -fx-alignment: center;
+    -fx-spacing: 12px;
+    -fx-padding: 6px 0;
+}
+
+.wheel-card {
+    -fx-background-color: -clr-dark;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+    -fx-spacing: 6px;
+}
+
+.wheel-title {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.wheel-disc-placeholder {
+    -fx-background-color: -clr-darkgrey;
+    -fx-background-radius: 50px;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 50px;
+    -fx-border-width: 1px;
+    -fx-min-width: 90px;
+    -fx-min-height: 90px;
+    -fx-pref-width: 90px;
+    -fx-pref-height: 90px;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Filmstrip & Filter Bar
+   -------------------------------------------------------------------------- */
+.filmstrip-root {
+    -fx-background-color: -clr-dark;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 1px 0 0 0;
+    -fx-pref-height: 140px;
+    -fx-min-height: 130px;
+    -fx-max-height: 160px;
+}
+
+.filmstrip-filter-bar {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 6px 14px;
+    -fx-spacing: 12px;
+    -fx-alignment: center-left;
+}
+
+.filter-search-field {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 11.5px;
+    -fx-pref-width: 160px;
+    -fx-padding: 4px 10px;
+}
+.filter-search-field:focused {
+    -fx-border-color: -clr-blue;
+}
+
+.filter-icon-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 3px 6px;
+}
+.filter-icon-btn:hover {
+    -fx-text-fill: -clr-text-primary;
+}
+.filter-icon-btn:selected {
+    -fx-text-fill: -clr-warning;
+}
+
+.filter-color-pill {
+    -fx-min-width: 12px;
+    -fx-min-height: 12px;
+    -fx-max-width: 12px;
+    -fx-max-height: 12px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.filmstrip-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 8px 12px;
+}
+.filmstrip-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+.filmstrip-scroll .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 6px;
+}
+.filmstrip-scroll .scroll-bar:horizontal .thumb {
+    -fx-background-color: -clr-border;
+    -fx-background-radius: 3px;
+}
+
+.filmstrip-cards-box {
+    -fx-spacing: 10px;
+    -fx-alignment: center-left;
+}
+
+/* Filmstrip Card Item */
+.filmstrip-card {
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-padding: 4px;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+    -fx-min-width: 100px;
+    -fx-pref-width: 100px;
+}
+.filmstrip-card:hover {
+    -fx-border-color: -clr-border;
+    -fx-background-color: -clr-surface;
+}
+.filmstrip-card-selected {
+    -fx-border-color: -clr-blue;
+    -fx-border-width: 2px;
+    -fx-background-color: -clr-surface;
+    -fx-effect: dropshadow(gaussian, rgba(20, 107, 209, 0.45), 8, 0, 0, 2);
+}
+
+.filmstrip-card-thumb {
+    -fx-background-radius: 4px;
+    -fx-fit-width: 92px;
+    -fx-fit-height: 62px;
+}
+
+.filmstrip-card-filename {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 10px;
+    -fx-padding: 3px 0 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   Left Panel (Presets & History)
+   -------------------------------------------------------------------------- */
+.left-tab-bar {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 8px 12px;
+    -fx-spacing: 8px;
+}
+
+.left-tab-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-weight: bold;
+    -fx-font-size: 11.5px;
+    -fx-padding: 4px 10px;
+    -fx-cursor: hand;
+}
+.left-tab-btn:hover {
+    -fx-text-fill: -clr-text-primary;
+}
+.left-tab-btn:selected {
+    -fx-text-fill: -clr-blue;
+    -fx-border-color: -clr-blue;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.preset-item {
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+    -fx-spacing: 8px;
+    -fx-alignment: center-left;
+}
+.preset-item:hover {
+    -fx-background-color: -clr-surface;
+    -fx-border-color: -clr-blue;
+}
+
+.history-item {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 11px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+}
+.history-item:hover {
+    -fx-background-color: -clr-surface;
+    -fx-text-fill: -clr-text-primary;
+}
+.history-item-current {
+    -fx-text-fill: -clr-blue;
+    -fx-font-weight: bold;
+    -fx-background-color: -clr-surface-card;
+}

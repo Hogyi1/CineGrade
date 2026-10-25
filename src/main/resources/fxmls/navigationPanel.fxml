@@ -5,6 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -14,7 +15,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <BorderPane maxHeight="58.0" minHeight="56.0" prefHeight="58.0" prefWidth="1280.0"
-            styleClass="navigation-bar, theme-dark"
+            styleClass="navigation-bar"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.editing.NavigationController">
     <stylesheets>
@@ -63,10 +64,27 @@
         </HBox>
     </center>
 
-    <!-- Right: Back to Projects Button & Profile Avatar -->
+    <!-- Right: Theme Switch, Back to Projects Button & Profile Avatar -->
     <right>
-        <HBox alignment="CENTER_RIGHT" spacing="12.0" BorderPane.alignment="CENTER">
+        <HBox alignment="CENTER_RIGHT" spacing="14.0" BorderPane.alignment="CENTER">
             <children>
+                <!-- Modern Light / Dark Mode Toggle Switch -->
+                <ToggleButton fx:id="themeToggleBtn" mnemonicParsing="false" selected="true" styleClass="theme-switch-btn">
+                    <graphic>
+                        <StackPane styleClass="theme-switch-track">
+                            <children>
+                                <HBox alignment="CENTER" spacing="12.0" styleClass="theme-switch-icons">
+                                    <children>
+                                        <Region mouseTransparent="true" styleClass="theme-icon, theme-icon-sun"/>
+                                        <Region mouseTransparent="true" styleClass="theme-icon, theme-icon-moon"/>
+                                    </children>
+                                </HBox>
+                                <Region mouseTransparent="true" styleClass="theme-switch-thumb" StackPane.alignment="CENTER_LEFT"/>
+                            </children>
+                        </StackPane>
+                    </graphic>
+                </ToggleButton>
+
                 <Button fx:id="backToProjectsBtn" mnemonicParsing="false" styleClass="nav-action-btn" text="Projects"/>
                 <Button fx:id="userProfileBtn" mnemonicParsing="false" styleClass="profile-avatar-btn">
                     <graphic>

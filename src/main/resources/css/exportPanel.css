@@ -1,0 +1,176 @@
+/* [AI-GENERATED] */
+/* ==========================================================================
+   CineGrade Export Panel Stylesheet (Images & LUT 2-Tab Design)
+   Uses Theme Tokens from theme.css (-clr-*) for seamless dark/light toggle
+   ========================================================================== */
+
+.export-panel-root {
+    -fx-background-color: -clr-dark;
+    -fx-padding: 24px 36px;
+    -fx-alignment: center;
+}
+
+.export-card-plate {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-border-width: 1px;
+    -fx-padding: 20px 24px;
+    -fx-spacing: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0, 0, 6);
+}
+
+.export-tabs-container {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 3px;
+    -fx-alignment: center-left;
+}
+
+.export-tab-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 6px 20px;
+    -fx-cursor: hand;
+    -fx-background-radius: 6px;
+}
+.export-tab-btn:hover {
+    -fx-text-fill: -clr-text-primary;
+}
+.export-tab-btn:selected {
+    -fx-background-color: -clr-blue;
+    -fx-text-fill: -clr-text-primary;
+    -fx-effect: dropshadow(gaussian, rgba(20, 107, 209, 0.35), 8, 0, 0, 2);
+}
+
+/* Sub-Plates for Scope & Settings */
+.export-subplate {
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-border-width: 1px;
+    -fx-padding: 16px 18px;
+    -fx-spacing: 12px;
+}
+
+.export-subplate-title {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 0 0 8px 0;
+}
+
+.export-scope-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 10px;
+    -fx-padding: 4px 0;
+}
+
+.export-scope-radio {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 12px;
+}
+
+.export-scope-count {
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-family: -font-family-secondary;
+    -fx-font-size: 11px;
+}
+
+.export-settings-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 12px;
+    -fx-pref-height: 32px;
+}
+
+.export-settings-label {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 12px;
+    -fx-min-width: 90px;
+    -fx-pref-width: 90px;
+}
+
+.export-input-field {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 12px;
+    -fx-padding: 5px 10px;
+}
+.export-input-field:focused {
+    -fx-border-color: -clr-blue;
+}
+
+.export-naming-example {
+    -fx-text-fill: -clr-success;
+    -fx-font-family: -font-family-secondary;
+    -fx-font-size: 11px;
+    -fx-padding: 2px 0 0 102px;
+}
+
+.export-lut-notice {
+    -fx-background-color: -clr-darkgrey;
+    -fx-border-color: -clr-warning;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 10px 14px;
+    -fx-text-fill: -clr-warning;
+    -fx-font-size: 11px;
+}
+
+/* Action Footer */
+.export-footer-bar {
+    -fx-background-color: -clr-surface-card;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-padding: 12px 20px;
+    -fx-spacing: 16px;
+    -fx-alignment: center-left;
+}
+
+.export-btn-primary {
+    -fx-background-color: -clr-blue;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 24px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(20, 107, 209, 0.4), 10, 0, 0, 2);
+}
+.export-btn-primary:hover {
+    -fx-background-color: -clr-blue-hover;
+}
+.export-btn-primary:pressed {
+    -fx-background-color: -clr-blue-active;
+}
+
+.export-btn-secondary {
+    -fx-background-color: -clr-surface;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 18px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+.export-btn-secondary:hover {
+    -fx-background-color: -clr-almostgrey;
+    -fx-text-fill: -clr-text-primary;
+}

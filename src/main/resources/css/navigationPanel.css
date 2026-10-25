@@ -1,12 +1,13 @@
 /* [AI-GENERATED] */
 /* ==========================================================================
    CineGrade Top Navigation Panel Stylesheet (Refined Slim Desktop Profile)
-   Slim 58px bar, floating capsule pill, projects return button, and clean tabs
+   Uses Theme Tokens from theme.css (-clr-*) for seamless dark/light toggle
+   Includes Modern Pill Light/Dark Theme Switch
    ========================================================================== */
 
 .navigation-bar {
-    -fx-background-color: #23252B;
-    -fx-border-color: transparent transparent #2E323B transparent;
+    -fx-background-color: -clr-surface-card;
+    -fx-border-color: transparent transparent -clr-border transparent;
     -fx-border-width: 0 0 1 0;
     -fx-padding: 0 24px;
     -fx-pref-height: 58px;
@@ -16,7 +17,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Left Branding & Normal Catalog Title Label
+   Left Branding & Catalog Title Label
    -------------------------------------------------------------------------- */
 .brand-box {
     -fx-alignment: CENTER_LEFT;
@@ -24,7 +25,7 @@
 }
 
 .brand-separator {
-    -fx-background-color: #383D48;
+    -fx-background-color: -clr-border;
     -fx-pref-width: 1px;
     -fx-min-width: 1px;
     -fx-max-width: 1px;
@@ -32,7 +33,7 @@
 }
 
 .catalog-title {
-    -fx-text-fill: #E2E6EE;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-family: -font-family-primary;
     -fx-font-size: 13px;
     -fx-font-weight: 600;
@@ -42,9 +43,9 @@
    Center Floating Pill Navigation (Slim 38px Capsule)
    -------------------------------------------------------------------------- */
 .nav-pill-container {
-    -fx-background-color: #17181C;
+    -fx-background-color: -clr-dark;
     -fx-background-radius: 20px;
-    -fx-border-color: #2B2F38;
+    -fx-border-color: -clr-border-subtle;
     -fx-border-radius: 20px;
     -fx-border-width: 1px;
     -fx-padding: 3px;
@@ -57,7 +58,7 @@
 
 /* Active Floating Bubble: Refined elevated slate pill */
 .selection-bubble {
-    -fx-background-color: #2E323A;
+    -fx-background-color: -clr-surface;
     -fx-background-radius: 17px;
     -fx-border-radius: 17px;
     -fx-min-height: 32px;
@@ -88,41 +89,135 @@
     -fx-text-alignment: CENTER;
 }
 
-/* Active State: Clean white with crisp weight */
+/* Active State: Clean text with crisp weight */
 .nav-item-active {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -clr-text-primary;
     -fx-font-weight: 600;
     -fx-opacity: 1.0;
 }
 
-/* Inactive State: Muted gray with smooth hover */
+/* Inactive State: Muted text with smooth hover */
 .nav-item-inactive {
-    -fx-text-fill: #8E929B;
+    -fx-text-fill: -clr-text-muted;
     -fx-opacity: 0.85;
 }
 
 .nav-item-inactive:hover {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -clr-text-primary;
     -fx-opacity: 1.0;
     -fx-background-color: rgba(255, 255, 255, 0.05);
 }
 
 .nav-item-inactive:pressed {
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -clr-text-primary;
     -fx-opacity: 1.0;
     -fx-background-color: rgba(255, 255, 255, 0.09);
+}
+
+/* --------------------------------------------------------------------------
+   Modern Light / Dark Mode Toggle Switch
+   -------------------------------------------------------------------------- */
+.theme-switch-btn {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.theme-switch-track {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-pref-width: 52px;
+    -fx-min-width: 52px;
+    -fx-max-width: 52px;
+    -fx-pref-height: 26px;
+    -fx-min-height: 26px;
+    -fx-max-height: 26px;
+    -fx-padding: 2px;
+    -fx-alignment: center-left;
+}
+
+.theme-switch-icons {
+    -fx-alignment: center;
+    -fx-spacing: 12px;
+    -fx-padding: 0 4px;
+}
+
+.theme-icon {
+    -fx-min-width: 12px;
+    -fx-min-height: 12px;
+    -fx-max-width: 12px;
+    -fx-max-height: 12px;
+    -fx-pref-width: 12px;
+    -fx-pref-height: 12px;
+}
+
+/* SVG Sun Shape */
+.theme-icon-sun {
+    -fx-shape: "M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z";
+    -fx-background-color: #F59E0B;
+}
+
+/* SVG Crescent Moon Shape */
+.theme-icon-moon {
+    -fx-shape: "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z";
+    -fx-background-color: -clr-text-dim;
+}
+
+/* Sliding Thumb */
+.theme-switch-thumb {
+    -fx-background-color: -clr-text-primary;
+    -fx-background-radius: 10px;
+    -fx-pref-width: 20px;
+    -fx-min-width: 20px;
+    -fx-max-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-min-height: 20px;
+    -fx-max-height: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 4, 0, 0, 1);
+    -fx-translate-x: 0px;
+}
+
+/* Selected state = Dark Theme active */
+.theme-switch-btn:selected .theme-switch-track {
+    -fx-background-color: -clr-surface-input;
+    -fx-border-color: -clr-blue;
+}
+
+.theme-switch-btn:selected .theme-switch-thumb {
+    -fx-translate-x: 24px;
+    -fx-background-color: -clr-blue;
+}
+
+.theme-switch-btn:selected .theme-icon-sun {
+    -fx-background-color: -clr-text-dim;
+}
+
+.theme-switch-btn:selected .theme-icon-moon {
+    -fx-background-color: #FFFFFF;
+}
+
+/* Unselected state = Light Theme active */
+.theme-switch-btn .theme-icon-sun {
+    -fx-background-color: #F59E0B;
+}
+
+.theme-switch-btn .theme-icon-moon {
+    -fx-background-color: -clr-text-dim;
 }
 
 /* --------------------------------------------------------------------------
    Right Section: Back to Projects Button & User Profile
    -------------------------------------------------------------------------- */
 .nav-action-btn {
-    -fx-background-color: #2B2F38;
-    -fx-border-color: #3B404D;
+    -fx-background-color: -clr-surface-card;
+    -fx-border-color: -clr-border;
     -fx-border-radius: 6px;
     -fx-background-radius: 6px;
     -fx-border-width: 1px;
-    -fx-text-fill: #D4D8E0;
+    -fx-text-fill: -clr-text-secondary;
     -fx-font-family: -font-family-primary;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
@@ -131,13 +226,13 @@
 }
 
 .nav-action-btn:hover {
-    -fx-background-color: #363B46;
-    -fx-border-color: #1C7DF0;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -clr-surface;
+    -fx-border-color: -clr-blue;
+    -fx-text-fill: -clr-text-primary;
 }
 
 .nav-action-btn:pressed {
-    -fx-background-color: #24272E;
+    -fx-background-color: -clr-almostdarkgrey;
 }
 
 .profile-avatar-btn {

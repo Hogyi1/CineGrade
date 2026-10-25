@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="leftPanelRoot" prefWidth="260.0" minWidth="240.0" maxWidth="300.0"
+      styleClass="sidebar-panel"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Top Tab Bar: Presets / History / Tags -->
+        <HBox alignment="CENTER_LEFT" spacing="6.0" styleClass="left-tab-bar">
+            <children>
+                <ToggleButton fx:id="tabPresetsBtn" mnemonicParsing="false" selected="true" styleClass="left-tab-btn" text="Presets">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="leftTabGroup"/>
+                    </toggleGroup>
+                </ToggleButton>
+                <ToggleButton fx:id="tabHistoryBtn" mnemonicParsing="false" styleClass="left-tab-btn" text="History" toggleGroup="$leftTabGroup"/>
+                <ToggleButton fx:id="tabTagsBtn" mnemonicParsing="false" styleClass="left-tab-btn" text="Tags" toggleGroup="$leftTabGroup"/>
+            </children>
+        </HBox>
+
+        <!-- View Switcher Container -->
+        <StackPane VBox.vgrow="ALWAYS">
+            <children>
+                <!-- 1. Presets View -->
+                <VBox fx:id="presetsViewContainer" spacing="10.0">
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="10.0"/>
+                    </padding>
+                    <children>
+                        <!-- Search & Create Button -->
+                        <HBox alignment="CENTER" spacing="6.0">
+                            <children>
+                                <TextField fx:id="presetSearchField" promptText="Search presets..." styleClass="filter-search-field" HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="createPresetBtn" mnemonicParsing="false" styleClass="hud-btn" text="+ New"/>
+                            </children>
+                        </HBox>
+
+                        <!-- Presets Scrollable List -->
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="presetItemsContainer" spacing="6.0">
+                                    <children>
+                                        <!-- Factory Looks Section Header -->
+                                        <Label styleClass="edit-subsection-header" text="CINEMATIC LOOKS"/>
+                                        <HBox styleClass="preset-item">
+                                            <children>
+                                                <Label styleClass="hud-filename" text="Kodak Portra 400"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="preset-item">
+                                            <children>
+                                                <Label styleClass="hud-filename" text="Fuji Pro 400H"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="preset-item">
+                                            <children>
+                                                <Label styleClass="hud-filename" text="Teal &amp; Orange Standard"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="preset-item">
+                                            <children>
+                                                <Label styleClass="hud-filename" text="Monochrome High Contrast"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- User Presets Section Header -->
+                                        <Label styleClass="edit-subsection-header" text="USER PRESETS"/>
+                                        <Label styleClass="histogram-exif" text="No custom presets created yet."/>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+
+                <!-- 2. History View (Hidden by default) -->
+                <VBox fx:id="historyViewContainer" spacing="8.0" visible="false">
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="10.0"/>
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="edit-subsection-header" text="EDIT STEPS"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="takeSnapshotBtn" mnemonicParsing="false" styleClass="hud-btn" text="Snapshot"/>
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="historyStepsContainer" spacing="2.0">
+                                    <children>
+                                        <Label styleClass="history-item, history-item-current" text="Original (Imported)"/>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+
+                <!-- 3. Tags View (Hidden by default, Figma 208:148) -->
+                <VBox fx:id="tagsViewContainer" spacing="10.0" visible="false">
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="10.0"/>
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="edit-subsection-header" text="ASSIGNED TAGS"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="createNewTagBtn" mnemonicParsing="false" styleClass="hud-btn" text="+ Create Tag"/>
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="tagListContainer" spacing="6.0">
+                                    <children>
+                                        <HBox styleClass="preset-item">
+                                            <children>
+                                                <Button mnemonicParsing="false" style="-fx-background-color: #10B981;" styleClass="filter-color-pill"/>
+                                                <Label styleClass="hud-filename" text="Selected Work"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox styleClass="preset-item">
+                                            <children>
+                                                <Button mnemonicParsing="false" style="-fx-background-color: #1C7DF0;" styleClass="filter-color-pill"/>
+                                                <Label styleClass="hud-filename" text="Landscape Shoot"/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </children>
+</VBox>

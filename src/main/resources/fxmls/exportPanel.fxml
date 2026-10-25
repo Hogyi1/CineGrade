@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="exportPanelRoot" alignment="CENTER" prefHeight="850.0" prefWidth="1380.0"
+           styleClass="export-panel-root"
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.editing.ExportPanelController">
+    <stylesheets>
+        <URL value="@../css/theme.css"/>
+        <URL value="@../css/exportPanel.css"/>
+    </stylesheets>
+
+    <!-- Main Central Card Plate -->
+    <children>
+        <VBox alignment="CENTER" maxWidth="960.0" prefWidth="960.0" spacing="16.0" styleClass="export-card-plate">
+            <children>
+                <!-- Header: Top Tab Selector (Images vs 3D LUT) -->
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <HBox styleClass="export-tabs-container">
+                            <children>
+                                <ToggleButton fx:id="tabImagesBtn" mnemonicParsing="false" selected="true" styleClass="export-tab-btn" text="Images">
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="exportTabToggleGroup"/>
+                                    </toggleGroup>
+                                </ToggleButton>
+                                <ToggleButton fx:id="tabLutBtn" mnemonicParsing="false" styleClass="export-tab-btn" text="3D LUT (.cube)" toggleGroup="$exportTabToggleGroup"/>
+                            </children>
+                        </HBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label styleClass="histogram-exif" text="Batch Export Engine"/>
+                    </children>
+                </HBox>
+
+                <!-- Dynamic View Area -->
+                <StackPane VBox.vgrow="ALWAYS">
+                    <children>
+                        <!-- ========================================================
+                             VIEW 1: Images Export Tab
+                             ======================================================== -->
+                        <VBox fx:id="imagesTabContainer" spacing="16.0">
+                            <children>
+                                <HBox spacing="18.0" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <!-- Left Column: Scope ("What to Export") -->
+                                        <VBox prefWidth="380.0" styleClass="export-subplate" HBox.hgrow="NEVER">
+                                            <children>
+                                                <Label styleClass="export-subplate-title" text="What to export"/>
+
+                                                <!-- Scope Radios -->
+                                                <VBox spacing="8.0" VBox.vgrow="ALWAYS">
+                                                    <children>
+                                                        <HBox styleClass="export-scope-row">
+                                                            <children>
+                                                                <RadioButton fx:id="scopeCurrentRadio" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Current photo">
+                                                                    <toggleGroup>
+                                                                        <ToggleGroup fx:id="scopeRadioGroup"/>
+                                                                    </toggleGroup>
+                                                                </RadioButton>
+                                                                <Region HBox.hgrow="ALWAYS"/>
+                                                                <Label fx:id="scopeCurrentCount" styleClass="export-scope-count" text="1"/>
+                                                            </children>
+                                                        </HBox>
+
+                                                        <HBox styleClass="export-scope-row">
+                                                            <children>
+                                                                <RadioButton fx:id="scopeSelectedRadio" mnemonicParsing="false" styleClass="export-scope-radio" text="Selected photos" toggleGroup="$scopeRadioGroup"/>
+                                                                <Region HBox.hgrow="ALWAYS"/>
+                                                                <Label fx:id="scopeSelectedCount" styleClass="export-scope-count" text="0"/>
+                                                            </children>
+                                                        </HBox>
+
+                                                        <HBox styleClass="export-scope-row">
+                                                            <children>
+                                                                <RadioButton fx:id="scopeVisibleRadio" mnemonicParsing="false" styleClass="export-scope-radio" text="Visible (filtered)" toggleGroup="$scopeRadioGroup"/>
+                                                                <Region HBox.hgrow="ALWAYS"/>
+                                                                <Label fx:id="scopeVisibleCount" styleClass="export-scope-count" text="0"/>
+                                                            </children>
+                                                        </HBox>
+
+                                                        <HBox styleClass="export-scope-row">
+                                                            <children>
+                                                                <RadioButton fx:id="scopeLastImportRadio" mnemonicParsing="false" styleClass="export-scope-radio" text="Last import" toggleGroup="$scopeRadioGroup"/>
+                                                                <Region HBox.hgrow="ALWAYS"/>
+                                                                <Label fx:id="scopeLastImportCount" styleClass="export-scope-count" text="0"/>
+                                                            </children>
+                                                        </HBox>
+
+                                                        <HBox styleClass="export-scope-row">
+                                                            <children>
+                                                                <RadioButton fx:id="scopeAllRadio" mnemonicParsing="false" styleClass="export-scope-radio" text="All photos" toggleGroup="$scopeRadioGroup"/>
+                                                                <Region HBox.hgrow="ALWAYS"/>
+                                                                <Label fx:id="scopeAllCount" styleClass="export-scope-count" text="0"/>
+                                                            </children>
+                                                        </HBox>
+
+                                                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="export-scope-row">
+                                                            <children>
+                                                                <RadioButton fx:id="scopeTagRadio" mnemonicParsing="false" styleClass="export-scope-radio" text="By tag" toggleGroup="$scopeRadioGroup"/>
+                                                                <ComboBox fx:id="scopeTagComboBox" prefWidth="140.0" promptText="Select tag..." styleClass="export-input-field"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Scope Summary Preview -->
+                                                <Label fx:id="exportScopeSummaryLabel" styleClass="hud-meta" text="Preview: 1 file queued for export"/>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Right Column: Settings -->
+                                        <VBox styleClass="export-subplate" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label styleClass="export-subplate-title" text="Settings"/>
+                                                        <Region HBox.hgrow="ALWAYS"/>
+                                                        <ComboBox fx:id="exportPresetComboBox" prefWidth="150.0" promptText="Preset: Standard..." styleClass="export-input-field"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Format & Quality -->
+                                                <HBox styleClass="export-settings-row">
+                                                    <children>
+                                                        <Label styleClass="export-settings-label" text="Format"/>
+                                                        <ComboBox fx:id="formatComboBox" prefWidth="120.0" promptText="JPEG" styleClass="export-input-field"/>
+                                                        <Label styleClass="export-settings-label" text="Quality"/>
+                                                        <Slider fx:id="qualitySlider" max="100.0" min="10.0" prefWidth="100.0" styleClass="grade-slider" value="90.0"/>
+                                                        <Label fx:id="qualityValueLabel" styleClass="slider-value-label" text="90"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Resize -->
+                                                <HBox styleClass="export-settings-row">
+                                                    <children>
+                                                        <Label styleClass="export-settings-label" text="Resize"/>
+                                                        <ComboBox fx:id="resizeComboBox" prefWidth="140.0" promptText="Original size" styleClass="export-input-field"/>
+                                                        <TextField fx:id="resizePxField" prefWidth="90.0" promptText="2048 px" styleClass="export-input-field" visible="false"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Color Profile -->
+                                                <HBox styleClass="export-settings-row">
+                                                    <children>
+                                                        <Label styleClass="export-settings-label" text="Color Space"/>
+                                                        <ComboBox fx:id="colorProfileComboBox" prefWidth="140.0" promptText="sRGB" styleClass="export-input-field"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Metadata -->
+                                                <HBox styleClass="export-settings-row">
+                                                    <children>
+                                                        <Label styleClass="export-settings-label" text="Metadata"/>
+                                                        <CheckBox fx:id="keepExifCheckBox" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Keep original camera EXIF"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Destination -->
+                                                <HBox styleClass="export-settings-row">
+                                                    <children>
+                                                        <Label styleClass="export-settings-label" text="Destination"/>
+                                                        <TextField fx:id="destinationPathField" promptText="C:\Exports" styleClass="export-input-field" HBox.hgrow="ALWAYS"/>
+                                                        <Button fx:id="browseDestinationBtn" mnemonicParsing="false" styleClass="export-btn-secondary" text="Browse..."/>
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- File Naming -->
+                                                <VBox spacing="2.0">
+                                                    <children>
+                                                        <HBox styleClass="export-settings-row">
+                                                            <children>
+                                                                <Label styleClass="export-settings-label" text="Naming"/>
+                                                                <TextField fx:id="namingTemplateField" text="{name}_{seq:3}" styleClass="export-input-field" HBox.hgrow="ALWAYS"/>
+                                                            </children>
+                                                        </HBox>
+                                                        <Label fx:id="namingExampleLabel" styleClass="export-naming-example" text="Example: P1105163_001.jpg"/>
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Conflict Resolution -->
+                                                <HBox styleClass="export-settings-row">
+                                                    <children>
+                                                        <Label styleClass="export-settings-label" text="Existing files"/>
+                                                        <ComboBox fx:id="conflictComboBox" prefWidth="140.0" promptText="Rename" styleClass="export-input-field"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- ========================================================
+                             VIEW 2: 3D LUT Export Tab (Hidden by default)
+                             ======================================================== -->
+                        <VBox fx:id="lutTabContainer" spacing="16.0" visible="false">
+                            <children>
+                                <VBox spacing="14.0" styleClass="export-subplate">
+                                    <children>
+                                        <Label styleClass="export-subplate-title" text="3D LUT Export Configuration"/>
+
+                                        <!-- Source State -->
+                                        <HBox styleClass="export-settings-row">
+                                            <children>
+                                                <Label styleClass="export-settings-label" text="Source Look"/>
+                                                <ComboBox fx:id="lutSourceComboBox" prefWidth="260.0" promptText="Current photo edit state" styleClass="export-input-field"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Lattice Dimensions -->
+                                        <HBox styleClass="export-settings-row">
+                                            <children>
+                                                <Label styleClass="export-settings-label" text="Lattice Size"/>
+                                                <RadioButton fx:id="lutSize17Radio" mnemonicParsing="false" styleClass="export-scope-radio" text="17³ (Fast)">
+                                                    <toggleGroup>
+                                                        <ToggleGroup fx:id="lutSizeGroup"/>
+                                                    </toggleGroup>
+                                                </RadioButton>
+                                                <RadioButton fx:id="lutSize33Radio" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="33³ (Standard)" toggleGroup="$lutSizeGroup"/>
+                                                <RadioButton fx:id="lutSize65Radio" mnemonicParsing="false" styleClass="export-scope-radio" text="65³ (Mastering)" toggleGroup="$lutSizeGroup"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Included Color Blocks -->
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <Label styleClass="edit-subsection-header" text="INCLUDED COLOR BLOCKS"/>
+                                                <HBox spacing="16.0">
+                                                    <children>
+                                                        <CheckBox fx:id="lutToneCheck" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Tone"/>
+                                                        <CheckBox fx:id="lutColorCheck" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Color &amp; HSL"/>
+                                                        <CheckBox fx:id="lutCurvesCheck" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Curves"/>
+                                                        <CheckBox fx:id="lutWheelsCheck" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Color Wheels"/>
+                                                    </children>
+                                                </HBox>
+                                                <CheckBox fx:id="lutExcludeWbCheck" mnemonicParsing="false" selected="true" styleClass="export-scope-radio" text="Exclude Exposure &amp; White Balance (Export look only)"/>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Spatial Warning Notice -->
+                                        <Label styleClass="export-lut-notice" text="ⓘ Notice: Spatial passes (Sharpen, Noise Reduction, Grain, Vignette) cannot be represented in a 3D LUT and are excluded." wrapText="true"/>
+
+                                        <!-- Destination & Filename -->
+                                        <HBox styleClass="export-settings-row">
+                                            <children>
+                                                <Label styleClass="export-settings-label" text="Output File"/>
+                                                <TextField fx:id="lutDestinationField" promptText="C:\LUTs\CineGrade_Look.cube" styleClass="export-input-field" HBox.hgrow="ALWAYS"/>
+                                                <Button fx:id="browseLutBtn" mnemonicParsing="false" styleClass="export-btn-secondary" text="Browse..."/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </StackPane>
+
+                <!-- Footer Action Bar -->
+                <HBox styleClass="export-footer-bar">
+                    <children>
+                        <Button fx:id="startExportBtn" mnemonicParsing="false" styleClass="export-btn-primary" text="Export"/>
+                        <ProgressBar fx:id="exportProgressBar" prefWidth="260.0" progress="0.0" styleClass="task-progress-bar" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="exportProgressStatusLabel" styleClass="histogram-exif" text="Ready"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="cancelExportBtn" mnemonicParsing="false" styleClass="export-btn-secondary" text="Cancel"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

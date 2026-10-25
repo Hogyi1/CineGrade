@@ -29,11 +29,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
+import javafx.stage.*;
 import javafx.stage.FileChooser.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -164,7 +161,7 @@ public class ProjectMenuController {
         catalogListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != selectedProperty.getValue() && newValue != null) {
                 selectedProperty.set(null);
-                logger.info("Catalog selected from recent list: {} (path: {})", newValue.getCatalogName(), newValue.getCatalogDirectoryPath());
+                logger.info("Catalog selected from recent list: {} (path: {})", newValue.getCatalogName(), newValue.getProjectFilePath());
                 try {
                     catalogManager.openCatalog(newValue);
                     logger.info("Catalog opened successfully, switching view to {}", ViewType.EDIT_PAGE);
@@ -250,9 +247,7 @@ public class ProjectMenuController {
             Parent root = loader.load();
             NewProjectDialogController controller = loader.getController();
 
-            root.getStyleClass().add(ThemeManager.get().getStyleClass());
-
-            Stage projectModalStage = new Stage(javafx.stage.StageStyle.TRANSPARENT);
+            Stage projectModalStage = new Stage(StageStyle.TRANSPARENT);
             projectModalStage.initModality(Modality.APPLICATION_MODAL);
             projectModalStage.initOwner(sceneManager.getActiveWindow());
             projectModalStage.setTitle("CineGrade — New Project");

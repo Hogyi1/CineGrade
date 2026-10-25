@@ -34,13 +34,11 @@
                     </children>
                 </HBox>
 
-                <!-- Bottom Overlay: Duplicate & Missing Badges & Format Badge -->
-                <HBox alignment="BOTTOM_LEFT" spacing="4.0" styleClass="card-overlay-bottom" StackPane.alignment="BOTTOM_CENTER">
+                <!-- Bottom Overlay: Duplicate Warning Badge & Format Badge -->
+                <HBox alignment="BOTTOM_LEFT" styleClass="card-overlay-bottom" StackPane.alignment="BOTTOM_CENTER">
                     <children>
                         <Label fx:id="duplicateBadge" styleClass="card-duplicate-badge, card-raw-badge"
                                style="-fx-background-color: #D97706;" text="Duplicate" visible="false"/>
-                        <Label fx:id="missingBadge" styleClass="card-missing-badge, card-raw-badge"
-                               style="-fx-background-color: #DC2626;" text="Missing" visible="false"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label fx:id="formatBadge" styleClass="card-raw-badge" text="RAW"/>
                     </children>

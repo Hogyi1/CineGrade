@@ -1,23 +1,30 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
 import hu.elte.ik.thesis.cinegrade.app.managers.user.UserManager;
+import hu.elte.ik.thesis.cinegrade.domain.enums.Theme;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ViewType;
 import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
+import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.animations.TransitionFactory;
 import javafx.animation.ParallelTransition;
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class NavigationController {
@@ -27,7 +34,7 @@ public class NavigationController {
     private final SceneManager sceneManager;
     private final UserManager userManager;
     private final ObjectProperty<WorkspacePanel> currentPanelProperty = new SimpleObjectProperty<>(null);
-    private final ConcurrentLinkedQueue<ViewHistory> viewHistories = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedDeque<ViewHistory> viewHistories = new ConcurrentLinkedDeque<>();
 
     @FXML
     private Label catalogTitleLabel;
@@ -49,14 +56,18 @@ public class NavigationController {
     private Button backToProjectsBtn;
     @FXML
     private Button userProfileBtn;
+    @FXML
+    private ToggleButton themeToggleBtn;
 
-    private javafx.animation.Transition bubbleTransition;
-    private javafx.beans.value.ChangeListener<Number> pendingTabWidthListener;
+    private Transition bubbleTransition;
+    private ChangeListener<Number> pendingTabWidthListener;
+    private ThemeManager themeManager;
     private Label pendingTab;
 
-    public NavigationController(SceneManager sceneManager, UserManager userManager) {
+    public NavigationController(SceneManager sceneManager, UserManager userManager, ThemeManager themeManager) {
         this.sceneManager = sceneManager;
         this.userManager = userManager;
+        this.themeManager = themeManager;
         logger.debug("NavigationController instantiated");
     }
 
@@ -83,6 +94,15 @@ public class NavigationController {
         backToProjectsBtn.setOnMouseClicked(e -> {
             logger.info("Back to projects button clicked, returning to PROJECT_MENU");
             sceneManager.switchView(ViewType.PROJECT_MENU);
+        });
+
+        themeToggleBtn.setOnAction(e -> {
+            logger.debug("Theme toggle button clicked");
+            themeManager.toggleTheme();
+        });
+        themeToggleBtn.setSelected(themeManager.getTheme() == Theme.DARK);
+        themeManager.themeProperty().addListener((obs, oldTheme, newTheme) -> {
+            themeToggleBtn.setSelected(newTheme == Theme.DARK);
         });
 
         // Keep bubble aligned when window or capsule resizes
@@ -179,7 +199,7 @@ public class NavigationController {
 
         logger.info("Switching workspace panel from {} to {}", currentPanelProperty.get(), nextPanel);
         ViewHistory previousHistory = viewHistories.peek();
-        viewHistories.offer(new ViewHistory(previousHistory, currentPanelProperty.get(), nextPanel));
+        viewHistories.push(new ViewHistory(previousHistory, currentPanelProperty.get(), nextPanel));
         currentPanelProperty.set(nextPanel);
 
         if (targetTab != null) {
@@ -220,9 +240,9 @@ public class NavigationController {
             return;
         }
 
-        javafx.geometry.Bounds pillBounds = null;
+        Bounds pillBounds = null;
         if (targetTab.getScene() != null && navPillContainer.getScene() != null) {
-            javafx.geometry.Bounds sceneBounds = targetTab.localToScene(targetTab.getBoundsInLocal());
+            Bounds sceneBounds = targetTab.localToScene(targetTab.getBoundsInLocal());
             if (sceneBounds != null) {
                 pillBounds = navPillContainer.sceneToLocal(sceneBounds);
             }

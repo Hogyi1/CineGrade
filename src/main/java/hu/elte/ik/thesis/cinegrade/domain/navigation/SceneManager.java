@@ -36,21 +36,24 @@ public class SceneManager {
     private ViewType currentView;
     private StackPane contentLayer, rootShell;
     private VBox toastContainer;
+    private final ThemeManager themeManager;
 
-    public SceneManager(Stage primaryStage, ViewType currentView, Callback<Class<?>, Object> controllerFactory) {
+    public SceneManager(Stage primaryStage, ViewType currentView, Callback<Class<?>, Object> controllerFactory, ThemeManager themeManager) {
         this.primaryStage = primaryStage;
         this.currentView = currentView;
         this.controllerFactory = controllerFactory;
+        this.themeManager = themeManager;
 
         primaryScene = primaryStage.getScene();
         initShell();
         switchView(currentView);
     }
 
-    public SceneManager(Stage primaryStage, Callback<Class<?>, Object> controllerFactory) {
+    public SceneManager(Stage primaryStage, Callback<Class<?>, Object> controllerFactory, ThemeManager themeManager) {
         this.primaryStage = primaryStage;
         this.primaryScene = primaryStage.getScene();
         this.controllerFactory = controllerFactory;
+        this.themeManager = themeManager;
 
         this.currentView = null;
         initShell();
@@ -137,7 +140,7 @@ public class SceneManager {
         StackPane.setMargin(toastContainer, new Insets(20));
 
         rootShell = new StackPane(contentLayer, toastContainer);
-        rootShell.getStyleClass().add(ThemeManager.get().getStyleClass());
+        rootShell.getStyleClass().add(themeManager.get().getStyleClass());
 
         ErrorHandler.getInstance().setToastContainer(toastContainer);
         ErrorHandler.getInstance().setSceneManager(this);
@@ -146,10 +149,9 @@ public class SceneManager {
         ThemeManager.setupStylesheet(primaryScene);
         primaryStage.setScene(primaryScene);
 
-        rootShell.getStyleClass().add(ThemeManager.get().getStyleClass());
-        ThemeManager.getInstance().themeProperty().addListener((obs, oldValue, newValue) -> {
-            if (oldValue != null) rootShell.getStyleClass().remove(oldValue.getStyleClass());
-            if (newValue != null) rootShell.getStyleClass().add(newValue.getStyleClass());
+        themeManager.themeProperty().addListener((obs, oldValue, newValue) -> {
+            if (oldValue != null) rootShell.getStyleClass().removeAll(oldValue.getStyleClass());
+            if (newValue != null && !rootShell.getStyleClass().contains(newValue.getStyleClass())) rootShell.getStyleClass().add(newValue.getStyleClass());
         });
     }
 
@@ -163,7 +165,7 @@ public class SceneManager {
                 ErrorModalController controller = loader.getController();
                 controller.setupDialog(exception);
 
-                root.getStyleClass().add(ThemeManager.get().getStyleClass());
+                root.getStyleClass().add(themeManager.get().getStyleClass());
 
                 Stage modalStage = new Stage();
                 modalStage.initModality(Modality.APPLICATION_MODAL);

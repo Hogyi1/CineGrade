@@ -1,0 +1,124 @@
+/* [AI-GENERATED] */
+/* ==========================================================================
+   CineGrade Task Manager Stage & Task Card Stylesheet
+   Uses Theme Tokens from theme.css (-clr-*) for seamless dark/light toggle
+   ========================================================================== */
+
+.task-manager-root {
+    -fx-background-color: -clr-dark;
+    -fx-border-color: -clr-border;
+    -fx-border-width: 1px;
+    -fx-padding: 0;
+}
+
+.task-manager-header {
+    -fx-background-color: -clr-almostdarkgrey;
+    -fx-border-color: -clr-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 10px 16px;
+    -fx-spacing: 10px;
+    -fx-alignment: center-left;
+}
+
+.task-manager-title {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-family: -font-family-primary;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.task-badge-count {
+    -fx-background-color: -clr-blue;
+    -fx-background-radius: 10px;
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 8px;
+}
+
+.task-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 12px 16px;
+}
+.task-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.task-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
+}
+.task-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: -clr-border;
+    -fx-background-radius: 3px;
+}
+
+.task-cards-container {
+    -fx-spacing: 10px;
+}
+
+/* Individual Task Card */
+.task-card-root {
+    -fx-background-color: -clr-surface-card;
+    -fx-border-color: -clr-border;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 12px 14px;
+    -fx-spacing: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 8, 0, 0, 2);
+}
+.task-card-root:hover {
+    -fx-border-color: -clr-blue;
+}
+
+.task-card-title {
+    -fx-text-fill: -clr-text-primary;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.task-card-message {
+    -fx-text-fill: -clr-text-secondary;
+    -fx-font-size: 11px;
+}
+
+.task-card-cancel-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 2px 6px;
+    -fx-background-radius: 4px;
+}
+.task-card-cancel-btn:hover {
+    -fx-background-color: rgba(224, 36, 36, 0.2);
+    -fx-text-fill: -clr-danger;
+}
+
+/* Custom Sleek Progress Bar */
+.task-progress-bar {
+    -fx-pref-height: 5px;
+    -fx-min-height: 5px;
+    -fx-max-height: 5px;
+}
+.task-progress-bar .track {
+    -fx-background-color: -clr-surface-input;
+    -fx-background-radius: 3px;
+}
+.task-progress-bar .bar {
+    -fx-background-color: -clr-blue;
+    -fx-background-radius: 3px;
+    -fx-background-insets: 0;
+}
+
+.empty-tasks-placeholder {
+    -fx-alignment: center;
+    -fx-padding: 40px 20px;
+    -fx-spacing: 8px;
+}
+.empty-tasks-label {
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-size: 12px;
+}

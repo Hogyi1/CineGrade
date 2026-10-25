@@ -6,6 +6,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
@@ -20,7 +21,7 @@
 
 <?import org.controlsfx.control.GridView?>
 <StackPane alignment="CENTER" prefHeight="850.0" prefWidth="1380.0"
-           styleClass="import-panel-root, theme-dark"
+           styleClass="import-panel-root"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.editing.ImportPanelController">
     <stylesheets>
@@ -90,10 +91,10 @@
                                                 </VBox>
 
                                                 <!-- Import Progress / Spinner Overlay (Active during Import) -->
-                                                <VBox fx:id="importProgressOverlay" alignment="CENTER" mouseTransparent="false" spacing="14.0" styleClass="import-loading-overlay" visible="false" managed="false">
+                                                <VBox fx:id="stageProgressOverlay" alignment="CENTER" mouseTransparent="false" spacing="14.0" styleClass="import-loading-overlay" visible="false" managed="false">
                                                     <children>
-                                                        <ProgressIndicator fx:id="importProgressIndicator" prefHeight="48.0" prefWidth="48.0" styleClass="import-spinner"/>
-                                                        <Label fx:id="importProgressTitle" styleClass="import-progress-title" text="Importing Photos..."/>
+                                                        <ProgressIndicator fx:id="stageProgressIndicator" prefHeight="48.0" prefWidth="48.0" styleClass="import-spinner"/>
+                                                        <Label fx:id="importProgressTitle" styleClass="import-progress-title" text="Staging Photos..."/>
                                                         <Label fx:id="importProgressSubtitle" styleClass="import-progress-subtitle" text="Registering media and processing thumbnails"/>
                                                     </children>
                                                 </VBox>

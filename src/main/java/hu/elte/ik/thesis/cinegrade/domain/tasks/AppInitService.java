@@ -1,6 +1,5 @@
 package hu.elte.ik.thesis.cinegrade.domain.tasks;
 
-import com.sun.jna.platform.unix.X11;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.results.AppInitResult;
@@ -8,17 +7,13 @@ import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.storage.database.AppDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.*;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.util.Duration;
-import org.apache.logging.log4j.LogManager;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,10 +22,12 @@ public class AppInitService extends Service<AppInitResult> {
     private final RequirementChecker requirementChecker;
     private final StorageService storageService;
     private final AtomicInteger stepCounter = new AtomicInteger(0);
+    private ThemeManager themeManager;
 
-    public AppInitService(RequirementChecker requirementChecker) {
+    public AppInitService(RequirementChecker requirementChecker, ThemeManager themeManager) {
         this.storageService = new StorageService();
         this.requirementChecker = requirementChecker;
+        this.themeManager = themeManager;
     }
 
     @Override
@@ -79,7 +76,7 @@ public class AppInitService extends Service<AppInitResult> {
 
                 updateMessage("Setting up app database connection...");
                 AppDatabase.getInstance().openConnection(Path.of(AppConfig.INSTANCE.getRootDirectory(), "app.db"));
-                ThemeManager.getInstance().initDatabase(AppDatabase.getInstance().getConnection());
+                themeManager.initDatabase(AppDatabase.getInstance().getConnection());
                 updateProgress(stepCounter.getAndIncrement(), totalSteps);
 
                 updateMessage("Running benchmarks...");

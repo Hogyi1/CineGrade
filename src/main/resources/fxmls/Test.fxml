@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="rootPane" prefHeight="520.0" prefWidth="720.0" style="-fx-background-color: -clr-almostdarkgrey;" styleClass="theme-dark" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.test.ErrorTestController">
+<AnchorPane fx:id="rootPane" prefHeight="520.0" prefWidth="720.0" style="-fx-background-color: -clr-almostdarkgrey;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.test.ErrorTestController">
     <stylesheets>
         <URL value="@../css/theme.css" />
     </stylesheets>

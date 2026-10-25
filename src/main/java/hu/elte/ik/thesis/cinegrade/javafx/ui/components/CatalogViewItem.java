@@ -3,6 +3,7 @@ package hu.elte.ik.thesis.cinegrade.javafx.ui.components;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.infra.utils.format.FormatUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
@@ -117,9 +118,9 @@ public class CatalogViewItem extends ListCell<Catalog> {
         }
 
         nameLabel.setText(item.getCatalogName() != null ? item.getCatalogName() : "");
-        sizeLabel.setText(item.getFormattedSize());
-        recentLabel.setText(item.getFormattedLastOpenedAt() != null ? item.getFormattedLastOpenedAt() : "");
-        createdAtLabel.setText(item.getFormattedCreatedAt() != null ? item.getFormattedCreatedAt() : "");
+        sizeLabel.setText(item.getSize() > 0 ? FormatUtils.formatBytes(item.getSize()) : "Empty");
+        recentLabel.setText(FormatUtils.formatRelativeTime(item.getLastOpenedAt()));
+        createdAtLabel.setText(FormatUtils.formatDate(item.getCreatedAt()));
     }
 
     private void createConfirmationModal() {

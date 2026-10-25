@@ -6,11 +6,10 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
 import hu.elte.ik.thesis.cinegrade.domain.enums.PhotoExtensions;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
-import hu.elte.ik.thesis.cinegrade.infra.utils.FormatUtils;
+import hu.elte.ik.thesis.cinegrade.infra.utils.format.FormatUtils;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.PanelController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.components.ImportPhotoCard;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Dragboard;
@@ -81,6 +80,9 @@ public class ImportPanelController implements PanelController {
     private CheckBox duplicatesCheckBox;
     @FXML
     private ComboBox<ImportMethod> importMethodComboBox;
+    @FXML
+    private VBox stageProgressOverlay;
+
 
     public ImportPanelController(CatalogContext catalogContext) {
         this.importManager = catalogContext.importManager;
@@ -116,6 +118,11 @@ public class ImportPanelController implements PanelController {
     public void onEnter() {
         logger.info("Entered ImportPanel");
         cardsGridView.requestFocus();
+        resetPanel();
+    }
+
+    private void resetPanel() {
+        setupOthers();
     }
 
     // [AI-GENERATED METHOD]
@@ -153,10 +160,10 @@ public class ImportPanelController implements PanelController {
     }
 
     private void setupOthers() {
-        logger.debug("Configuring thumbnail zoom slider (0.7x to 1.5x)");
-        thumbnailSizeSlider.setMin(0.7);
+        logger.debug("Configuring thumbnail zoom slider (0.45x to 1.5x)");
+        thumbnailSizeSlider.setMin(0.45);
         thumbnailSizeSlider.setMax(1.5);
-        thumbnailSizeSlider.setValue(1.0);
+        thumbnailSizeSlider.setValue(1.5 - 0.45);
         thumbnailSizeSlider.setBlockIncrement(0.05);
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -197,13 +204,26 @@ public class ImportPanelController implements PanelController {
         duplicatesCheckBox.setDisable(true);
         duplicatesCheckBox.setStyle("-fx-opacity: 1");
 
+        if (stageProgressOverlay != null) {
+            stageProgressOverlay.visibleProperty().bind(importManager.getStagingProperty());
+            stageProgressOverlay.managedProperty().bind(importManager.getStagingProperty());
+        }
+
         importButton.disableProperty().bind(
-                Bindings.createBooleanBinding(
-                        () -> importManager.getSelectedFilesProperty().get() == 0,
-                        importManager.getSelectedFilesProperty()
+                importManager.getStagingProperty().or(
+                        Bindings.createBooleanBinding(
+                                () -> importManager.getSelectedFilesProperty().get() == 0,
+                                importManager.getSelectedFilesProperty()
+                        )
                 )
         );
         importButton.setOnMouseClicked(e -> importManager.importPhotos(importMethodComboBox.getValue()));
+
+        cancelButton.disableProperty().bind(importManager.getStagingProperty());
+        browseFilesButton.disableProperty().bind(importManager.getStagingProperty());
+        selectAllButton.disableProperty().bind(importManager.getStagingProperty());
+        deselectAllButton.disableProperty().bind(importManager.getStagingProperty());
+        removeSelectedButton.disableProperty().bind(importManager.getStagingProperty());
 
         browseFilesButton.setOnMouseClicked(e -> openFileBrowser());
         selectAllButton.setOnMouseClicked(e -> importManager.selectAll(true));
