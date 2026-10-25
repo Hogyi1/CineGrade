@@ -1,7 +1,6 @@
 // [CONTAINS AI-GENERATED CODE: searchDirectory method]
-package hu.elte.ik.thesis.cinegrade.infra.process;
+package hu.elte.ik.thesis.cinegrade.infra.utils.process;
 
-import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
 
@@ -9,8 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

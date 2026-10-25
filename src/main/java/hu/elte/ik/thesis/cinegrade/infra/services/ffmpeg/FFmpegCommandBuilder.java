@@ -2,14 +2,12 @@ package hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class FFmpegCommandBuilder implements CommandBuilder {
 

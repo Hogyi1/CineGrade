@@ -3,7 +3,7 @@ package hu.elte.ik.thesis.cinegrade.javafx.ui.components;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.utils.FormatUtils;
+import hu.elte.ik.thesis.cinegrade.infra.utils.format.FormatUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

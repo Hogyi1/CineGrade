@@ -5,13 +5,10 @@ import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.PerformanceTier;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
-import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.exiftool.ExifToolService;
 import hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg.FFmpegService;
 import hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibRaw;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,6 +1,6 @@
-package hu.elte.ik.thesis.cinegrade.app.managers.tasks;
+package hu.elte.ik.thesis.cinegrade.app.managers.concurrency.tasks;
 
-import hu.elte.ik.thesis.cinegrade.app.managers.ThreadPoolManager;
+import hu.elte.ik.thesis.cinegrade.app.managers.concurrency.ThreadPoolManager;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,7 +34,7 @@ public class TaskManager implements AutoCloseable {
      * @param service the service to configure
      */
     public void configure(Service<?> service) {
-        threadPoolManager.setMainExecutorService(service);
+        threadPoolManager.submitService(service);
 
         runningServices.add(service);
 

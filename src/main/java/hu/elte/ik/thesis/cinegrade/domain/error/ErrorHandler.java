@@ -1,21 +1,13 @@
 package hu.elte.ik.thesis.cinegrade.domain.error;
 
-import hu.elte.ik.thesis.cinegrade.app.managers.ThreadPoolManager;
 import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
-import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController;
-import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorModalController;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

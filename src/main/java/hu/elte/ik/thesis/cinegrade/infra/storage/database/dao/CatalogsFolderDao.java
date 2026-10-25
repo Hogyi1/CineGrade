@@ -1,8 +1,6 @@
 // [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.infra.storage.database.dao;
 
-import hu.elte.ik.thesis.cinegrade.domain.catalog.CatalogFolder;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

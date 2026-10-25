@@ -1,10 +1,9 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.libraw;
 
-import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,9 +1,7 @@
 package hu.elte.ik.thesis.cinegrade.infra.services.ffmpeg;
 
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
-import hu.elte.ik.thesis.cinegrade.infra.process.ProcessRunner;
-import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
-import hu.elte.ik.thesis.cinegrade.infra.services.exiftool.ExifToolCommandBuilder;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.ProcessRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

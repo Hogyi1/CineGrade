@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.infra.process;
+package hu.elte.ik.thesis.cinegrade.infra.utils.process;
 
 import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
 import org.apache.logging.log4j.LogManager;

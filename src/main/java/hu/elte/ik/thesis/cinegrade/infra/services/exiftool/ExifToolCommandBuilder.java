@@ -3,7 +3,7 @@ package hu.elte.ik.thesis.cinegrade.infra.services.exiftool;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.NativeBinaryLocator;
 import hu.elte.ik.thesis.cinegrade.infra.services.CommandBuilder;
 
 import java.nio.file.Path;

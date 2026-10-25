@@ -4,11 +4,9 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import hu.elte.ik.thesis.cinegrade.infra.process.NativeBinaryLocator;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.NativeBinaryLocator;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
 
 public interface LibRaw extends Library {
 

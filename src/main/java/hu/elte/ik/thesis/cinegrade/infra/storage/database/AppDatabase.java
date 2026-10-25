@@ -2,6 +2,7 @@ package hu.elte.ik.thesis.cinegrade.infra.storage.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
+import hu.elte.ik.thesis.cinegrade.infra.storage.database.schema.AppSchemaInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

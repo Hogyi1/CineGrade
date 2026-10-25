@@ -1,5 +1,5 @@
 // [CONTAINS AI-GENERATED CODE: Table SQL strings]
-package hu.elte.ik.thesis.cinegrade.infra.storage.database;
+package hu.elte.ik.thesis.cinegrade.infra.storage.database.schema;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
@@ -138,6 +138,9 @@ public class CatalogSchemaInitializer {
             logger.info("Table has successfully been created: {}", table.name());
         }
 
+        syncMissingColumns(connection);
+        migrateCatalogInfoKeys(connection);
+
         logger.info("Initializing indexes..");
         for (SchemaEntity index : INDEXES) {
             logger.info("Creating index: {}", index.name());
@@ -156,6 +159,62 @@ public class CatalogSchemaInitializer {
             pstmt.execute();
         } catch (SQLException ex) {
             throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Metadata insertion");
+        }
+    }
+
+    private static void syncMissingColumns(Connection connection) {
+        logger.info("Verifying and syncing table columns...");
+
+        // Table: photos
+        syncColumn(connection, "photos", "original_path", "TEXT DEFAULT ''");
+        syncColumn(connection, "photos", "import_method", "TEXT DEFAULT 'ADD'");
+        syncColumn(connection, "photos", "thumbnail_path", "TEXT DEFAULT ''");
+        syncColumn(connection, "photos", "rating", "INTEGER DEFAULT 0");
+        syncColumn(connection, "photos", "color_label", "TEXT DEFAULT ''");
+
+        // Table: photo_metadata
+        syncColumn(connection, "photo_metadata", "color_style", "TEXT DEFAULT ''");
+        syncColumn(connection, "photo_metadata", "raw_metadata_json", "TEXT DEFAULT '{}'");
+
+        // Table: edit_states
+        syncColumn(connection, "edit_states", "lut_path", "TEXT DEFAULT ''");
+        syncColumn(connection, "edit_states", "curves_json", "TEXT DEFAULT '{}'");
+    }
+
+    // [AI-GENERATED METHOD]
+    // catalog_info.project_path was renamed to project_directory; carry old catalogs over.
+    private static void migrateCatalogInfoKeys(Connection connection) {
+        try {
+            executeStatement(connection, "UPDATE OR IGNORE catalog_info SET key = 'project_directory' WHERE key = 'project_path';");
+            executeStatement(connection, "DELETE FROM catalog_info WHERE key = 'project_path';");
+        } catch (SQLException ex) {
+            throw new CineGradeException(ErrorCode.DB_SCHEMA_INIT_FAILED, ex, "catalog_info key migration");
+        }
+    }
+
+    private static void syncColumn(Connection connection, String table, String column, String definition) {
+        boolean exists = false;
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("PRAGMA table_info(" + table + ")")) {
+            while (rs.next()) {
+                if (column.equalsIgnoreCase(rs.getString("name"))) {
+                    exists = true;
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            logger.warn("Could not inspect columns for table '{}': {}", table, e.getMessage());
+            return;
+        }
+
+        if (!exists) {
+            logger.info("Auto-migrating: adding missing column '{}' to table '{}'", column, table);
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
+                logger.info("Successfully added missing column '{}' to table '{}'", column, table);
+            } catch (SQLException e) {
+                logger.error("Failed to add column '{}' to table '{}'", column, table, e);
+            }
         }
     }
 

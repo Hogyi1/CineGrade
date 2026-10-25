@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.infra.logger;
+package hu.elte.ik.thesis.cinegrade.infra.utils.logger;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
 import org.apache.logging.log4j.Level;
