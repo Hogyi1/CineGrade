@@ -1,10 +1,15 @@
 package hu.elte.ik.thesis.cinegrade.domain.editing;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.File;
 import java.util.Locale;
 
 public abstract class Entry {
 
+    @Getter
+    @Setter
     protected File file;
 
     public Entry(File file) {
@@ -20,13 +25,5 @@ public abstract class Entry {
     public final String getFileNameWithoutExtension() {
         int dotIndex = file.getName().lastIndexOf(".");
         return file.getName().substring(0, dotIndex).toLowerCase(Locale.ROOT);
-    }
-
-    public final File getFile() {
-        return file;
-    }
-
-    public final void setFile(File file) {
-        this.file = file;
     }
 }

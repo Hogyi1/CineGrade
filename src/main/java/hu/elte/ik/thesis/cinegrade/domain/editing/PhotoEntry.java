@@ -4,6 +4,8 @@ package hu.elte.ik.thesis.cinegrade.domain.editing;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -15,14 +17,24 @@ public class PhotoEntry extends Entry {
 
     private final BooleanProperty missingPhoto = new SimpleBooleanProperty(false);
     private final BooleanProperty missingThumbnail = new SimpleBooleanProperty(false);
+    @Getter @Setter
     private String id;
+    // Setters below are overloaded with Path variants, so only the getter is generated
+    @Getter
     private String thumbnailPath;
+    @Getter
     private String originalPath;
+    @Getter @Setter
     private ImportMethod importMethod;
+    @Getter @Setter
     private long fileSize;
+    @Getter @Setter
     private int rating = 0;
+    @Getter @Setter
     private String colorLabel;
+    @Getter @Setter
     private Instant dateImported;
+    @Getter @Setter
     private String importId;
 
     // On import
@@ -115,28 +127,12 @@ public class PhotoEntry extends Entry {
             Path normThumb = tPath.toAbsolutePath().normalize();
 
             if (normThumb.startsWith(normCatalog)) {
-                // Option A: "cache/thumbnails/..."
+                // "cache/thumbnails/..."
                 return normCatalog.relativize(normThumb).toString().replace('\\', '/');
-
-                // Or Option B (with project name):
-                // return normCatalog.getParent().relativize(normThumb).toString().replace('\\', '/');
             }
         }
 
         return thumbnailPath.replace('\\', '/');
-    }
-
-    // Getters and Setters...
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getThumbnailPath() {
-        return thumbnailPath;
     }
 
     public void setThumbnailPath(Path thumbnailPath) {
@@ -147,64 +143,12 @@ public class PhotoEntry extends Entry {
         this.thumbnailPath = thumbnailPath;
     }
 
-    public String getOriginalPath() {
-        return originalPath;
-    }
-
     public void setOriginalPath(Path originalPath) {
         this.originalPath = originalPath.toString();
     }
 
     public void setOriginalPath(String originalPath) {
         this.originalPath = originalPath;
-    }
-
-    public ImportMethod getImportMethod() {
-        return importMethod;
-    }
-
-    public void setImportMethod(ImportMethod importMethod) {
-        this.importMethod = importMethod;
-    }
-
-    public long getFileSize() {
-        return fileSize;
-    }
-
-    public void setFileSize(long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
-    public String getColorLabel() {
-        return colorLabel;
-    }
-
-    public void setColorLabel(String colorLabel) {
-        this.colorLabel = colorLabel;
-    }
-
-    public Instant getDateImported() {
-        return dateImported;
-    }
-
-    public void setDateImported(Instant dateImported) {
-        this.dateImported = dateImported;
-    }
-
-    public String getImportId() {
-        return importId;
-    }
-
-    public void setImportId(String importId) {
-        this.importId = importId;
     }
 
     public BooleanProperty missingPhotoProperty() {

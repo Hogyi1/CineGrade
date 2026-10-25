@@ -1,8 +1,13 @@
 // [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.domain.editing;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Getter
+@Setter
 public class EditState {
     private String photoId;
     private double exposure = 0.0;
@@ -29,7 +34,7 @@ public class EditState {
     }
 
     // [AI-GENERATED METHOD]
-    public EditState(String photoId, double exposure, double contrast, double highlights, double shadows, double whites, double blacks, double temperature, double tint, double saturation, double vibrance, String lutPath, String curvesJson, java.time.Instant updatedAt) {
+    public EditState(String photoId, double exposure, double contrast, double highlights, double shadows, double whites, double blacks, double temperature, double tint, double saturation, double vibrance, String lutPath, String curvesJson, Instant updatedAt) {
         this.photoId = photoId;
         this.exposure = exposure;
         this.contrast = contrast;
@@ -43,118 +48,6 @@ public class EditState {
         this.vibrance = vibrance;
         this.lutPath = lutPath;
         this.curvesJson = curvesJson;
-        this.updatedAt = updatedAt != null ? updatedAt : java.time.Instant.now();
-    }
-
-    public String getPhotoId() {
-        return photoId;
-    }
-
-    public void setPhotoId(String photoId) {
-        this.photoId = photoId;
-    }
-
-    public double getExposure() {
-        return exposure;
-    }
-
-    public void setExposure(double exposure) {
-        this.exposure = exposure;
-    }
-
-    public double getContrast() {
-        return contrast;
-    }
-
-    public void setContrast(double contrast) {
-        this.contrast = contrast;
-    }
-
-    public double getHighlights() {
-        return highlights;
-    }
-
-    public void setHighlights(double highlights) {
-        this.highlights = highlights;
-    }
-
-    public double getShadows() {
-        return shadows;
-    }
-
-    public void setShadows(double shadows) {
-        this.shadows = shadows;
-    }
-
-    public double getWhites() {
-        return whites;
-    }
-
-    public void setWhites(double whites) {
-        this.whites = whites;
-    }
-
-    public double getBlacks() {
-        return blacks;
-    }
-
-    public void setBlacks(double blacks) {
-        this.blacks = blacks;
-    }
-
-    public double getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
-    }
-
-    public double getTint() {
-        return tint;
-    }
-
-    public void setTint(double tint) {
-        this.tint = tint;
-    }
-
-    public double getSaturation() {
-        return saturation;
-    }
-
-    public void setSaturation(double saturation) {
-        this.saturation = saturation;
-    }
-
-    public double getVibrance() {
-        return vibrance;
-    }
-
-    public void setVibrance(double vibrance) {
-        this.vibrance = vibrance;
-    }
-
-    public String getLutPath() {
-        return lutPath;
-    }
-
-    public void setLutPath(String lutPath) {
-        this.lutPath = lutPath;
-    }
-
-    public String getCurvesJson() {
-        return curvesJson;
-    }
-
-    public void setCurvesJson(String curvesJson) {
-        this.curvesJson = curvesJson;
-    }
-
-    public java.time.Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(java.time.Instant updatedAt) {
-        this.updatedAt = updatedAt;
+        this.updatedAt = updatedAt != null ? updatedAt : Instant.now();
     }
 }
