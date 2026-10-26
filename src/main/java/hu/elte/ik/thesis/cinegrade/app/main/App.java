@@ -12,15 +12,18 @@ import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.ControllerFactory;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import hu.elte.ik.thesis.cinegrade.infra.utils.logger.LoggerUtils;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.AppDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.catalog.ProjectMenuController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.SplashScreenController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.editing.*;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.presenters.ErrorPresenter;
+import hu.elte.ik.thesis.cinegrade.javafx.ui.presenters.TaskToastPresenter;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.test.ErrorTestController;
-import hu.elte.ik.thesis.cinegrade.domain.tasks.AppInitService;
+import hu.elte.ik.thesis.cinegrade.domain.tasks.appinit.AppInitService;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -41,6 +44,10 @@ public class App extends Application {
     private ThemeManager themeManager;
     private Logger logger;
     private ResourceStack resources;
+    private StorageService storageService;
+
+    private TaskToastPresenter taskToastPresenter;
+    private ErrorPresenter errorToastPresenter;
 
     @Override
     public void init() {
@@ -60,6 +67,7 @@ public class App extends Application {
 
             createBootstrapManagers(primaryStage);
             registerControllers();
+            createPresenters();
 
             SplashScreenController splashScreenController = sceneManager.showSplash();
             splashScreenController.startService();
@@ -72,10 +80,11 @@ public class App extends Application {
 
     /**
      * Creates the application initialization service
+     *
      * @return the initialized AppInitService
      */
-    private AppInitService createAppInitService(){
-        AppInitService appInitService = new AppInitService(requirementChecker, themeManager);
+    private AppInitService createAppInitService() {
+        AppInitService appInitService = new AppInitService(requirementChecker, themeManager, storageService);
         taskManager.configure(appInitService);
 
         appInitService.setOnSucceeded(e -> {
@@ -105,11 +114,11 @@ public class App extends Application {
         controllerFactory.register(SplashScreenController.class, () -> new SplashScreenController(createAppInitService()));
 
         // Created after catalog is selected
-        controllerFactory.register(WorkspaceController.class, () -> new WorkspaceController(catalogManager.getCurrentCatalogContext(), controllerFactory));
+        controllerFactory.register(WorkspaceController.class, () -> new WorkspaceController(catalogManager.getCurrentScope(), controllerFactory));
         controllerFactory.register(NavigationController.class, () -> new NavigationController(sceneManager, userManager, themeManager));
-        controllerFactory.register(ImportPanelController.class, () -> new ImportPanelController(catalogManager.getCurrentCatalogContext()));
-        controllerFactory.register(DevelopmentPanelController.class, () -> new DevelopmentPanelController(catalogManager.getCurrentCatalogContext()));
-        controllerFactory.register(ExportPanelController.class, () -> new ExportPanelController(catalogManager.getCurrentCatalogContext()));
+        controllerFactory.register(ImportPanelController.class, () -> new ImportPanelController(catalogManager.getCurrentScope()));
+        controllerFactory.register(DevelopmentPanelController.class, () -> new DevelopmentPanelController(catalogManager.getCurrentScope()));
+        controllerFactory.register(ExportPanelController.class, () -> new ExportPanelController(catalogManager.getCurrentScope()));
     }
 
     /**
@@ -117,20 +126,17 @@ public class App extends Application {
      */
     private void createBootstrapManagers(Stage primaryStage) {
         logger.info("Creating bootstrap managers");
-        try {
-            requirementChecker = new RequirementChecker();
-            controllerFactory = new ControllerFactory();
-            themeManager = new ThemeManager();
-            sceneManager = new SceneManager(primaryStage, controllerFactory, themeManager);
 
-            threadPoolManager = new ThreadPoolManager(16);
-            taskManager = new TaskManager(threadPoolManager);
-            resources.push(threadPoolManager);
-            resources.push(taskManager);
-        } catch (Exception e) {
-            logger.error("Error occurred while creating bootstrap managers", e);
-            Platform.exit();
-        }
+        storageService = new StorageService();
+        requirementChecker = new RequirementChecker();
+        controllerFactory = new ControllerFactory();
+        themeManager = new ThemeManager();
+        sceneManager = new SceneManager(primaryStage, controllerFactory, themeManager);
+
+        threadPoolManager = new ThreadPoolManager(16);
+        taskManager = new TaskManager(threadPoolManager.getTaskPool());
+        resources.push(threadPoolManager);
+        resources.push(taskManager);
     }
 
     /**
@@ -138,9 +144,14 @@ public class App extends Application {
      */
     private void createDatabaseManagers() {
         logger.info("Creating database-dependent managers");
-        catalogManager = new CatalogManager(taskManager, new CatalogScopeFactory(taskManager));
+        catalogManager = new CatalogManager(new CatalogScopeFactory(taskManager), storageService);
         resources.push(catalogManager);
         userManager = new UserManager();
+    }
+
+    private void createPresenters() {
+        taskToastPresenter = new TaskToastPresenter(taskManager, sceneManager.getTaskToastContainer());
+        errorToastPresenter = new ErrorPresenter(sceneManager.getErrorToastContainer());
     }
 
     @Override
@@ -148,9 +159,10 @@ public class App extends Application {
         logger.info("Application stopped");
         try {
             resources.close();
-            AppDatabase.getInstance().close();
         } catch (Exception ex) {
             logger.error("Error occurred while closing task manager", ex);
+        } finally {
+            AppDatabase.getInstance().close();
         }
     }
 }

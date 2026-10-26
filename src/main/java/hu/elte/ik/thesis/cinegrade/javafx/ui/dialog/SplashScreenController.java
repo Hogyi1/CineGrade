@@ -1,6 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.dialog;
 
-import hu.elte.ik.thesis.cinegrade.domain.tasks.AppInitService;
+import hu.elte.ik.thesis.cinegrade.domain.tasks.appinit.AppInitService;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;

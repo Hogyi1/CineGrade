@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.domain.results;
+package hu.elte.ik.thesis.cinegrade.infra.utils.process;
 
 public record ProcessResult(int exitCode, String stdout, String stderr) {
 

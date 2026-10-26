@@ -1,6 +1,7 @@
 // [AI-GENERATED]
 package hu.elte.ik.thesis.cinegrade.infra.utils.format;
 
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -102,5 +103,14 @@ public final class FormatUtils {
         if (minutes > 0) return minutes == 1 ? "1 minute ago" : minutes + " minutes ago";
 
         return "Just now";
+    }
+
+    public static String stripExtension(Path path){
+        String fileName = path.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
+            return fileName.substring(0, dotIndex);
+        }
+        return fileName;
     }
 }

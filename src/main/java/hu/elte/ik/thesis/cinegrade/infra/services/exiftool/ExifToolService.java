@@ -6,7 +6,7 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoMetadata;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.ExifProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ExifTag;
-import hu.elte.ik.thesis.cinegrade.domain.results.ProcessResult;
+import hu.elte.ik.thesis.cinegrade.infra.utils.process.ProcessResult;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
 import hu.elte.ik.thesis.cinegrade.infra.utils.process.ProcessRunner;
 import org.apache.logging.log4j.LogManager;
