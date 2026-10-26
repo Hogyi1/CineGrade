@@ -1,7 +1,7 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
 import hu.elte.ik.thesis.cinegrade.app.managers.editing.ImportManager;
-import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
+import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScope;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
 import hu.elte.ik.thesis.cinegrade.domain.enums.PhotoExtensions;
@@ -84,8 +84,8 @@ public class ImportPanelController implements PanelController {
     private VBox stageProgressOverlay;
 
 
-    public ImportPanelController(CatalogContext catalogContext) {
-        this.importManager = catalogContext.importManager;
+    public ImportPanelController(CatalogScope catalogScope) {
+        this.importManager = catalogScope.importManager();
         this.removeConsumer = importManager::removeStageEntry;
     }
 

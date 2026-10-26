@@ -1,32 +1,24 @@
 package hu.elte.ik.thesis.cinegrade.domain.error;
 
-import hu.elte.ik.thesis.cinegrade.domain.enums.Severity;
+import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
-import hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.ErrorDialogController;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ErrorHandler implements Thread.UncaughtExceptionHandler {
 
     private static final ErrorHandler INSTANCE = new ErrorHandler();
     private static final Logger logger = LogManager.getLogger(ErrorHandler.class);
 
-    private static final int MAX_QUEUE_SIZE = 5;
-    private static final int MAX_VISIBLE_TOASTS = 3;
-    private static final int MAX_WAIT_TIME_IN_MILLIS = 500;
-    private final Queue<QueuedToast> toastQueue = new ArrayDeque<>();
-    private VBox toastContainer;
-    private SceneManager sceneManager;
-    private volatile boolean isModalShowing = false;
+    private final Set<ErrorListener> listeners = new CopyOnWriteArraySet<>();
+
+    public void registerListener(ErrorListener listener){
+        logger.info("Registered listener for errors: {}", listener);
+        listeners.add(listener);
+    }
 
     private ErrorHandler() {
     }
@@ -51,21 +43,12 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
         Thread.currentThread().setUncaughtExceptionHandler(INSTANCE);
     }
 
-    public void setToastContainer(VBox container) {
-        this.toastContainer = container;
-    }
-
-    public void setSceneManager(SceneManager sceneManager) {
-        this.sceneManager = sceneManager;
-    }
-
     public void handle(CineGradeException exception) {
         logger.error("CineGradeException [{}]: {}", exception.getErrorCodeValue(), exception.getErrorMessage(), exception);
 
         switch (exception.getSeverity()) {
-            case FATAL -> showModal(exception);
-            case ERROR, WARNING ->
-                    enqueueToast("[%d] %s".formatted(exception.getErrorCodeValue(), exception.getSeverity()), exception.getLocalizedMessage(), exception.getSeverity());
+            case FATAL -> listeners.forEach(listener -> listener.onError(exception, ErrorDisplayMode.MODAL));
+            case ERROR, WARNING -> listeners.forEach(listener -> listener.onError(exception, ErrorDisplayMode.TOAST));
         }
     }
 
@@ -79,61 +62,12 @@ public class ErrorHandler implements Thread.UncaughtExceptionHandler {
             return;
         }
         logger.error("Unhandled Exception: {}", exception.getMessage(), exception);
-        enqueueToast("Error", exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "Unexpected error", Severity.FATAL);
+        listeners.forEach(listener -> listener.onError(new CineGradeException(ErrorCode.UNKNOWN_ERROR, exception, "Unhandled exception"), ErrorDisplayMode.TOAST));
     }
 
-    private void showModal(CineGradeException exception) {
-        if (isModalShowing) return;
-        isModalShowing = true;
-        toastQueue.clear();
-        if (sceneManager != null) {
-            sceneManager.showFatalErrorModal(exception);
-        } else {
-            logger.error("Failed to display fatal error modal: SceneManager not available");
-        }
-    }
-
-    private synchronized void enqueueToast(String title, String message, Severity severity) {
-        Platform.runLater(() -> {
-            if (toastContainer == null) {
-                logger.warn("Toast container not registered! Message: {}", message);
-                return;
-            }
-
-            if (toastQueue.size() >= MAX_QUEUE_SIZE && System.currentTimeMillis() - toastQueue.peek().pollTime >= MAX_WAIT_TIME_IN_MILLIS) {
-                toastQueue.poll();
-            }
-            toastQueue.offer(new QueuedToast(title, message, severity, System.currentTimeMillis()));
-            processToastQueue();
-        });
-    }
-
-    private void processToastQueue() {
-        if (toastContainer == null) return;
-
-        while (toastContainer.getChildren().size() < MAX_VISIBLE_TOASTS && !toastQueue.isEmpty()) {
-            QueuedToast item = toastQueue.poll();
-            if (item == null) break;
-
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmls/errorToast.fxml"));
-                Node toastNode = loader.load();
-
-                ErrorDialogController controller = loader.getController();
-                controller.setupToast(item.title(), item.message(), item.severity(), () -> {
-                    // When toast finishes animating out, remove it and pop next from queue!
-                    toastContainer.getChildren().remove(toastNode);
-                    processToastQueue();
-                });
-
-                toastContainer.getChildren().add(toastNode);
-            } catch (IOException e) {
-                logger.error("Failed to load /fxmls/errorToast.fxml", e);
-            }
-        }
-    }
-
-    private record QueuedToast(String title, String message, Severity severity, long pollTime) {
+    public enum ErrorDisplayMode {
+        MODAL,
+        TOAST
     }
 }
 

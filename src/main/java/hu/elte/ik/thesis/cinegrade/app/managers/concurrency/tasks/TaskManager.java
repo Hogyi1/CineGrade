@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.WorkerStateEvent;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,20 +14,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
 
 public class TaskManager implements AutoCloseable {
 
-    private final ThreadPoolManager threadPoolManager;
+    private final ExecutorService servicePool;
+    @Getter
     private final ObservableList<Service<?>> completedServices;
+    @Getter
     private final ObservableList<Service<?>> runningServices;
 
     private final ConcurrentHashMap<Object, List<Service<?>>> groups = new ConcurrentHashMap<>();
     private static final Logger logger = LogManager.getLogger(TaskManager.class);
 
-    public TaskManager(ThreadPoolManager threadPoolManager) {
-        this.threadPoolManager = threadPoolManager;
-        this.runningServices = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-        this.completedServices = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+    public TaskManager(ExecutorService servicePool) {
+        this.servicePool = servicePool;
+        // Plain lists: configure() runs on the FX thread and Service state changes are always delivered there
+        this.runningServices = FXCollections.observableArrayList();
+        this.completedServices = FXCollections.observableArrayList();
     }
 
     /**
@@ -34,7 +39,7 @@ public class TaskManager implements AutoCloseable {
      * @param service the service to configure
      */
     public void configure(Service<?> service) {
-        threadPoolManager.submitService(service);
+        service.setExecutor(servicePool);
 
         runningServices.add(service);
 
@@ -83,22 +88,6 @@ public class TaskManager implements AutoCloseable {
             servicesToCancel.forEach(Service::cancel);
             logger.debug("Tasks cancelled for group: {}", group);
         }
-    }
-
-    /**
-     * Returns the list of running tasks
-     * @return the list of running tasks
-     */
-    public ObservableList<Service<?>> runningTasks() {
-        return runningServices;
-    }
-
-    /**
-     * Returns the list of completed tasks
-     * @return the list of completed tasks
-     */
-    public ObservableList<Service<?>> completedTasks() {
-        return completedServices;
     }
 
     @Override

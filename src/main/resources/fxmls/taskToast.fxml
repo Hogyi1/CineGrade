@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [AI-GENERATED] -->
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<HBox fx:id="toastRoot" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="340.0" spacing="12.0" styleClass="toast-root, task-toast-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.ik.thesis.cinegrade.javafx.ui.dialog.TaskToastController">
+    <stylesheets>
+        <URL value="@../css/theme.css" />
+        <URL value="@../css/taskManager.css" />
+    </stylesheets>
+    <padding>
+        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+    </padding>
+    <children>
+        <!-- Status strip: blue while running, green / red / grey when finished -->
+        <Rectangle fx:id="statusIndicator" arcHeight="4.0" arcWidth="4.0" height="46.0" stroke="TRANSPARENT" styleClass="task-toast-indicator" width="4.0" />
+
+        <!-- Message and progress -->
+        <VBox alignment="CENTER_LEFT" spacing="5.0" HBox.hgrow="ALWAYS">
+            <children>
+                <Label fx:id="toastMessage" maxWidth="260.0" styleClass="toast-message" text="Copying 14 of 32..." wrapText="true" />
+                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                    <children>
+                        <ProgressBar fx:id="toastProgressBar" maxWidth="1.7976931348623157E308" progress="0.45" styleClass="task-progress-bar" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="toastPercentage" minWidth="32.0" styleClass="task-toast-percentage" text="45%" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Cancel 'X' button -->
+        <VBox alignment="TOP_RIGHT" minWidth="24.0" prefWidth="24.0" HBox.hgrow="NEVER">
+            <children>
+                <Button fx:id="toastCancelButton" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" styleClass="toast-close-btn, task-toast-cancel-btn" text="✕" />
+            </children>
+        </VBox>
+    </children>
+</HBox>

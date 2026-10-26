@@ -122,3 +122,53 @@
     -fx-text-fill: -clr-text-muted;
     -fx-font-size: 12px;
 }
+
+/* ==========================================================================
+   Task Toasts (left side, alive until the task finishes)
+   Base look comes from .toast-root / .toast-title / .toast-message in theme.css
+   ========================================================================== */
+.task-toast-indicator {
+    -fx-fill: -clr-blue;
+}
+
+.task-toast-percentage {
+    -fx-text-fill: -clr-text-muted;
+    -fx-font-size: 11px;
+}
+
+.task-toast-cancel-btn:hover {
+    -fx-background-color: rgba(224, 36, 36, 0.2);
+    -fx-text-fill: -clr-danger;
+}
+
+.task-toast-cancel-btn:disabled {
+    -fx-opacity: 0;
+}
+
+/* Final states */
+.task-toast-succeeded .task-toast-indicator {
+    -fx-fill: -clr-success;
+}
+.task-toast-succeeded .task-progress-bar .bar {
+    -fx-background-color: -clr-success;
+}
+.task-toast-succeeded .task-toast-percentage {
+    -fx-text-fill: -clr-success;
+}
+
+.task-toast-failed .task-toast-indicator {
+    -fx-fill: -clr-danger;
+}
+.task-toast-failed .task-progress-bar .bar {
+    -fx-background-color: -clr-danger;
+}
+.task-toast-failed .task-toast-percentage {
+    -fx-text-fill: -clr-danger;
+}
+
+.task-toast-cancelled .task-toast-indicator {
+    -fx-fill: -clr-text-muted;
+}
+.task-toast-cancelled .task-progress-bar .bar {
+    -fx-background-color: -clr-text-muted;
+}

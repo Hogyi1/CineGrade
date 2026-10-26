@@ -1,23 +1,20 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
-import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
+import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScope;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.ControllerFactory;
-import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.PanelController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.EnumMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,13 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WorkspaceController {
 
     private static final Logger logger = LogManager.getLogger(WorkspaceController.class);
-    private final CatalogContext context;
+    private final CatalogScope catalogScope;
     private final ControllerFactory controllerFactory;
     private final ConcurrentHashMap<WorkspacePanel, CachedPanel> cachedPanels = new ConcurrentHashMap<>();
     @FXML
     private StackPane workspacePanelContainer;
-    @FXML
-    private BorderPane editPage;
     @FXML
     private NavigationController navigationBarController;
     private CachedPanel currentPanel;
@@ -42,12 +37,12 @@ public class WorkspaceController {
      * Creates a workspace controller with the catalog context and controller factory
      * required to load its panels.
      *
-     * @param context the catalog and initial-panel context for this workspace
+     * @param catalogScope the catalog and initial-panel scope for this workspace
      * @param controllerFactory the factory used to construct FXML controllers
      */
-    public WorkspaceController(CatalogContext context, ControllerFactory controllerFactory) {
+    public WorkspaceController(CatalogScope catalogScope, ControllerFactory controllerFactory) {
         this.controllerFactory = controllerFactory;
-        this.context = context;
+        this.catalogScope = catalogScope;
     }
 
     /**
@@ -55,14 +50,29 @@ public class WorkspaceController {
      */
     @FXML
     private void initialize() {
-        logger.info("Initializing workspace for catalog '{}' with starting panel {}", context.catalog.getCatalogName(), context.startingPanel);
+        logger.info("Initializing workspace for catalog '{}'", catalogScope.catalog().getCatalogName());
         navigationBarController
                 .getNavigationProperty()
                 .addListener((obs, oldValue, newValue) -> {
                     logger.info("Navigation changed from {} to {}", oldValue, newValue);
                     changeWorkspacePanel(newValue);
+                    rememberPanel(newValue);
                 });
-        navigationBarController.setWorkspaceMode(true, context.catalog.getCatalogName(), context.startingPanel);
+        navigationBarController.setWorkspaceMode(true, catalogScope.catalog().getCatalogName(), catalogScope.catalog().getLastPanel());
+    }
+
+    // [AI-GENERATED METHOD]
+    /**
+     * Saves the panel on every switch (not on close), so a crash still reopens on the last tab.
+     *
+     * @param panel the panel that just became active
+     */
+    private void rememberPanel(WorkspacePanel panel) {
+        if (panel == null || panel == catalogScope.catalog().getLastPanel()) {
+            return;
+        }
+        catalogScope.catalog().setLastPanel(panel);
+        catalogScope.catalogService().setLastPanel(panel);
     }
 
     /**

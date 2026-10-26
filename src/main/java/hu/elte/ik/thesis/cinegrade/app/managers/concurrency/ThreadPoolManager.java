@@ -2,7 +2,6 @@ package hu.elte.ik.thesis.cinegrade.app.managers.concurrency;
 
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.infra.config.SystemInfo;
-import javafx.concurrent.Service;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,7 @@ public class ThreadPoolManager implements AutoCloseable {
     private static final Logger logger = LogManager.getLogger(ThreadPoolManager.class);
     private final ThreadPoolExecutor cpuPool;
     private final ThreadPoolExecutor ioPool;
-    private final ThreadPoolExecutor taskExecutor;
+    private final ThreadPoolExecutor taskPool;
     private final int MAX_THREADS, CPU_THREADS, TASK_THREADS, IO_THREADS;
 
     public ThreadPoolManager() {
@@ -35,18 +34,13 @@ public class ThreadPoolManager implements AutoCloseable {
 
         this.cpuPool = new DefaultThreadPoolExecutor(cpuFactory, CPU_THREADS);
         this.ioPool = new DefaultThreadPoolExecutor(ioFactory, IO_THREADS);
-        this.taskExecutor = new DefaultThreadPoolExecutor(taskFactory, TASK_THREADS);
+        this.taskPool = new DefaultThreadPoolExecutor(taskFactory, TASK_THREADS);
 
         logger.debug("ThreadPoolManager succesfully created, new ExecutorServices with {} threads is created", MAX_THREADS);
     }
 
-    public void submitService(Service<?> service) {
-        logger.debug("Service: {} - submitted to executor", service.toString());
-        service.setExecutor(taskExecutor);
-    }
-
     /**
-     * Gracefully shuts down the specified thread pool pool.
+     * Gracefully shuts down the specified threadpool.
      * @param pool the pool to shut down
      */
     public void gracefulShutdown(ThreadPoolExecutor pool) {
@@ -55,7 +49,7 @@ public class ThreadPoolManager implements AutoCloseable {
 
         pool.shutdown();
         try {
-            if (pool.awaitTermination(10, TimeUnit.SECONDS)) {
+            if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
                 pool.shutdownNow();
             }
         } catch (InterruptedException ex) {
@@ -70,11 +64,14 @@ public class ThreadPoolManager implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        gracefulShutdown(taskExecutor);
+        gracefulShutdown(taskPool);
         gracefulShutdown(ioPool);
         gracefulShutdown(cpuPool);
     }
 
+    /**
+     * A default thread factory for creating threads.
+     */
     private static class DefaultThreadFactory implements ThreadFactory {
 
         private final String threadNamePrefix;
@@ -94,6 +91,9 @@ public class ThreadPoolManager implements AutoCloseable {
         }
     }
 
+    /**
+     * A default thread pool executor for managing threads.
+     */
     private static class DefaultThreadPoolExecutor extends ThreadPoolExecutor {
 
         public DefaultThreadPoolExecutor(ThreadFactory threadFactory, Integer maxThreads) {

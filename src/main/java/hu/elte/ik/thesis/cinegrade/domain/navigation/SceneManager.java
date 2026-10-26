@@ -20,11 +20,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 
 public class SceneManager {
@@ -35,7 +35,8 @@ public class SceneManager {
     private Scene primaryScene;
     private ViewType currentView;
     private StackPane contentLayer, rootShell;
-    private VBox toastContainer;
+    @Getter
+    private VBox errorToastContainer, taskToastContainer;
     private final ThemeManager themeManager;
 
     public SceneManager(Stage primaryStage, ViewType currentView, Callback<Class<?>, Object> controllerFactory, ThemeManager themeManager) {
@@ -63,6 +64,7 @@ public class SceneManager {
         if (nextView == null) {
             throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, "View cannot be null");
         }
+
         //Do scene change
         if (sceneHandling != null) {
             // tofront tocenter stagemodality etc
@@ -133,17 +135,21 @@ public class SceneManager {
     private void initShell() {
         contentLayer = new StackPane();
 
-        toastContainer = new VBox(10);
-        toastContainer.setAlignment(Pos.TOP_RIGHT);
-        toastContainer.setPickOnBounds(false);
-        StackPane.setAlignment(toastContainer, Pos.TOP_RIGHT);
-        StackPane.setMargin(toastContainer, new Insets(20));
+        taskToastContainer = new VBox(10);
+        taskToastContainer.setAlignment(Pos.TOP_LEFT);
+        taskToastContainer.setPickOnBounds(false);
 
-        rootShell = new StackPane(contentLayer, toastContainer);
+        errorToastContainer = new VBox(10);
+        errorToastContainer.setAlignment(Pos.TOP_RIGHT);
+        errorToastContainer.setPickOnBounds(false);
+
+        StackPane.setAlignment(errorToastContainer, Pos.TOP_RIGHT);
+        StackPane.setAlignment(taskToastContainer, Pos.TOP_LEFT);
+        StackPane.setMargin(errorToastContainer, new Insets(20));
+        StackPane.setMargin(taskToastContainer, new Insets(20));
+
+        rootShell = new StackPane(contentLayer, errorToastContainer, taskToastContainer);
         rootShell.getStyleClass().add(themeManager.get().getStyleClass());
-
-        ErrorHandler.getInstance().setToastContainer(toastContainer);
-        ErrorHandler.getInstance().setSceneManager(this);
 
         primaryScene = new Scene(rootShell);
         ThemeManager.setupStylesheet(primaryScene);
@@ -152,41 +158,6 @@ public class SceneManager {
         themeManager.themeProperty().addListener((obs, oldValue, newValue) -> {
             if (oldValue != null) rootShell.getStyleClass().removeAll(oldValue.getStyleClass());
             if (newValue != null && !rootShell.getStyleClass().contains(newValue.getStyleClass())) rootShell.getStyleClass().add(newValue.getStyleClass());
-        });
-    }
-
-    public void showFatalErrorModal(CineGradeException exception) {
-        Platform.runLater(() -> {
-            try {
-                Platform.setImplicitExit(false);
-
-                FXMLLoader loader = createLoader("/fxmls/errorModal.fxml");
-                Parent root = loader.load();
-                ErrorModalController controller = loader.getController();
-                controller.setupDialog(exception);
-
-                root.getStyleClass().add(themeManager.get().getStyleClass());
-
-                Stage modalStage = new Stage();
-                modalStage.initModality(Modality.APPLICATION_MODAL);
-                modalStage.setTitle("CineGrade — Fatal Error");
-                modalStage.setResizable(false);
-                modalStage.setScene(new Scene(root));
-                modalStage.centerOnScreen();
-
-                // Close all existing open windows so the main app disappears completely
-                for (Window window : Window.getWindows().toArray(new Window[0])) {
-                    if (window instanceof Stage stage && stage != modalStage) {
-                        stage.close();
-                    }
-                }
-
-                modalStage.showAndWait();
-                Platform.exit();
-            } catch (Exception e) {
-                logger.error("Failed to display fatal error modal", e);
-                Platform.exit();
-            }
         });
     }
 }

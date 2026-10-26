@@ -1,14 +1,14 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
-import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
+import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScope;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.PanelController;
 
 public class DevelopmentPanelController implements PanelController {
 
-    private final CatalogContext catalogContext;
+    private final CatalogScope catalogScope;
 
-    public DevelopmentPanelController(CatalogContext catalogContext) {
-        this.catalogContext = catalogContext;
+    public DevelopmentPanelController(CatalogScope catalogScope) {
+        this.catalogScope = catalogScope;
     }
 
     @Override
