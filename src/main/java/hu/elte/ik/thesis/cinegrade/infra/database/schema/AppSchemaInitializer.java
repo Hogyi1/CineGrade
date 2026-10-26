@@ -1,5 +1,5 @@
 // [CONTAINS AI-GENERATED CODE: Table SQL strings]
-package hu.elte.ik.thesis.cinegrade.infra.storage.database.schema;
+package hu.elte.ik.thesis.cinegrade.infra.database.schema;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;

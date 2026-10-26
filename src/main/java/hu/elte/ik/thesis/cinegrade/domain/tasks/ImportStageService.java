@@ -5,7 +5,7 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageResult;
 import hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibrawService;
-import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import net.coobird.thumbnailator.Thumbnails;

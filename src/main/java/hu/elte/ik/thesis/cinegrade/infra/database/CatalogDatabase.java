@@ -1,6 +1,6 @@
-package hu.elte.ik.thesis.cinegrade.infra.storage.database;
+package hu.elte.ik.thesis.cinegrade.infra.database;
 
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.schema.CatalogSchemaInitializer;
+import hu.elte.ik.thesis.cinegrade.infra.database.schema.CatalogSchemaInitializer;
 
 import java.nio.file.Path;
 

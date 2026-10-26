@@ -2,7 +2,7 @@ package hu.elte.ik.thesis.cinegrade.app.managers.editing;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoEntry;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.PhotoDao;
+import hu.elte.ik.thesis.cinegrade.infra.database.dao.catalog.PhotoDao;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

@@ -1,16 +1,15 @@
-package hu.elte.ik.thesis.cinegrade.infra.services.database;
+package hu.elte.ik.thesis.cinegrade.infra.services.storage.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
+import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.CatalogSettingsDao;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.dao.CatalogsFolderDao;
+import hu.elte.ik.thesis.cinegrade.infra.database.dao.catalog.CatalogSettingsDao;
 import lombok.Getter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 public class CatalogService {
@@ -22,6 +21,7 @@ public class CatalogService {
     public static final String KEY_CREATED_AT = "created_at";
     public static final String KEY_RECENT_CATALOG_ID = "recent_catalog_id";
     public static final String KEY_SCHEMA_VERSION = "schema_version";
+    public static final String KEY_LAST_PANEL = "last_panel";
 
     private final CatalogSettingsDao settingsDao;
     @Getter
@@ -160,6 +160,28 @@ public class CatalogService {
             return Optional.of(Instant.parse(val));
         } catch (Exception ex) {
             return Optional.empty();
+        }
+    }
+
+    // [AI-GENERATED METHOD]
+    /**
+     * The workspace panel that was open when this catalog was last used.
+     * Empty if never stored, or if the stored name is no longer a WorkspacePanel value.
+     */
+    public Optional<WorkspacePanel> getLastPanel() {
+        try {
+            String val = settingsDao.get(KEY_LAST_PANEL);
+            return (val == null || val.isBlank()) ? Optional.empty() : Optional.of(WorkspacePanel.valueOf(val));
+        } catch (SQLException | IllegalArgumentException ex) {
+            return Optional.empty();
+        }
+    }
+
+    public void setLastPanel(WorkspacePanel panel) {
+        try {
+            settingsDao.set(KEY_LAST_PANEL, panel.name());
+        } catch (SQLException ex) {
+            throw new CineGradeException(ErrorCode.DB_TRANSACTION_FAILED, ex, "Failed to set last_panel");
         }
     }
 

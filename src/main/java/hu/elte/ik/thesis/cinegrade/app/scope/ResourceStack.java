@@ -33,7 +33,7 @@ public class ResourceStack implements AutoCloseable {
             }
         }
         if (firstException != null) {
-            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, "Failed to close some resources", firstException);
+            throw new CineGradeException(ErrorCode.UNKNOWN_ERROR, firstException, "Failed to close some resources");
         }
     }
 }

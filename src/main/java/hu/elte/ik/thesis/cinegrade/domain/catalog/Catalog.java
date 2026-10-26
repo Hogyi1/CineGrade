@@ -1,5 +1,6 @@
 package hu.elte.ik.thesis.cinegrade.domain.catalog;
 
+import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,9 @@ public class Catalog {
     private Instant lastOpenedAt;
     @Setter
     private transient long size = 0L;
+    // Stored in catalog_info (last_panel), loaded when the catalog's scope opens
+    @Setter
+    private WorkspacePanel lastPanel;
 
     public Catalog(int id, String catalogName, String projectDirectory, String projectFilePath, Instant lastOpenedAt, Instant createdAt) {
         this.id = id;

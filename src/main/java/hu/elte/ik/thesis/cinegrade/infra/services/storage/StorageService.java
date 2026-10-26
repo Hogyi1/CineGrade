@@ -1,8 +1,8 @@
-package hu.elte.ik.thesis.cinegrade.infra.services;
+package hu.elte.ik.thesis.cinegrade.infra.services.storage;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.tasks.AppInitService;
+import hu.elte.ik.thesis.cinegrade.domain.tasks.appinit.AppInitService;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

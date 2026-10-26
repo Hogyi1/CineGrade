@@ -14,7 +14,7 @@ import hu.elte.ik.thesis.cinegrade.domain.tasks.ImportService;
 import hu.elte.ik.thesis.cinegrade.domain.tasks.ImportProbeService;
 import hu.elte.ik.thesis.cinegrade.domain.tasks.ImportStageService;
 import hu.elte.ik.thesis.cinegrade.infra.services.exiftool.ExifToolService;
-import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;

@@ -1,5 +1,5 @@
 // [AI-GENERATED]
-package hu.elte.ik.thesis.cinegrade.infra.storage.database.dao;
+package hu.elte.ik.thesis.cinegrade.infra.database.dao.catalog;
 
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoEntry;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
@@ -12,23 +12,63 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
+/**
+ * Data access object for the {@code photos} table of a catalog database.
+ *
+ * Stores one row per imported photo. File and thumbnail paths are converted between the form stored
+ * in the database and absolute paths using the catalog directory. The DAO does not own the
+ * {@link Connection}; the caller is responsible for its lifecycle.
+ */
 public class PhotoDao {
 
+    /**
+     * Connection to the catalog database.
+     */
     private final Connection connection;
+    /**
+     * Catalog directory used to resolve relative paths; may be {@code null}.
+     */
     private final Path catalogPath;
 
+    /**
+     * Column list shared by the SELECT and INSERT statements.
+     */
     private static final String COLUMNS =
             "id, original_path, import_method, import_id, file_path, file_name, file_size, thumbnail_path, rating, color_label, date_imported";
 
+    /**
+     * Creates a DAO operating on the given connection.
+     *
+     * @param connection  open connection to the catalog database
+     * @param catalogPath catalog directory, used to relativize stored paths and to resolve them on read;
+     *                    if {@code null}, stored paths are used as-is
+     */
     public PhotoDao(Connection connection, Path catalogPath) {
         this.connection = connection;
         this.catalogPath = catalogPath;
     }
 
+    /**
+     * Inserts a single photo.
+     *
+     * @param photo photo to insert
+     * @throws SQLException if the insert fails
+     * @see #batchInsert(List)
+     */
     public void insert(PhotoEntry photo) throws SQLException {
         batchInsert(List.of(photo));
     }
 
+    /**
+     * Inserts many photos in a single transaction; on failure everything is rolled back and the
+     * previous auto-commit mode is restored.
+     *
+     * A missing import method defaults to {@link ImportMethod#ADD} and a missing import date to the
+     * current time.
+     *
+     * @param photos photos to insert; {@code null} or empty is a no-op
+     * @throws SQLException if the insert fails, e.g. on a duplicate id
+     */
     public void batchInsert(List<PhotoEntry> photos) throws SQLException {
         if (photos == null || photos.isEmpty()) {
             return;
@@ -36,8 +76,6 @@ public class PhotoDao {
 
         String sql = "INSERT INTO photos (" + COLUMNS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        boolean previousAutoCommit = connection.getAutoCommit();
-        connection.setAutoCommit(false);
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             for (PhotoEntry photo : photos) {
@@ -62,15 +100,16 @@ public class PhotoDao {
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback();
-            throw e;
-        } finally {
-            connection.setAutoCommit(previousAutoCommit);
         }
     }
 
+    /**
+     * Finds a photo by id.
+     *
+     * @param id id of the photo
+     * @return the photo, or empty if there is no such photo
+     * @throws SQLException if the query fails
+     */
     public Optional<PhotoEntry> findById(String id) throws SQLException {
         String sql = "SELECT " + COLUMNS + " FROM photos WHERE id = ?";
 
@@ -85,6 +124,12 @@ public class PhotoDao {
         return Optional.empty();
     }
 
+    /**
+     * Returns every photo, ordered by import date (oldest first).
+     *
+     * @return all photos; empty if the catalog has none
+     * @throws SQLException if the query fails
+     */
     public List<PhotoEntry> findAll() throws SQLException {
         List<PhotoEntry> photos = new ArrayList<>();
         String sql = "SELECT " + COLUMNS + " FROM photos ORDER BY date_imported ASC";
@@ -98,6 +143,14 @@ public class PhotoDao {
         return photos;
     }
 
+    /**
+     * Sets the rating of a photo.
+     *
+     * @param id     id of the photo
+     * @param rating the new rating
+     * @return {@code true} if a row was updated
+     * @throws SQLException if the update fails
+     */
     public boolean updateRating(String id, int rating) throws SQLException {
         String sql = "UPDATE photos SET rating = ? WHERE id = ?";
 
@@ -108,6 +161,14 @@ public class PhotoDao {
         }
     }
 
+    /**
+     * Sets the color label of a photo.
+     *
+     * @param id         id of the photo
+     * @param colorLabel the new color label, may be {@code null}
+     * @return {@code true} if a row was updated
+     * @throws SQLException if the update fails
+     */
     public boolean updateColorLabel(String id, String colorLabel) throws SQLException {
         String sql = "UPDATE photos SET color_label = ? WHERE id = ?";
 
@@ -118,6 +179,14 @@ public class PhotoDao {
         }
     }
 
+    /**
+     * Sets the stored thumbnail path of a photo.
+     *
+     * @param id            id of the photo
+     * @param thumbnailPath the new thumbnail path, in the form stored in the database
+     * @return {@code true} if a row was updated
+     * @throws SQLException if the update fails
+     */
     public boolean updateThumbnailPath(String id, String thumbnailPath) throws SQLException {
         String sql = "UPDATE photos SET thumbnail_path = ? WHERE id = ?";
 
@@ -128,6 +197,14 @@ public class PhotoDao {
         }
     }
 
+    /**
+     * Sets the import the photo belongs to.
+     *
+     * @param id       id of the photo
+     * @param importId id of the import, or {@code null} to clear it
+     * @return {@code true} if a row was updated
+     * @throws SQLException if the update fails
+     */
     public boolean updateImportId(String id, String importId) throws SQLException {
         String sql = "UPDATE photos SET import_id = ? WHERE id = ?";
 
@@ -142,6 +219,13 @@ public class PhotoDao {
         }
     }
 
+    /**
+     * Deletes a photo row. Files on disk are not touched.
+     *
+     * @param id id of the photo
+     * @return {@code true} if a row was deleted
+     * @throws SQLException if the delete fails
+     */
     public boolean delete(String id) throws SQLException {
         String sql = "DELETE FROM photos WHERE id = ?";
 
@@ -151,6 +235,15 @@ public class PhotoDao {
         }
     }
 
+    /**
+     * Maps the current row of the result set to a {@link PhotoEntry}. Relative file paths are resolved
+     * against the catalog directory, and the entry's missing-photo and missing-thumbnail flags are set
+     * according to whether the files exist on disk.
+     *
+     * @param rs result set positioned on a row containing all {@link #COLUMNS}
+     * @return the mapped photo
+     * @throws SQLException if a column cannot be read
+     */
     private PhotoEntry mapRowToPhoto(ResultSet rs) throws SQLException {
         String id = rs.getString("id");
         String originalPath = rs.getString("original_path");
@@ -188,8 +281,13 @@ public class PhotoDao {
         return entry;
     }
 
-    // Our inserts write ISO-8601 ("2026-10-12T10:15:30Z"), but the column default
-    // CURRENT_TIMESTAMP writes "2026-10-12 10:15:30" (UTC). Handle both.
+    /**
+     * Parses a stored timestamp. Values written by this DAO are ISO-8601, while the
+     * {@code CURRENT_TIMESTAMP} column default produces {@code "yyyy-MM-dd HH:mm:ss"} (UTC); both are accepted.
+     *
+     * @param value stored timestamp text, may be {@code null}
+     * @return the parsed instant, or the current time if the value is {@code null} or unparseable
+     */
     private static Instant parseInstant(String value) {
         if (value == null) {
             return Instant.now();

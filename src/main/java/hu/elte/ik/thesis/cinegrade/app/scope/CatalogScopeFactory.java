@@ -6,8 +6,9 @@ import hu.elte.ik.thesis.cinegrade.app.managers.editing.ImportManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.editing.PhotoManager;
 import hu.elte.ik.thesis.cinegrade.app.managers.concurrency.tasks.TaskManager;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.CatalogDatabase;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.PreviewDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.database.CatalogDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.database.PreviewDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.database.CatalogService;
 
 public class CatalogScopeFactory {
 
@@ -20,23 +21,17 @@ public class CatalogScopeFactory {
     public CatalogScope open(Catalog catalog) {
         ResourceStack resources = new ResourceStack();
         try {
-            CatalogDatabase db = new CatalogDatabase(catalog.getProjectFilePath());
-            PreviewDatabase previewDb = new PreviewDatabase(catalog.getPreviewDatabasePath());
-            resources.push(db);
+            CatalogDatabase db = resources.push(new CatalogDatabase(catalog.getProjectFilePath()));
+            PreviewDatabase previewDb = resources.push(new PreviewDatabase(catalog.getPreviewDatabasePath()));
 
-            PhotoManager photoManager = new PhotoManager(db.getConnection(), catalog);
-            resources.push(photoManager);
+            CatalogService catalogService = new CatalogService(db.getConnection());
 
-            ImportManager importManager = new ImportManager(db.getConnection(), catalog, taskManager, photoManager);
-            resources.push(importManager);
+            PhotoManager photoManager = resources.push(new PhotoManager(db.getConnection(), catalog));
+            ImportManager importManager = resources.push(new ImportManager(db.getConnection(), catalog, taskManager, photoManager));
+            ExportManager exportManager = resources.push(new ExportManager(db.getConnection(), catalog));
+            EditingManager editingManager = resources.push(new EditingManager(db.getConnection(), catalog));
 
-            ExportManager exportManager = new ExportManager(db.getConnection(), catalog);
-            resources.push(exportManager);
-
-            EditingManager editingManager = new EditingManager(db.getConnection(), catalog);
-            resources.push(editingManager);
-
-            return new CatalogScope(resources, catalog);
+            return new CatalogScope(resources, catalog, catalogService, importManager, editingManager, exportManager, photoManager);
         } catch (Exception e) {
             resources.close();
             throw new RuntimeException("Failed to open catalog scope", e);

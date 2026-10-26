@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.infra.storage.database;
+package hu.elte.ik.thesis.cinegrade.infra.database;
 
 import java.nio.file.Path;
 import java.sql.Connection;

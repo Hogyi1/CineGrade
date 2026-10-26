@@ -4,14 +4,14 @@ import hu.elte.ik.thesis.cinegrade.app.managers.concurrency.tasks.TaskManager;
 import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScope;
 import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScopeFactory;
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
-import hu.elte.ik.thesis.cinegrade.domain.context.CatalogContext;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
-import hu.elte.ik.thesis.cinegrade.infra.services.database.CatalogService;
-import hu.elte.ik.thesis.cinegrade.infra.services.database.RecentCatalogService;
-import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.database.CatalogService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.database.RecentCatalogService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.utils.format.FormatUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -41,23 +40,15 @@ public class CatalogManager implements AutoCloseable {
     private final Path fallBackPath = Paths.get(AppConfig.INSTANCE.getProjectDirectory());
     private final RecentCatalogService recentCatalogService;
     private final ObservableList<Catalog> catalogObserVableList = FXCollections.observableArrayList();
-    private final TaskManager taskManager;
     private final StorageService storageService;
     private final CatalogScopeFactory scopeFactory;
-    private CatalogScope currentScope;
-    /**
-     * -- GETTER --
-     *  Retrieves the context of the currently opened catalog.
-     *
-     * @return The current CatalogContext.
-     */
-    @Getter
-    private CatalogContext currentCatalogContext;
 
-    public CatalogManager(TaskManager taskManager, CatalogScopeFactory scopeFactory) {
+    @Getter
+    private CatalogScope currentScope;
+
+    public CatalogManager(CatalogScopeFactory scopeFactory, StorageService storageService) {
         recentCatalogService = new RecentCatalogService();
-        storageService = new StorageService();
-        this.taskManager = taskManager;
+        this.storageService = storageService;
         this.scopeFactory = scopeFactory;
         refreshCatalogs();
     }
@@ -115,7 +106,7 @@ public class CatalogManager implements AutoCloseable {
         if (catalog == null) {
             return;
         }
-        openProject(catalog.getProjectFilePath(), WorkspacePanel.DEVELOPMENT);
+        openProject(catalog.getProjectFilePath());
     }
 
     /**
@@ -127,11 +118,15 @@ public class CatalogManager implements AutoCloseable {
         if (file == null) {
             throw new CineGradeException(ErrorCode.FILE_NOT_FOUND, "Selected file is null");
         }
-        openProject(file.toPath(), WorkspacePanel.DEVELOPMENT);
+        openProject(file.toPath());
     }
 
-    // [AI-GENERATED METHOD]
-    private void openProject(Path projectFilePath, WorkspacePanel startingPanel) {
+    /**
+     * Opens a project.
+     *
+     * @param projectFilePath the path to the project file
+     */
+    private void openProject(Path projectFilePath) {
         Path cgprojFile = projectFilePath.toAbsolutePath().normalize();
         if (!Files.isRegularFile(cgprojFile)) {
             throw new CineGradeException(ErrorCode.CATALOG_NOT_FOUND, cgprojFile);
@@ -140,11 +135,11 @@ public class CatalogManager implements AutoCloseable {
             throw new CineGradeException(ErrorCode.CATALOG_CORRUPTED, cgprojFile);
         }
 
-        Catalog catalog = recentCatalogService.findOrAddCatalog(stripExtension(cgprojFile), cgprojFile);
+        Catalog catalog = recentCatalogService.findOrAddCatalog(FormatUtils.stripExtension(cgprojFile), cgprojFile);
         recentCatalogService.updateLastOpenedAt(catalog.getId(), Instant.now());
         ensureDirectories(catalog.getProjectDirectory());
 
-        openScope(catalog, startingPanel);
+        openScope(catalog, WorkspacePanel.DEVELOPMENT);
         logger.info("Catalog opened successfully: {}", cgprojFile);
 
         refreshCatalogs();
@@ -156,7 +151,6 @@ public class CatalogManager implements AutoCloseable {
      * @param name the name of the project
      * @param path the parent directory, the project gets its own folder inside it
      */
-    // [AI-GENERATED METHOD]
     public void createNewProject(String name, Path path) {
         Path projectDirectory = path.resolve(name).toAbsolutePath().normalize();
         Path projectFilePath = projectDirectory.resolve(name + PROJECT_EXTENSION);
@@ -183,41 +177,32 @@ public class CatalogManager implements AutoCloseable {
     }
 
     /**
-     * Closes the open catalog (if any), opens the scope of the given one and records
-     * its current location in catalog_info.
+     * Closes the open catalog (if any), opens the scope of the given one, records
+     * its current location in catalog_info and loads the panel it was left on.
+     *
+     * @param fallbackPanel the panel to start on if the catalog has none stored yet
      */
-    // [AI-GENERATED METHOD]
-    private void openScope(Catalog catalog, WorkspacePanel startingPanel) {
+    private void openScope(Catalog catalog, WorkspacePanel fallbackPanel) {
         closeCurrentScope();
 
         currentScope = scopeFactory.open(catalog);
         try {
-            Connection connection = currentScope.catalogDatabase().getConnection();
-            new CatalogService(connection).setMetaData(catalog);
-
-            // TODO S0.1: once the managers live in CatalogScope, controllers take them from there and CatalogContext goes
-            currentCatalogContext = new CatalogContext(connection, catalog, this, taskManager, startingPanel);
+            CatalogService catalogService = currentScope.catalogService();
+            catalogService.setMetaData(catalog);
+            catalog.setLastPanel(catalogService.getLastPanel().orElse(fallbackPanel));
         } catch (RuntimeException ex) {
             closeCurrentScope();
             throw ex;
         }
     }
 
-    /**
-     * try-with-resources closes in reverse order: the context (managers) first, then the scope (databases).
-     * Null resources are skipped.
-     */
-    // [AI-GENERATED METHOD]
     private void closeCurrentScope() {
-        try (CatalogScope scope = currentScope; CatalogContext context = currentCatalogContext) {
+        try (CatalogScope scope = currentScope) {
             if (scope != null) {
                 logger.info("Closing catalog: {}", scope.catalog().getCatalogName());
             }
-        } catch (Exception ex) {
-            throw new CineGradeException(ErrorCode.DB_CLOSE_FAILED, ex, "catalog scope");
         } finally {
             currentScope = null;
-            currentCatalogContext = null;
         }
     }
 
@@ -282,11 +267,6 @@ public class CatalogManager implements AutoCloseable {
         }
 
         return true;
-    }
-
-    private static String stripExtension(Path cgprojFile) {
-        String fileName = cgprojFile.getFileName().toString();
-        return fileName.substring(0, fileName.length() - PROJECT_EXTENSION.length());
     }
 
     /**

@@ -1,13 +1,12 @@
-package hu.elte.ik.thesis.cinegrade.domain.tasks;
+package hu.elte.ik.thesis.cinegrade.domain.tasks.appinit;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.domain.results.AppInitResult;
 import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
 import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
-import hu.elte.ik.thesis.cinegrade.infra.storage.database.AppDatabase;
+import hu.elte.ik.thesis.cinegrade.infra.database.AppDatabase;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
-import hu.elte.ik.thesis.cinegrade.infra.services.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.*;
 import javafx.concurrent.Service;
@@ -22,12 +21,12 @@ public class AppInitService extends Service<AppInitResult> {
     private final RequirementChecker requirementChecker;
     private final StorageService storageService;
     private final AtomicInteger stepCounter = new AtomicInteger(0);
-    private ThemeManager themeManager;
+    private final ThemeManager themeManager;
 
-    public AppInitService(RequirementChecker requirementChecker, ThemeManager themeManager) {
-        this.storageService = new StorageService();
+    public AppInitService(RequirementChecker requirementChecker, ThemeManager themeManager, StorageService storageService) {
         this.requirementChecker = requirementChecker;
         this.themeManager = themeManager;
+        this.storageService = storageService;
     }
 
     @Override
@@ -114,15 +113,7 @@ public class AppInitService extends Service<AppInitResult> {
         } catch (CineGradeException e) {
             throw new CineGradeException(ErrorCode.REQ_APP_DATA_DIR_NOT_WRITABLE, e, rootDir.toAbsolutePath().toString());
         }
-
-        cleanTempDirectory(tempDir);
     }
-
-    private void cleanTempDirectory(Path tempDir) {
-
-    }
-
-
 
     public ReadOnlyStringProperty taskProperty() {
         return messageProperty();

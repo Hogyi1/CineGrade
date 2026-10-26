@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.domain.results;
+package hu.elte.ik.thesis.cinegrade.domain.tasks.appinit;
 
 public record AppInitResult(boolean isSuccess, String message, Throwable exception) {
     public static AppInitResult success(String message) {

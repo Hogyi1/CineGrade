@@ -3,7 +3,7 @@ package hu.elte.ik.thesis.cinegrade.app.managers.user;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.user.User;
-import hu.elte.ik.thesis.cinegrade.infra.services.database.UserService;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.database.UserService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

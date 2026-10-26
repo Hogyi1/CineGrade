@@ -1,4 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.infra.storage.database;
+package hu.elte.ik.thesis.cinegrade.infra.database;
 
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
