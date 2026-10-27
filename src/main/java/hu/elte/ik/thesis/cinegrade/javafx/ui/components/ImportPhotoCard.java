@@ -20,7 +20,9 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.GridCell;
+import org.controlsfx.control.GridView;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,15 +35,6 @@ public class ImportPhotoCard extends GridCell<StageEntry> {
 
     private static final Logger logger = LogManager.getLogger(ImportPhotoCard.class);
     private static final double FOOTER_HEIGHT = 68.0;
-
-    // [AI-GENERATED] In-memory thumbnail cache for instant scrolling without disk re-reads
-    private static final int MAX_CACHE_SIZE = 300;
-    private static final java.util.Map<String, Image> IMAGE_CACHE = new java.util.LinkedHashMap<>(MAX_CACHE_SIZE, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(java.util.Map.Entry<String, Image> eldest) {
-            return size() > MAX_CACHE_SIZE;
-        }
-    };
 
     @FXML
     private VBox cardRoot;
@@ -71,7 +64,7 @@ public class ImportPhotoCard extends GridCell<StageEntry> {
     private Label duplicateBadge;
 
     private final Consumer<StageEntry> removeAction;
-    private final org.controlsfx.control.GridView<StageEntry> parentGridView;
+    private final GridView<StageEntry> parentGridView;
     private ContextMenu optionsMenu;
 
     private ChangeListener<Boolean> selectionListener;
@@ -189,32 +182,24 @@ public class ImportPhotoCard extends GridCell<StageEntry> {
         applyThumbnail(stageEntry);
     }
 
-    // [AI-GENERATED METHOD]
     private void applyThumbnail(StageEntry stageEntry) {
-        Path thumbPath = stageEntry.thumbnailPath;
-        if (thumbPath != null && Files.exists(thumbPath)) {
-            String uri = thumbPath.toUri().toString();
-            Image image = IMAGE_CACHE.computeIfAbsent(uri, k -> new Image(
-                    k,
-                    450, 300,
-                    true, true, true
-            ));
+        byte[] jpeg = stageEntry.thumbnail;
+        if (jpeg != null && jpeg.length > 0) {
+            Image image = new Image(new ByteArrayInputStream(jpeg),
+                    450,
+                    300,
+                    true,
+                    true);
 
             thumbnailImageView.setImage(image);
-            thumbnailImageView.setRotate(stageEntry.rotation);
+            thumbnailImageView.setRotate(0);
 
             thumbnailImageView.fitWidthProperty().unbind();
             thumbnailImageView.fitHeightProperty().unbind();
 
-            boolean isRotated = stageEntry.rotation == 90 || stageEntry.rotation == 270;
             if (parentGridView != null) {
-                if (isRotated) {
-                    thumbnailImageView.fitWidthProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
-                    thumbnailImageView.fitHeightProperty().bind(parentGridView.cellWidthProperty().subtract(12));
-                } else {
-                    thumbnailImageView.fitWidthProperty().bind(parentGridView.cellWidthProperty().subtract(12));
-                    thumbnailImageView.fitHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
-                }
+                thumbnailImageView.fitWidthProperty().bind(parentGridView.cellWidthProperty().subtract(12));
+                thumbnailImageView.fitHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
             } else {
                 thumbnailImageView.setFitWidth(240);
                 thumbnailImageView.setFitHeight(160);

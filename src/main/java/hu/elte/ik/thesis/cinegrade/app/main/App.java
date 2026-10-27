@@ -12,6 +12,8 @@ import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.ControllerFactory;
 import hu.elte.ik.thesis.cinegrade.domain.navigation.SceneManager;
 import hu.elte.ik.thesis.cinegrade.domain.theme.ThemeManager;
+import hu.elte.ik.thesis.cinegrade.infra.config.AppConfig;
+import hu.elte.ik.thesis.cinegrade.infra.utils.thumbnail.ThumbnailFactory;
 import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import hu.elte.ik.thesis.cinegrade.infra.utils.logger.LoggerUtils;
 import hu.elte.ik.thesis.cinegrade.infra.services.RequirementChecker;
@@ -26,11 +28,12 @@ import hu.elte.ik.thesis.cinegrade.javafx.ui.test.ErrorTestController;
 import hu.elte.ik.thesis.cinegrade.domain.tasks.appinit.AppInitService;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.nio.file.Path;
 
 public class App extends Application {
 
@@ -45,6 +48,7 @@ public class App extends Application {
     private Logger logger;
     private ResourceStack resources;
     private StorageService storageService;
+    private ThumbnailFactory thumbnailFactory;
 
     private TaskToastPresenter taskToastPresenter;
     private ErrorPresenter errorToastPresenter;
@@ -116,7 +120,9 @@ public class App extends Application {
         // Created after catalog is selected
         controllerFactory.register(WorkspaceController.class, () -> new WorkspaceController(catalogManager.getCurrentScope(), controllerFactory));
         controllerFactory.register(NavigationController.class, () -> new NavigationController(sceneManager, userManager, themeManager));
-        controllerFactory.register(ImportPanelController.class, () -> new ImportPanelController(catalogManager.getCurrentScope()));
+        controllerFactory.register(ImportPanelController.class, () -> new ImportPanelController(
+                catalogManager.getCurrentScope().importManager(),
+                catalogManager.getCurrentScope().stagingArea()));
         controllerFactory.register(DevelopmentPanelController.class, () -> new DevelopmentPanelController(catalogManager.getCurrentScope()));
         controllerFactory.register(ExportPanelController.class, () -> new ExportPanelController(catalogManager.getCurrentScope()));
     }
@@ -127,16 +133,15 @@ public class App extends Application {
     private void createBootstrapManagers(Stage primaryStage) {
         logger.info("Creating bootstrap managers");
 
-        storageService = new StorageService();
+        thumbnailFactory = new ThumbnailFactory();
+        storageService = new StorageService(Path.of(AppConfig.INSTANCE.getRootDirectory()));
         requirementChecker = new RequirementChecker();
         controllerFactory = new ControllerFactory();
         themeManager = new ThemeManager();
         sceneManager = new SceneManager(primaryStage, controllerFactory, themeManager);
 
-        threadPoolManager = new ThreadPoolManager(16);
-        taskManager = new TaskManager(threadPoolManager.getTaskPool());
-        resources.push(threadPoolManager);
-        resources.push(taskManager);
+        threadPoolManager = resources.push(new ThreadPoolManager(16));
+        taskManager = resources.push(new TaskManager(threadPoolManager.getTaskPool()));
     }
 
     /**
@@ -144,7 +149,7 @@ public class App extends Application {
      */
     private void createDatabaseManagers() {
         logger.info("Creating database-dependent managers");
-        catalogManager = new CatalogManager(new CatalogScopeFactory(taskManager), storageService);
+        catalogManager = new CatalogManager(new CatalogScopeFactory(taskManager, thumbnailFactory, threadPoolManager), storageService);
         resources.push(catalogManager);
         userManager = new UserManager();
     }

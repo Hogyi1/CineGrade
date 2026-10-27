@@ -1,13 +1,12 @@
 package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
-import hu.elte.ik.thesis.cinegrade.app.managers.editing.ImportManager;
-import hu.elte.ik.thesis.cinegrade.app.scope.CatalogScope;
+import hu.elte.ik.thesis.cinegrade.app.managers.imports.ImportManager;
+import hu.elte.ik.thesis.cinegrade.app.managers.imports.StagingArea;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
 import hu.elte.ik.thesis.cinegrade.domain.enums.PhotoExtensions;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.infra.utils.format.FormatUtils;
-import hu.elte.ik.thesis.cinegrade.javafx.ui.PanelController;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.components.ImportPhotoCard;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -33,6 +32,7 @@ public class ImportPanelController implements PanelController {
 
     private static final Logger logger = LogManager.getLogger(ImportPanelController.class);
     private final ImportManager importManager;
+    private final StagingArea stagingArea;
     private NavigationController navigationController;
     private final Consumer<StageEntry> removeConsumer;
 
@@ -84,9 +84,10 @@ public class ImportPanelController implements PanelController {
     private VBox stageProgressOverlay;
 
 
-    public ImportPanelController(CatalogScope catalogScope) {
-        this.importManager = catalogScope.importManager();
-        this.removeConsumer = importManager::removeStageEntry;
+    public ImportPanelController(ImportManager importManager, StagingArea stagingArea) {
+        this.importManager = importManager;
+        this.stagingArea = stagingArea;
+        this.removeConsumer = stagingArea::removeStageEntry;
     }
 
     @FXML
@@ -134,7 +135,7 @@ public class ImportPanelController implements PanelController {
         cardsGridView.setVerticalCellSpacing(12.0);
 
         // Bind data and cell factory
-        cardsGridView.setItems(importManager.getFilteredEntries());
+        cardsGridView.setItems(stagingArea.getFilteredEntries());
         cardsGridView.setCellFactory(view -> new ImportPhotoCard(removeConsumer, cardsGridView));
 
         // Initial sizing
@@ -167,7 +168,7 @@ public class ImportPanelController implements PanelController {
         thumbnailSizeSlider.setBlockIncrement(0.05);
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            importManager.getNameProperty().set(newVal.trim());
+            stagingArea.getNameProperty().set(newVal.trim());
         });
 
         importMethodComboBox.getItems().setAll(ImportMethod.values());
@@ -190,7 +191,7 @@ public class ImportPanelController implements PanelController {
                 autoPairCheckBox.setSelected(!autoPairCheckBox.isSelected());
             }
         });
-        autoPairCheckBox.selectedProperty().bindBidirectional(importManager.getAutoPairProperty());
+        autoPairCheckBox.selectedProperty().bindBidirectional(stagingArea.getAutoPairProperty());
         autoPairCheckBox.setDisable(true);
         autoPairCheckBox.setStyle("-fx-opacity: 1");
 
@@ -200,35 +201,34 @@ public class ImportPanelController implements PanelController {
                 duplicatesCheckBox.setSelected(!duplicatesCheckBox.isSelected());
             }
         });
-        duplicatesCheckBox.selectedProperty().bindBidirectional(importManager.getHideDuplicatesProperty());
+        duplicatesCheckBox.selectedProperty().bindBidirectional(stagingArea.getHideDuplicatesProperty());
         duplicatesCheckBox.setDisable(true);
         duplicatesCheckBox.setStyle("-fx-opacity: 1");
 
         if (stageProgressOverlay != null) {
-            stageProgressOverlay.visibleProperty().bind(importManager.getStagingProperty());
-            stageProgressOverlay.managedProperty().bind(importManager.getStagingProperty());
+            stageProgressOverlay.visibleProperty().bind(stagingArea.getStagingProperty());
+            stageProgressOverlay.managedProperty().bind(stagingArea.getStagingProperty());
         }
 
         importButton.disableProperty().bind(
-                importManager.getStagingProperty().or(
+                stagingArea.getStagingProperty().or(
                         Bindings.createBooleanBinding(
-                                () -> importManager.getSelectedFilesProperty().get() == 0,
-                                importManager.getSelectedFilesProperty()
+                                () -> stagingArea.getSelectedFilesProperty().get() == 0,
+                                stagingArea.getSelectedFilesProperty()
                         )
                 )
         );
         importButton.setOnMouseClicked(e -> importManager.importPhotos(importMethodComboBox.getValue()));
 
-        cancelButton.disableProperty().bind(importManager.getStagingProperty());
-        browseFilesButton.disableProperty().bind(importManager.getStagingProperty());
-        selectAllButton.disableProperty().bind(importManager.getStagingProperty());
-        deselectAllButton.disableProperty().bind(importManager.getStagingProperty());
-        removeSelectedButton.disableProperty().bind(importManager.getStagingProperty());
+        cancelButton.disableProperty().bind(stagingArea.getStagingProperty());
+        selectAllButton.disableProperty().bind(stagingArea.getStagingProperty());
+        deselectAllButton.disableProperty().bind(stagingArea.getStagingProperty());
+        removeSelectedButton.disableProperty().bind(stagingArea.getStagingProperty());
 
         browseFilesButton.setOnMouseClicked(e -> openFileBrowser());
-        selectAllButton.setOnMouseClicked(e -> importManager.selectAll(true));
-        deselectAllButton.setOnMouseClicked(e -> importManager.selectAll(false));
-        removeSelectedButton.setOnMouseClicked(e -> importManager.removeSelection());
+        selectAllButton.setOnMouseClicked(e -> stagingArea.selectAll(true));
+        deselectAllButton.setOnMouseClicked(e -> stagingArea.selectAll(false));
+        removeSelectedButton.setOnMouseClicked(e -> stagingArea.removeSelection());
     }
 
     private void setupDropZone() {
@@ -285,24 +285,24 @@ public class ImportPanelController implements PanelController {
 
     private void setupLabels() {
         selectedBadge.textProperty().bind(
-                Bindings.createStringBinding(() -> "%d Selected to Import".formatted(importManager.getSelectedFilesProperty().get()),
-                        importManager.getSelectedFilesProperty())
+                Bindings.createStringBinding(() -> "%d Selected to Import".formatted(stagingArea.getSelectedFilesProperty().get()),
+                        stagingArea.getSelectedFilesProperty())
         );
         importButton.textProperty().bind(
-                Bindings.createStringBinding(() -> "Import (%d)".formatted(importManager.getSelectedFilesProperty().get()),
-                        importManager.getSelectedFilesProperty())
+                Bindings.createStringBinding(() -> "Import (%d)".formatted(stagingArea.getSelectedFilesProperty().get()),
+                        stagingArea.getSelectedFilesProperty())
         );
         removeSelectedButton.textProperty().bind(
-                Bindings.createStringBinding(() -> "Remove (%d)".formatted(importManager.getSelectedFilesProperty().get()),
-                        importManager.getSelectedFilesProperty())
+                Bindings.createStringBinding(() -> "Remove (%d)".formatted(stagingArea.getSelectedFilesProperty().get()),
+                        stagingArea.getSelectedFilesProperty())
         );
         stagedCountLabel.textProperty().bind(
-                Bindings.createStringBinding(() -> "%d Photos Staged".formatted(importManager.getStagedFilesProperty().get()),
-                        importManager.getStagedFilesProperty())
+                Bindings.createStringBinding(() -> "%d Photos Staged".formatted(stagingArea.getStagedFilesProperty().get()),
+                        stagingArea.getStagedFilesProperty())
         );
         totalSizeLabel.textProperty().bind(
-                Bindings.createStringBinding(() -> "%s total".formatted(FormatUtils.formatBytes(importManager.getStageSizeInBytes().longValue())),
-                        importManager.getStageSizeInBytes())
+                Bindings.createStringBinding(() -> "%s total".formatted(FormatUtils.formatBytes(stagingArea.getStageSizeInBytes().longValue())),
+                        stagingArea.getStageSizeInBytes())
         );
     }
 }

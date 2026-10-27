@@ -2,7 +2,9 @@ package hu.elte.ik.thesis.cinegrade.app.managers.editing;
 
 import hu.elte.ik.thesis.cinegrade.domain.catalog.Catalog;
 import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoEntry;
+import hu.elte.ik.thesis.cinegrade.infra.database.TransactionRunner;
 import hu.elte.ik.thesis.cinegrade.infra.database.dao.catalog.PhotoDao;
+import hu.elte.ik.thesis.cinegrade.infra.services.storage.ThumbnailService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +17,7 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 
 public class PhotoManager implements AutoCloseable {
 
@@ -24,10 +27,14 @@ public class PhotoManager implements AutoCloseable {
     private final ObservableList<PhotoEntry> lastImportPhotos = FXCollections.observableArrayList();
 
     private final PhotoDao photoDao;
+    private final TransactionRunner catalogTx;
+    private final ThumbnailService thumbnailService;
     private final Catalog catalog;
 
-    public PhotoManager(Connection connection, Catalog catalog) {
-        this.photoDao = new PhotoDao(connection, catalog.getProjectDirectory());
+    public PhotoManager(TransactionRunner catalogTx, PhotoDao photoDao, ThumbnailService thumbnailService, Catalog catalog) {
+        this.catalogTx = catalogTx;
+        this.thumbnailService = thumbnailService;
+        this.photoDao = photoDao;
         this.catalog = catalog;
 
         loadCatalogPhotos();
@@ -51,7 +58,8 @@ public class PhotoManager implements AutoCloseable {
      */
     public void loadCatalogPhotos() {
         try {
-            List<PhotoEntry> existingPhotos = photoDao.findAll();
+            // Blocks until the db thread answers; runs once when the catalog is opened
+            List<PhotoEntry> existingPhotos = catalogTx.read(c -> photoDao.findAll()).join();
             if (existingPhotos != null) {
 
                 Platform.runLater(() -> allPhotos.setAll(existingPhotos));
@@ -65,8 +73,8 @@ public class PhotoManager implements AutoCloseable {
                     Platform.runLater(() -> lastImportPhotos.setAll(lastImportedPhotos));
                 }
             }
-        } catch (SQLException e) {
-            logger.error("Failed to load photos from catalog database", e);
+        } catch (CompletionException e) {
+            logger.error("Failed to load photos from catalog database", e.getCause());
         }
     }
 
@@ -90,11 +98,11 @@ public class PhotoManager implements AutoCloseable {
      */
     public void updateRating(PhotoEntry photo, int rating) {
         photo.setRating(rating);
-        try {
-            photoDao.updateRating(photo.getId(), rating);
-        } catch (SQLException e) {
-            logger.error("Failed to update rating in database for photo {}", photo.getId(), e);
-        }
+        catalogTx.execute(c -> photoDao.updateRating(photo.getId(), rating))
+                .exceptionally(ex -> {
+                    logger.error("Failed to update rating in database for photo {}", photo.getId(), ex);
+                    return null;
+                });
     }
 
     /**
@@ -105,11 +113,11 @@ public class PhotoManager implements AutoCloseable {
      */
     public void updateColorLabel(PhotoEntry photo, String colorLabel) {
         photo.setColorLabel(colorLabel);
-        try {
-            photoDao.updateColorLabel(photo.getId(), colorLabel);
-        } catch (SQLException e) {
-            logger.error("Failed to update color label in database for photo {}", photo.getId(), e);
-        }
+        catalogTx.execute(c -> photoDao.updateColorLabel(photo.getId(), colorLabel))
+                .exceptionally(ex -> {
+                    logger.error("Failed to update color label in database for photo {}", photo.getId(), ex);
+                    return null;
+                });
     }
 
     /**
@@ -125,20 +133,13 @@ public class PhotoManager implements AutoCloseable {
             lastImportPhotos.remove(photo);
         });
 
-        try {
-            File thumbFile = photo.getResolvedThumbnailFile(catalog.getProjectDirectory());
-            if (thumbFile != null && thumbFile.exists()) {
-                boolean deleted = thumbFile.delete();
-                logger.debug("Deleted thumbnail file for photo {}: {}", photo.getId(), deleted);
-            }
-        } catch (Exception ex) {
-            logger.error("Failed to delete thumbnail file for photo {}", photo.getId(), ex);
-        }
-        try {
-            photoDao.delete(photo.getId());
-        } catch (SQLException e) {
-            logger.error("Failed to delete photo {} from database", photo.getId(), e);
-        }
+        // No foreign key across the two database files: the blob is removed once the row is gone
+        catalogTx.execute(c -> photoDao.delete(photo.getId()))
+                .thenRun(() -> thumbnailService.delete(photo.getId()))
+                .exceptionally(ex -> {
+                    logger.error("Failed to delete photo {} from database", photo.getId(), ex);
+                    return null;
+                });
     }
 
     public ObservableList<PhotoEntry> getPhotos() {

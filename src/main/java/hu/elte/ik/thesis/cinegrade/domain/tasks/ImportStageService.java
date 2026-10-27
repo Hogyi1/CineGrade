@@ -4,8 +4,11 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.PhotoEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageResult;
+import hu.elte.ik.thesis.cinegrade.domain.enums.PhotoExtensions;
 import hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibrawService;
 import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
+import hu.elte.ik.thesis.cinegrade.infra.utils.file.FileUtils;
+import hu.elte.ik.thesis.cinegrade.infra.utils.thumbnail.ThumbnailFactory;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import net.coobird.thumbnailator.Thumbnails;
@@ -18,6 +21,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ImportStageService extends Service<StageResult> {
@@ -26,11 +32,6 @@ public class ImportStageService extends Service<StageResult> {
      * Logger used to report import staging and thumbnail extraction activity.
      */
     private static final Logger logger = LogManager.getLogger(ImportStageService.class);
-
-    /**
-     * Session directory used to store extracted thumbnails.
-     */
-    private final Path sessionDirectory;
 
     /**
      * Entries already staged before this service runs.
@@ -47,53 +48,31 @@ public class ImportStageService extends Service<StageResult> {
      */
     private final List<FileProbeResult> probeResults;
 
-    private final StorageService storageService;
+    /**
+     * Factory for creating thumbnails.
+     */
+    private final ThumbnailFactory thumbnailFactory;
+
+    /**
+     * Executor service for CPU-bound tasks.
+     */
+    private final ExecutorService cpuPool;
 
     /**
      * Creates a service that filters, pairs, and stages probed import files.
      *
+     * @param thumbnailFactory creates the staging thumbnails
+     * @param cpuPool          pool the thumbnail jobs run on (one job per entry)
      * @param probeResults   results describing the files selected for import
      * @param stageEntries   entries already present in the staging area
-     * @param importedPhotos photos already imported into the catalog
-     * @param sessionDirectory session directory used for import-related storage
+     * @param importedPhotos supplies the photos already imported into the catalog; read on the FX thread here
      */
-    public ImportStageService(List<FileProbeResult> probeResults, List<StageEntry> stageEntries, List<PhotoEntry> importedPhotos, Path sessionDirectory) {
+    public ImportStageService(ThumbnailFactory thumbnailFactory, ExecutorService cpuPool, List<FileProbeResult> probeResults, List<StageEntry> stageEntries, Supplier<List<PhotoEntry>> importedPhotos) {
         this.probeResults = probeResults;
         this.stageEntries = stageEntries;
-        this.importedPhotos = importedPhotos;
-        this.sessionDirectory = sessionDirectory;
-        this.storageService = new StorageService(sessionDirectory);
-    }
-
-    /**
-     * Builds a normalized key from a file's absolute path without its extension.
-     *
-     * @param file file whose path should be normalized
-     * @return the lower-case path without its final extension, or an empty string if {@code file} is null
-     */
-    private static String getBaseKey(File file) {
-        if (file == null) {
-            return "";
-        }
-        String path = file.getAbsolutePath();
-        int dotIndex = path.lastIndexOf('.');
-        int sepIndex = Math.max(path.lastIndexOf(File.separatorChar), path.lastIndexOf('/'));
-        return (dotIndex > sepIndex ? path.substring(0, dotIndex) : path).toLowerCase(Locale.ROOT);
-    }
-
-    /**
-     * Gets a file's lower-case name without its extension.
-     *
-     * @param file file whose name should be normalized
-     * @return the lower-case name without its final extension, or an empty string if {@code file} is null
-     */
-    private static String getFileNameWithoutExtension(File file) {
-        if (file == null) {
-            return "";
-        }
-        String name = file.getName();
-        int dotIndex = name.lastIndexOf('.');
-        return (dotIndex > 0 ? name.substring(0, dotIndex) : name).toLowerCase(Locale.ROOT);
+        this.importedPhotos = importedPhotos.get();
+        this.thumbnailFactory = thumbnailFactory;
+        this.cpuPool = cpuPool;
     }
 
     /**
@@ -110,12 +89,7 @@ public class ImportStageService extends Service<StageResult> {
 
         Set<String> importedBaseKeys = importedPhotos.stream()
                 .filter(Objects::nonNull)
-                .map(p -> getBaseKey(p.getFile()))
-                .collect(Collectors.toSet());
-
-        Set<String> importedFileNamesWithoutExtension = importedPhotos.stream()
-                .filter(Objects::nonNull)
-                .map(p -> getFileNameWithoutExtension(p.getFile()))
+                .map(p -> FileUtils.getBaseKey(p.getFile()))
                 .collect(Collectors.toSet());
 
         Set<String> importedFileNames = importedPhotos.stream()
@@ -168,7 +142,7 @@ public class ImportStageService extends Service<StageResult> {
                         .map(result -> {
                             StageEntry e = new StageEntry(result);
                             e.getIsMaybeDuplicateProperty()
-                                    .set( (importedBaseKeys.contains(e.getBaseKey())) ||
+                                    .set((importedBaseKeys.contains(e.getBaseKey())) ||
                                             importedFileNames.contains(e.getFile().getName()) ||
                                             (stagedFileNames.contains(e.getFile().getName())));
                             return e;
@@ -183,16 +157,26 @@ public class ImportStageService extends Service<StageResult> {
                 List<StageEntry> finalNewEntries = pairAndStage(candidates, stagedSnapshot, fxUpdates);
                 logger.debug("pairAndStage produced {} new staged entries", finalNewEntries.size());
 
-                // 4. Attach thumbnails for entries that need one (RAWs without JPEG companions)
-                List<StageEntry> needsThumb = finalNewEntries.stream()
-                        .filter(e -> e.thumbnailPath == null)
-                        .toList();
-
-                if (!needsThumb.isEmpty()) {
-                    logger.debug("Extracting thumbnails for {} entries", needsThumb.size());
+                if (isCancelled()) {
+                    return new StageResult(List.of(), List.of());
                 }
 
-                needsThumb.parallelStream().forEach(ImportStageService.this::attachThumbnail);
+                // One job per photo on the cpu pool; a failed thumbnail leaves the entry without one
+                List<CompletableFuture<Void>> futures = finalNewEntries.stream()
+                        .map(photo -> CompletableFuture
+                                .runAsync(() -> photo.thumbnail = createThumbnail(photo), cpuPool)
+                                .exceptionally(ex -> {
+                                    logger.warn("Thumbnail failed for {}", photo.getFile(), ex);
+                                    return null;
+                                }))
+                        .toList();
+
+                // Wait for all of them. Safe: this runs on the task pool, the jobs on the cpu pool
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+
+                if (isCancelled()) {
+                    return new StageResult(List.of(), List.of());
+                }
 
                 return new StageResult(finalNewEntries, fxUpdates);
             }
@@ -202,7 +186,7 @@ public class ImportStageService extends Service<StageResult> {
     /**
      * Pairs RAW files with matching JPEG companions and assembles the entries to stage.
      *
-     * @param candidates          candidate entries identified by the import task
+     * @param candidates candidate entries identified by the import task
      * @return entries to stage, including companion JPEG entries
      */
     private List<StageEntry> pairAndStage(List<StageEntry> candidates, List<StageEntry> stagedSnapshot, List<Runnable> fxUpdates) {
@@ -217,29 +201,30 @@ public class ImportStageService extends Service<StageResult> {
         Map<String, StageEntry> existingStagedByBaseKey = new HashMap<>();
         for (StageEntry s : stagedSnapshot) {
             if (s != null && s.getFile() != null) {
-                existingStagedByBaseKey.putIfAbsent(getBaseKey(s.getFile()), s);
+                existingStagedByBaseKey.putIfAbsent(FileUtils.getBaseKey(s.getFile()), s);
             }
         }
 
         // Map current batch JPEGs by base key
         Map<String, StageEntry> batchJpegsByBaseKey = new HashMap<>();
         for (StageEntry j : jpegs) {
-            batchJpegsByBaseKey.putIfAbsent(getBaseKey(j.getFile()), j);
+            batchJpegsByBaseKey.putIfAbsent(FileUtils.getBaseKey(j.getFile()), j);
         }
 
         List<StageEntry> resultList = new ArrayList<>();
         Set<String> claimedBatchJpegPaths = new HashSet<>();
+        // folder -> (base name -> JPEG), filled on first use so each folder is listed once per batch
+        Map<Path, Map<String, File>> diskJpegsByFolder = new HashMap<>();
 
         // 1. Process RAW candidates
         for (StageEntry raw : raws) {
-            String baseKey = getBaseKey(raw.getFile());
+            String baseKey = FileUtils.getBaseKey(raw.getFile());
 
             // Look for companion JPEG:
             // Case A: Companion JPEG is in the current batch
             StageEntry batchJpeg = batchJpegsByBaseKey.get(baseKey);
             if (batchJpeg != null) {
                 raw.jpegPath = batchJpeg.getFile().toPath();
-                raw.thumbnailPath = batchJpeg.getFile().toPath();
                 raw.companion = batchJpeg;
                 raw.rotation = batchJpeg.rotation;
                 batchJpeg.getIsCompanionProperty().set(true);
@@ -250,12 +235,11 @@ public class ImportStageService extends Service<StageResult> {
                 if (stagedJpeg != null && !stagedJpeg.isRaw) {
                     raw.jpegPath = stagedJpeg.getFile().toPath();
                     raw.companion = stagedJpeg;
-                    raw.rotation = stagedJpeg.thumbnailPath != null ? stagedJpeg.rotation : raw.rotation;
-                    raw.thumbnailPath = stagedJpeg.thumbnailPath != null ? stagedJpeg.thumbnailPath : stagedJpeg.getFile().toPath();
+                    raw.rotation = stagedJpeg.rotation;
                     fxUpdates.add(() -> stagedJpeg.getIsCompanionProperty().set(true));
                 } else {
                     // Case C: Companion JPEG sits on disk next to the RAW
-                    File diskJpeg = findDiskCompanionJpeg(raw.getFile());
+                    File diskJpeg = findDiskCompanionJpeg(raw.getFile(), diskJpegsByFolder);
                     if (diskJpeg != null) {
                         raw.jpegPath = diskJpeg.toPath();
                     }
@@ -272,25 +256,19 @@ public class ImportStageService extends Service<StageResult> {
             // If claimed by a RAW in the current batch, keep it as a companion
             if (claimedBatchJpegPaths.contains(jpegPath)) {
                 jpeg.getIsCompanionProperty().set(true);
-                jpeg.thumbnailPath = jpeg.getFile().toPath();
                 resultList.add(jpeg);
                 continue;
             }
 
             // If a RAW with the same base key was already staged previously, attach this JPEG as companion
-            String baseKey = getBaseKey(jpeg.getFile());
+            String baseKey = FileUtils.getBaseKey(jpeg.getFile());
             StageEntry stagedRaw = existingStagedByBaseKey.get(baseKey);
             if (stagedRaw != null && stagedRaw.isRaw) {
                 fxUpdates.add(() -> {
                     stagedRaw.jpegPath = jpeg.getFile().toPath();
                     stagedRaw.companion = jpeg;
-                    if (stagedRaw.thumbnailPath == null) {
-                        stagedRaw.thumbnailPath = jpeg.getFile().toPath();
-                        stagedRaw.rotation = jpeg.rotation;
-                    }
                 });
                 jpeg.getIsCompanionProperty().set(true);   // new entry, not in the list yet, fine
-                jpeg.thumbnailPath = jpeg.getFile().toPath();
                 resultList.add(jpeg);
                 continue;
             }
@@ -303,96 +281,71 @@ public class ImportStageService extends Service<StageResult> {
     }
 
     /**
-     * Finds a regular file in the RAW file's directory with the same name excluding its extension.
+     * Creates the thumbnail of a staged entry. A RAW without a usable embedded preview falls back to
+     * its JPEG companion, if it has one.
      *
-     * @param rawFile RAW file for which to search for a companion
-     * @return the matching file, or {@code null} if none is found or the directory cannot be read
+     * @param entry the staged entry
+     * @return the thumbnail encoded as JPEG
      */
-    private File findDiskCompanionJpeg(File rawFile) {
-        if (rawFile == null || rawFile.getParentFile() == null) {
-            return null;
+    private byte[] createThumbnail(StageEntry entry) {
+        if (!entry.isRaw) {
+            return thumbnailFactory.fromImage(entry.getFile(), entry.rotation);
         }
-        File parent = rawFile.getParentFile();
-        String baseName = getFileNameWithoutExtension(rawFile);
-
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent.toPath())) {
-            for (Path path : stream) {
-                if (!path.toFile().equals(rawFile) &&
-                        getFileNameWithoutExtension(path.toFile()).equals(baseName) &&
-                        Files.isRegularFile(path)) {
-                    return path.toFile();
-                }
+        try {
+            return thumbnailFactory.fromRaw(entry.getFile(), entry.rotation);
+        } catch (RuntimeException ex) {
+            if (entry.jpegPath == null) {
+                throw ex;
             }
-        } catch (IOException e) {
-            logger.error("Error occurred while searching for companion JPEG file", e);
+            logger.debug("No embedded preview in '{}', using companion '{}'", entry.getFile().getName(), entry.jpegPath.getFileName());
+            return thumbnailFactory.fromImage(entry.jpegPath.toFile(), entry.rotation);
         }
-        return null;
     }
 
     /**
-     * Assigns a cached or newly extracted thumbnail to a staged entry.
+     * Finds the JPEG next to the RAW file with the same name excluding its extension.
+     * Only .jpg/.jpeg files count, so sidecars like IMG_0001.xmp are never picked up.
      *
-     * @param entry entry whose thumbnail should be attached
+     * @param rawFile       RAW file for which to search for a companion
+     * @param jpegsByFolder per-batch cache of each folder's JPEGs, keyed by lower-case base name
+     * @return the matching file, or {@code null} if none is found or the directory cannot be read
      */
-    private void attachThumbnail(StageEntry entry) {
-
-        String hash = Integer.toHexString(entry.getFile().getAbsolutePath().hashCode());
-        String thumbnailName = hash + "_" + entry.getFile().getName() + "_thumb.jpg";
-        Path targetPath = sessionDirectory.resolve(thumbnailName);
-
-        if (Files.exists(targetPath)) {
-            try {
-                if (Files.size(targetPath) > 0) {
-                    entry.thumbnailPath = targetPath;
-                    logger.debug("Reusing cached thumbnail for: '{}'", entry.getFile().getName());
-                    return;
-                }
-            } catch (IOException ignored) {
-            }
+    private File findDiskCompanionJpeg(File rawFile, Map<Path, Map<String, File>> jpegsByFolder) {
+        if (rawFile == null || rawFile.getParentFile() == null) {
+            return null;
         }
-
-        if (entry.isRaw) {
-            try (LibrawService librawService = new LibrawService()) {
-                logger.debug("Extracting thumbnail for entry: '{}' -> '{}'", entry.getFile().getName(), targetPath);
-                boolean isSuccess = librawService.extractThumbnail(entry.getFile(), targetPath);
-                if (isSuccess) {
-                    entry.thumbnailPath = targetPath;
-                    logger.debug("Thumbnail successfully extracted for: '{}'", entry.getFile().getName());
-                } else {
-                    logger.error("Failed to extract thumbnail for entry: {}", entry.getFile().getName());
-                    entry.thumbnailPath = null;
-                }
-            } catch (Exception e) {
-                logger.error("Error occurred while extracting thumbnail for entry: {}", entry.getFile().getName(), e);
-                entry.thumbnailPath = null;
-            }
-        } else {
-            if (downScaleJpeg(entry.getFile().toPath(), targetPath)) {
-                entry.thumbnailPath = targetPath;
-                return;
-            }
-            entry.thumbnailPath = null;
-        }
+        Path folder = rawFile.getParentFile().toPath();
+        Map<String, File> jpegs = jpegsByFolder.computeIfAbsent(folder, this::listJpegs);
+        return jpegs.get(FileUtils.getFileNameWithoutExtension(rawFile));
     }
 
-    private boolean downScaleJpeg(Path sourcePath, Path targetPath) {
-        if (sourcePath == null || !Files.exists(sourcePath)) {
-            logger.warn("Cannot downscale JPEG: source file does not exist ({})", sourcePath);
+    /**
+     * Lists the JPEG files of a folder once.
+     *
+     * @param folder the folder to list
+     * @return lower-case base name to JPEG file; empty if the folder cannot be read
+     */
+    private Map<String, File> listJpegs(Path folder) {
+        Map<String, File> jpegs = new HashMap<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
+            for (Path path : stream) {
+                if (isJpeg(path) && Files.isRegularFile(path)) {
+                    jpegs.putIfAbsent(FileUtils.getFileNameWithoutExtension(path.toFile()), path.toFile());
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Error occurred while listing '{}' for companion JPEG files", folder, e);
+        }
+        return jpegs;
+    }
+
+    private static boolean isJpeg(Path path) {
+        String name = path.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        if (dot < 0) {
             return false;
         }
-        try {
-            storageService.ensureDirectory(targetPath.getParent());
-            logger.debug("Downscaling thumbnail: '{}' -> '{}' ({}x{}, quality={})",
-                    sourcePath.getFileName(), targetPath.getFileName(), 450, 300, 0.8);
-            Thumbnails.of(sourcePath.toFile())
-                    .size(450, 300)
-                    .outputQuality(0.8)
-                    .allowOverwrite(true)
-                    .toFile(targetPath.toFile());
-            return true;
-        } catch (IOException ex) {
-            logger.error("Failed to generate thumbnail for: {}", sourcePath, ex);
-            return false;
-        }
+        String extension = name.substring(dot + 1).toUpperCase(Locale.ROOT);
+        return extension.equals(PhotoExtensions.JPG.getExtension()) || extension.equals(PhotoExtensions.JPEG.getExtension());
     }
 }
