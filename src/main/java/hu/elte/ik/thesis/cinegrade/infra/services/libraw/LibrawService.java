@@ -3,27 +3,22 @@ package hu.elte.ik.thesis.cinegrade.infra.services.libraw;
 import com.sun.jna.Pointer;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ErrorCode;
 import hu.elte.ik.thesis.cinegrade.domain.exceptions.CineGradeException;
-import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Optional;
 
 public class LibrawService implements AutoCloseable {
 
     private static final Logger logger = LogManager.getLogger(LibrawService.class);
     private final LibRaw libRaw;
-    private final StorageService storageService;
     private final Pointer handler;
     private volatile boolean closed = false;
 
     public LibrawService() {
         this.libRaw = LibRaw.INSTANCE;
-        this.storageService = new StorageService();
 
         this.handler = libRaw.libraw_init(0);
         if (this.handler == null) {
@@ -32,20 +27,20 @@ public class LibrawService implements AutoCloseable {
         }
     }
 
-    public boolean extractThumbnail(File rawFile, Path destinationFile) {
-        if (closed) return false;
+    public Optional<RawThumbnail> extractThumbnail(File rawFile) {
+        if (closed) return Optional.empty();
 
         LibRaw.ProcessedImage.ByReference thumbnail;
         if (handler == null) {
             logger.error("Failed to initialize libraw");
-            return false;
+            return Optional.empty();
         }
 
         try {
             int err = libRaw.libraw_open_file(handler, rawFile.getAbsolutePath());
             if (err != 0) {
                 logger.error("Failed to open raw file: {}", rawFile.getAbsolutePath());
-                return false;
+                return Optional.empty();
             }
 
             int[] errc = {0};
@@ -60,15 +55,13 @@ public class LibrawService implements AutoCloseable {
                 ByteBuffer byteBuffer = thumbnail.getByteBuffer();
                 if (byteBuffer == null) {
                     logger.error("Failed to get byte buffer for thumbnail");
-                    return false;
+                    return Optional.empty();
                 }
 
                 byteBuffer.rewind();
                 byte[] jpegBytes = new byte[byteBuffer.remaining()];
                 byteBuffer.get(jpegBytes);
 
-                storageService.ensureDirectory(destinationFile.getParent());
-                Files.write(destinationFile, jpegBytes);
                 if (thumbnail.type == 2) {
                     logger.debug("Embedded JPEG thumbnail extracted: {} bytes ({} KB)",
                             thumbnail.data_size, thumbnail.data_size / 1024);
@@ -76,16 +69,16 @@ public class LibrawService implements AutoCloseable {
                     logger.debug("{}x{} bitmap thumbnail decoded, {} bits, {} bytes",
                             (int) thumbnail.width, (int) thumbnail.height, (int) thumbnail.bits, thumbnail.data_size);
                 }
-
                 libRaw.libraw_dcraw_clear_mem(thumbnail.getPointer());
+                return Optional.of(new RawThumbnail(jpegBytes, thumbnail.type,  thumbnail.width, thumbnail.height,  thumbnail.colors, thumbnail.bits));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new CineGradeException(ErrorCode.LIBRAW_THUMBNAIL_EXTRACTION_FAILED, e);
         } finally {
             libRaw.libraw_recycle(handler);
         }
 
-         return true;
+         return Optional.empty();
     }
 
     @Override
@@ -96,4 +89,6 @@ public class LibrawService implements AutoCloseable {
             logger.debug("LibRaw handler closed");
         }
     }
+
+    public record RawThumbnail(byte[] data, int type, int width, int height, int colors, int bits) { }
 }
