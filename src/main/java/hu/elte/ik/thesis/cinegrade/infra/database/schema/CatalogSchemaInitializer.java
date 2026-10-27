@@ -35,7 +35,9 @@ public class CatalogSchemaInitializer {
                 file_name TEXT NOT NULL,
                 file_size INTEGER,
                 import_id TEXT NOT NULL,
-                thumbnail_path TEXT,
+                mime_type TEXT,
+                is_raw INTEGER NOT NULL DEFAULT 0,
+                rotation INTEGER NOT NULL DEFAULT 0,
                 rating INTEGER DEFAULT 0,
                 color_label TEXT,
                 date_imported DATETIME DEFAULT CURRENT_TIMESTAMP

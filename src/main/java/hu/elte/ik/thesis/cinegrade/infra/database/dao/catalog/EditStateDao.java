@@ -118,9 +118,9 @@ public class EditStateDao {
     }
 
     /**
-     * Upserts many edit states in a single transaction. All rows share one {@code updated_at} value.
-     * Statements are flushed in batches of {@link #BATCH_SIZE}; on failure the transaction is rolled back
-     * and the previous auto-commit mode is restored.
+     * Upserts many edit states. All rows share one {@code updated_at} value. Statements are flushed in
+     * batches of {@link #BATCH_SIZE}. The DAO does not manage transactions: call it inside
+     * {@code TransactionRunner.inTransaction/execute} so the batch commits or rolls back as one unit.
      *
      * @param items edit states to store; {@code null} or empty is a no-op
      * @throws SQLException if the write fails
@@ -129,8 +129,6 @@ public class EditStateDao {
         if (items == null || items.isEmpty()) return;
 
         String now = Instant.now().toString();
-        boolean previousAutoCommit = connection.getAutoCommit();
-        connection.setAutoCommit(false);
         try (PreparedStatement pstmt = connection.prepareStatement(UPSERT_SQL)) {
             int count = 0;
             for (EditState e : items) {
@@ -141,12 +139,6 @@ public class EditStateDao {
                 }
             }
             pstmt.executeBatch();
-            connection.commit();
-        } catch (SQLException ex) {
-            connection.rollback();
-            throw ex;
-        } finally {
-            connection.setAutoCommit(previousAutoCommit);
         }
     }
 

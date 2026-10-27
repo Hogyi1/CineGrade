@@ -21,8 +21,6 @@ public class PhotoEntry extends Entry {
     private String id;
     // Setters below are overloaded with Path variants, so only the getter is generated
     @Getter
-    private String thumbnailPath;
-    @Getter
     private String originalPath;
     @Getter @Setter
     private ImportMethod importMethod;
@@ -36,6 +34,12 @@ public class PhotoEntry extends Entry {
     private Instant dateImported;
     @Getter @Setter
     private String importId;
+    @Getter @Setter
+    private String mimeType;
+    @Getter @Setter
+    private boolean isRaw;
+    @Getter @Setter
+    private int rotation;
 
     // On import
     public PhotoEntry(File file) {
@@ -43,45 +47,29 @@ public class PhotoEntry extends Entry {
         this.id = UUID.randomUUID().toString();
         this.fileSize = file != null ? file.length() : 0L;
         this.dateImported = Instant.now();
-
-        // setFile(getResolvedFile(catalogPath));
     }
 
     // On DAO
-    public PhotoEntry(String id, String importId, File resolvedFile, String thumbnailPath,
+    public PhotoEntry(String id, String importId, File resolvedFile,
                       long fileSize, int rating, String colorLabel,
-                      Instant dateImported, ImportMethod importMethod, String originalPath) {
+                      Instant dateImported, ImportMethod importMethod, String originalPath,
+                      String mimeType, boolean isRaw, int rotation) {
         super(resolvedFile);
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.importId = importId;
-        this.thumbnailPath = thumbnailPath;
         this.fileSize = fileSize;
         this.rating = rating;
         this.colorLabel = colorLabel;
         this.dateImported = dateImported != null ? dateImported : Instant.now();
         this.importMethod = importMethod != null ? importMethod : ImportMethod.ADD;
         this.originalPath = originalPath;
+        this.mimeType = mimeType;
+        this.isRaw = isRaw;
+        this.rotation = rotation;
 
-        if (thumbnailPath == null || thumbnailPath.isEmpty()) {
-            this.missingThumbnail.set(true);
-        }
         if (!Files.exists(file.toPath())) {
             this.missingPhoto.set(true);
         }
-    }
-
-    /**
-     * Resolves the thumbnail file to an absolute File on disk.
-     */
-    public File getResolvedThumbnailFile(Path catalogPath) {
-        if (thumbnailPath == null || thumbnailPath.isBlank()) {
-            return null;
-        }
-        Path path = Path.of(thumbnailPath);
-        if (path.isAbsolute() || catalogPath == null) {
-            return path.toFile();
-        }
-        return catalogPath.resolve(path).toFile();
     }
 
     /**
@@ -106,41 +94,6 @@ public class PhotoEntry extends Entry {
         }
 
         return file.getAbsolutePath().replace('\\', '/');
-    }
-
-    /**
-     * Converts thumbnail path to relative path for database storage.
-     */
-    public String getDatabaseThumbnailPath(Path catalogPath) {
-        if (thumbnailPath == null || thumbnailPath.isBlank()) {
-            return null;
-        }
-
-        Path tPath = Path.of(thumbnailPath);
-        if (!tPath.isAbsolute()) {
-            // Already a relative path! Just normalize slashes
-            return thumbnailPath.replace('\\', '/');
-        }
-
-        if (catalogPath != null) {
-            Path normCatalog = catalogPath.toAbsolutePath().normalize();
-            Path normThumb = tPath.toAbsolutePath().normalize();
-
-            if (normThumb.startsWith(normCatalog)) {
-                // "cache/thumbnails/..."
-                return normCatalog.relativize(normThumb).toString().replace('\\', '/');
-            }
-        }
-
-        return thumbnailPath.replace('\\', '/');
-    }
-
-    public void setThumbnailPath(Path thumbnailPath) {
-        this.thumbnailPath = thumbnailPath.toString();
-    }
-
-    public void setThumbnailPath(String thumbnailPath) {
-        this.thumbnailPath = thumbnailPath;
     }
 
     public void setOriginalPath(Path originalPath) {

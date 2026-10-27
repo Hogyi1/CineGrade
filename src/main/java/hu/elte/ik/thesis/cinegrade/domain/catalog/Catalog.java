@@ -21,7 +21,6 @@ public class Catalog {
     private Instant lastOpenedAt;
     @Setter
     private transient long size = 0L;
-    // Stored in catalog_info (last_panel), loaded when the catalog's scope opens
     @Setter
     private WorkspacePanel lastPanel;
 
@@ -44,18 +43,6 @@ public class Catalog {
         return Path.of(projectFilePath);
     }
 
-    public Path getTempDirectory() {
-        return getProjectDirectory().resolve("temp");
-    }
-
-    public Path getCacheDirectory() {
-        return getProjectDirectory().resolve("cache");
-    }
-
-    public Path getTempImportsDirectory() {
-        return getTempDirectory().resolve("imports");
-    }
-
     public Path getMediaDirectory() {
         return getProjectDirectory().resolve("media");
     }
@@ -66,7 +53,7 @@ public class Catalog {
 
     /** Thumbnail/preview BLOB cache, safe to delete. */
     public Path getPreviewDatabasePath() {
-        return getCacheDirectory().resolve("previews.cgpreviews");
+        return getProjectDirectory().resolve("previews.cgpreviews");
     }
 
     @Override

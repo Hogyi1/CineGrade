@@ -15,8 +15,9 @@ import java.util.*;
 /**
  * Data access object for the {@code photos} table of a catalog database.
  *
- * Stores one row per imported photo. File and thumbnail paths are converted between the form stored
- * in the database and absolute paths using the catalog directory. The DAO does not own the
+ * Stores one row per imported photo. File paths are converted between the form stored
+ * in the database and absolute paths using the catalog directory. Thumbnails are not stored here
+ * but in the preview database. The DAO does not own the
  * {@link Connection}; the caller is responsible for its lifecycle.
  */
 public class PhotoDao {
@@ -34,7 +35,7 @@ public class PhotoDao {
      * Column list shared by the SELECT and INSERT statements.
      */
     private static final String COLUMNS =
-            "id, original_path, import_method, import_id, file_path, file_name, file_size, thumbnail_path, rating, color_label, date_imported";
+            "id, original_path, import_method, import_id, file_path, file_name, file_size, mime_type, is_raw, rotation, rating, color_label, date_imported";
 
     /**
      * Creates a DAO operating on the given connection.
@@ -60,8 +61,8 @@ public class PhotoDao {
     }
 
     /**
-     * Inserts many photos in a single transaction; on failure everything is rolled back and the
-     * previous auto-commit mode is restored.
+     * Inserts many photos as one JDBC batch. The DAO does not manage transactions: call it inside
+     * {@code TransactionRunner.inTransaction/execute} so the batch commits or rolls back as one unit.
      *
      * A missing import method defaults to {@link ImportMethod#ADD} and a missing import date to the
      * current time.
@@ -74,7 +75,7 @@ public class PhotoDao {
             return;
         }
 
-        String sql = "INSERT INTO photos (" + COLUMNS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO photos (" + COLUMNS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -92,11 +93,13 @@ public class PhotoDao {
                 pstmt.setString(5, photo.getDatabaseFilePath(catalogPath));
                 pstmt.setString(6, photo.getFileName());
                 pstmt.setLong(7, photo.getFileSize());
-                pstmt.setString(8, photo.getDatabaseThumbnailPath(catalogPath));
-                pstmt.setInt(9, photo.getRating());
-                pstmt.setString(10, photo.getColorLabel());
+                pstmt.setString(8, photo.getMimeType());
+                pstmt.setInt(9, photo.isRaw() ? 1 : 0);
+                pstmt.setInt(10, photo.getRotation());
+                pstmt.setInt(11, photo.getRating());
+                pstmt.setString(12, photo.getColorLabel());
                 Instant imported = photo.getDateImported() != null ? photo.getDateImported() : Instant.now();
-                pstmt.setString(11, imported.toString());
+                pstmt.setString(13, imported.toString());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -180,24 +183,6 @@ public class PhotoDao {
     }
 
     /**
-     * Sets the stored thumbnail path of a photo.
-     *
-     * @param id            id of the photo
-     * @param thumbnailPath the new thumbnail path, in the form stored in the database
-     * @return {@code true} if a row was updated
-     * @throws SQLException if the update fails
-     */
-    public boolean updateThumbnailPath(String id, String thumbnailPath) throws SQLException {
-        String sql = "UPDATE photos SET thumbnail_path = ? WHERE id = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, thumbnailPath);
-            pstmt.setString(2, id);
-            return pstmt.executeUpdate() > 0;
-        }
-    }
-
-    /**
      * Sets the import the photo belongs to.
      *
      * @param id       id of the photo
@@ -252,7 +237,9 @@ public class PhotoDao {
         String importId = rs.getString("import_id");
         String rawFilePath = rs.getString("file_path");
         long fileSize = rs.getLong("file_size");
-        String rawThumbnailPath = rs.getString("thumbnail_path");
+        String mimeType = rs.getString("mime_type");
+        boolean isRaw = rs.getInt("is_raw") != 0;
+        int rotation = rs.getInt("rotation");
         int rating = rs.getInt("rating");
         String colorLabel = rs.getString("color_label");
         Instant dateImported = parseInstant(rs.getString("date_imported"));
@@ -266,17 +253,14 @@ public class PhotoDao {
         }
 
         PhotoEntry entry = new PhotoEntry(
-                id, importId, resolvedFile, rawThumbnailPath,
+                id, importId, resolvedFile,
                 fileSize, rating, colorLabel, dateImported,
-                importMethod, originalPath
+                importMethod, originalPath,
+                mimeType, isRaw, rotation
         );
 
-        boolean photoExists = resolvedFile.exists();
-        entry.setMissingPhoto(!photoExists);
-
-        File resolvedThumb = entry.getResolvedThumbnailFile(catalogPath);
-        boolean thumbExists = resolvedThumb != null && resolvedThumb.exists();
-        entry.setMissingThumbnail(!thumbExists);
+        // Thumbnails live in the preview database now; a missing one is regenerated by the ThumbnailService
+        entry.setMissingPhoto(!resolvedFile.exists());
 
         return entry;
     }

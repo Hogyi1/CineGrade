@@ -66,9 +66,9 @@ public class MetadataDao {
     }
 
     /**
-     * Upserts many metadata rows in a single transaction. Statements are flushed in batches of
-     * {@link #BATCH_SIZE}; on failure the transaction is rolled back and the previous auto-commit mode
-     * is restored.
+     * Upserts many metadata rows. Statements are flushed in batches of {@link #BATCH_SIZE}.
+     * The DAO does not manage transactions: call it inside {@code TransactionRunner.inTransaction/execute}
+     * so the batch commits or rolls back as one unit.
      *
      * @param items metadata to store; {@code null} or empty is a no-op
      * @throws SQLException if the write fails
@@ -76,8 +76,6 @@ public class MetadataDao {
     public void upsertAll(List<PhotoMetadata> items) throws SQLException {
         if (items == null || items.isEmpty()) return;
 
-        boolean previousAutoCommit = connection.getAutoCommit();
-        connection.setAutoCommit(false);
         try (PreparedStatement pstmt = connection.prepareStatement(UPSERT_SQL)) {
             int count = 0;
             for (PhotoMetadata m : items) {
@@ -88,12 +86,6 @@ public class MetadataDao {
                 }
             }
             pstmt.executeBatch(); // flush the remainder
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback();
-            throw e;
-        } finally {
-            connection.setAutoCommit(previousAutoCommit);
         }
     }
 
