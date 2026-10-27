@@ -1,6 +1,4 @@
-package hu.elte.ik.thesis.cinegrade.javafx.ui;
-
-import hu.elte.ik.thesis.cinegrade.javafx.ui.editing.NavigationController;
+package hu.elte.ik.thesis.cinegrade.javafx.ui.editing;
 
 public interface PanelController {
     public void setNavigationController(NavigationController navigationController);

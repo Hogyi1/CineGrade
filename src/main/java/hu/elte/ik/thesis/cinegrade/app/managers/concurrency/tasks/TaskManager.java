@@ -1,6 +1,5 @@
 package hu.elte.ik.thesis.cinegrade.app.managers.concurrency.tasks;
 
-import hu.elte.ik.thesis.cinegrade.app.managers.concurrency.ThreadPoolManager;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,7 +28,6 @@ public class TaskManager implements AutoCloseable {
 
     public TaskManager(ExecutorService servicePool) {
         this.servicePool = servicePool;
-        // Plain lists: configure() runs on the FX thread and Service state changes are always delivered there
         this.runningServices = FXCollections.observableArrayList();
         this.completedServices = FXCollections.observableArrayList();
     }

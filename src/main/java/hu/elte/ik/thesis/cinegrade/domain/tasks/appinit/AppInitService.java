@@ -46,8 +46,6 @@ public class AppInitService extends Service<AppInitResult> {
                     throw new CineGradeException(ErrorCode.REQ_JAVA_VERSION_INCOMPATIBLE);
                 }
                 updateProgress(stepCounter.getAndIncrement(), totalSteps);
-                PauseTransition pause = new PauseTransition(Duration.millis(1000));
-                pause.play();
 
                 updateMessage("Checking native binaries...");
                 requirementChecker.checkNativeBinaries();
