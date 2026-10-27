@@ -5,6 +5,7 @@ import hu.elte.ik.thesis.cinegrade.app.managers.imports.StagingArea;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.enums.ImportMethod;
 import hu.elte.ik.thesis.cinegrade.domain.enums.PhotoExtensions;
+import hu.elte.ik.thesis.cinegrade.domain.enums.WorkspacePanel;
 import hu.elte.ik.thesis.cinegrade.domain.error.ErrorHandler;
 import hu.elte.ik.thesis.cinegrade.infra.utils.format.FormatUtils;
 import hu.elte.ik.thesis.cinegrade.javafx.ui.components.ImportPhotoCard;
@@ -135,7 +136,7 @@ public class ImportPanelController implements PanelController {
         cardsGridView.setVerticalCellSpacing(12.0);
 
         // Bind data and cell factory
-        cardsGridView.setItems(stagingArea.getFilteredEntries());
+        cardsGridView.setItems(stagingArea.getSortedEntries());
         cardsGridView.setCellFactory(view -> new ImportPhotoCard(removeConsumer, cardsGridView));
 
         // Initial sizing
@@ -218,7 +219,10 @@ public class ImportPanelController implements PanelController {
                         )
                 )
         );
-        importButton.setOnMouseClicked(e -> importManager.importPhotos(importMethodComboBox.getValue()));
+        importButton.setOnMouseClicked(e -> {
+            importManager.importPhotos(importMethodComboBox.getValue());
+            navigationController.switchTo(WorkspacePanel.DEVELOPMENT);
+        });
 
         cancelButton.disableProperty().bind(stagingArea.getStagingProperty());
         selectAllButton.disableProperty().bind(stagingArea.getStagingProperty());

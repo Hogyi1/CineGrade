@@ -52,15 +52,15 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 ### Data Access Objects (DAOs)
 | File Path | Description | Respective Java Object | Tagging Status |
 | :--- | :--- | :--- | :--- |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/CatalogSettingsDao.java` | Key-value settings DAO for catalog-specific database | Key-value Strings (`catalog_info`) | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/CatalogsFolderDao.java` | DAO for catalog virtual folder hierarchy | `CatalogFolder.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/EditstateDao.java` | DAO for photo edit states | `EditState.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/MetadataDao.java` | DAO for photo EXIF and technical metadata | `PhotoMetadata.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/PhotoDao.java` | DAO for imported photos and thumbnails | `PhotoEntry.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/PresetDao.java` | DAO for grading presets | Grading Preset entity | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/RecentCatalogDao.java` | DAO for recently opened catalogs in app database | `Catalog.java` | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/SettingsDao.java` | Key-value settings DAO for global application database | Key-value Strings (`app_settings`) | `// [AI-GENERATED]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/dao/UserDao.java` | DAO for user session and authentication persistence | `User.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/CatalogSettingsDao.java` | Key-value settings DAO for catalog-specific database | Key-value Strings (`catalog_info`) | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/CatalogsFolderDao.java` | DAO for catalog virtual folder hierarchy | `CatalogFolder.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/EditstateDao.java` | DAO for photo edit states | `EditState.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/MetadataDao.java` | DAO for photo EXIF and technical metadata | `PhotoMetadata.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/PhotoDao.java` | DAO for imported photos and thumbnails | `PhotoEntry.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/PresetDao.java` | DAO for grading presets | Grading Preset entity | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/RecentCatalogDao.java` | DAO for recently opened catalogs in app database | `Catalog.java` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/SettingsDao.java` | Key-value settings DAO for global application database | Key-value Strings (`app_settings`) | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/UserDao.java` | DAO for user session and authentication persistence | `User.java` | `// [AI-GENERATED]` |
 
 ### Respective Domain Models / Java Objects
 | File Path | Description | Associated DAO | Tagging Status |
@@ -76,6 +76,9 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | File Path | Description | Associated FXML | Tagging Status |
 | :--- | :--- | :--- | :--- |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/components/ImportPhotoCard.java` | Controller for staged import photo cards with thumbnail loading and dynamic dimension binding | `importPhotoCard.fxml` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/services/storage/ThumbnailService.java` | Read-through thumbnail cache: byte-limited LRU → preview DB → ThumbnailFactory; `load` (async via CompletableFuture), `createAll` (parallel on the CPU pool), `put`/`putAll`/`delete` (rewritten from the handwritten draft on request) | – | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/presenters/TaskToastPresenter.java` | Listens to `TaskManager.runningServices`: queues services, shows at most 3 task toasts, calls `finish(outcome)` when a service leaves the list (fixed from the handwritten draft) | `taskToast.fxml` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/dialog/TaskToastController.java` | Left-side task toast: binds a task's message/progress, X cancels, `finish(Outcome)` shows the final state then dismisses (UI only, wiring is handwritten). Styles appended to `css/taskManager.css` | `taskToast.fxml` | `// [AI-GENERATED]` |
 
 ---
 
@@ -84,10 +87,26 @@ This document tracks all AI-generated files, UI views (FXML), stylesheets (CSS),
 | File Path | Generated Section / Method | Description | Tagging Status |
 | :--- | :--- | :--- | :--- |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/infra/process/NativeBinaryLocator.java` | `searchDirectory(Path baseDir, String targetFileName)` | Recursive file search method to locate native binaries | `// [AI-GENERATED METHOD]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/AppSchemaInitializer.java` | `CREATE_TABLE_*` & `CREATE_INDEX_*` SQL strings | DDL table creation queries (`app_settings`, `recent_catalogs`, `global_presets`, `user_session`, and indexes) | `// [AI-GENERATED TABLE STRINGS]` |
-| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/storage/database/CatalogSchemaInitializer.java` | `CREATE_TABLE_*` & index SQL strings | DDL table creation queries (`catalog_info`, `catalog_folders`, `photos`, `photo_metadata`, `edit_states`, `edit_history`, etc.) | `// [AI-GENERATED TABLE STRINGS]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/AppSchemaInitializer.java` | `CREATE_TABLE_*` & `CREATE_INDEX_*` SQL strings | DDL table creation queries (`app_settings`, `recent_catalogs`, `global_presets`, `user_session`, and indexes) | `// [AI-GENERATED TABLE STRINGS]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/CatalogSchemaInitializer.java` | `CREATE_TABLE_*` & index SQL strings | DDL table creation queries (`catalog_info`, `catalog_folders`, `photos`, `photo_metadata`, `edit_states`, `edit_history`, etc.) | `// [AI-GENERATED TABLE STRINGS]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/services/storage/database/CatalogService.java` | `getLastPanel`, `setLastPanel` | `catalog_info.last_panel`: the workspace panel the catalog was left on | `// [AI-GENERATED METHOD]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/editing/WorkspaceController.java` | `rememberPanel` | Saves the active panel to the catalog on every tab switch | `// [AI-GENERATED METHOD]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/editing/NavigationController.java` | `animateBubbleTo`, `updateTabStyles`, `getTabForPanel`, `switchTo`, `setActiveTab`, `setWorkspaceMode` | Smooth selection bubble sliding animation, active/inactive CSS tab class toggling, and workspace mode transition animations | `// [AI-GENERATED METHOD]` |
 | `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/components/ImportPhotoCard.java` | `updateSelectionStyle`, `bindSize` | Dynamic card selection style toggling (.import-card-selected vs .import-card-deselected) and responsive slider dimension binding | `// [AI-GENERATED METHOD]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/utils/thumbnail/ThumbnailFactory.java` | Class and method Javadoc | Javadoc comments only; the code itself is handwritten | `// [AI-GENERATED JAVADOC]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/imports/StagingArea.java` | Whole file (Extract Delegate) | Staging view model extracted from the handwritten `ImportManager`: master/filtered/sorted lists, filter predicate, counters, select/remove. Logic moved as-is; new are `addAll`, `clear`, `getSelectedEntries`, `getEntries`, `size` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/imports/ImportManager.java` | Extraction edits | Removed the staging-area code (moved to `StagingArea`), added the `StagingArea` constructor parameter, and delegated `importPhotos`/`resetAll`/batch add to it. The pipeline code is unchanged and handwritten | untagged (mechanical move) |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/TransactionRunner.java` | Whole file | Single-thread owner of one SQLite connection: `inTransaction` / `execute` (commit or rollback), `read`, nested calls join the outer transaction | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/infra/database/dao/catalog/EditStateDao.java`, `MetadataDao.java`, `PhotoDao.java` | `upsertAll` / `batchInsert` | Removed DAO-owned commit/rollback/autoCommit; callers run them inside `TransactionRunner` | file already `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/domain/tasks/ImportService.java` | Whole file (rewrite) | Injected DAOs/`ThumbnailService`/`ExifToolService`/`StorageService`; per-photo skip on failure; one `catalogTx` transaction per batch, rolled-back batch deletes its copies; MOVE = copy → commit → delete source; unique target names; staging thumbnails stored via `ThumbnailService.putAll` | `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/imports/StagingPipeline.java` | Whole file | Probe on io pool, one `ImportStageService` per batch on task pool, appending drops, `generation` stale-result guard, `cancel()` of all active services, drives `StagingArea.stagingProperty`; not registered with `TaskManager` | `// [AI-GENERATED]` (tag removed in the working copy by the author) |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/editing/PhotoManager.java` | `removePhoto` (DB/thumbnail part) | Deletes the row through `catalogTx`, then the preview blob via `ThumbnailService.delete` | untagged (call-site swap) |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/editing/PhotoManager.java` | constructor, `loadCatalogPhotos`, `updateRating`, `updateColorLabel`, `removePhoto` (DB calls only) | DB access routed through `catalogTx` (`read(...).join()` on load, fire-and-forget `execute` for writes) | untagged (call-site swap) |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/imports/ImportManager.java` | constructor, `createImportService` | Injects `catalogTx` and passes it to `ImportService`; `onFailed` no longer rolls back or rethrows | untagged (call-site swap) |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/components/ImportPhotoCard.java` | `applyThumbnail` (update) | Shows the in-memory `StageEntry.thumbnail` JPEG bytes instead of a temp file; rotation is pre-baked so no `setRotate` | `// [AI-GENERATED METHOD]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/javafx/ui/components/ImportPhotoCard.java` | `updateItem`, `unbindCurrentEntry`, `applyThumbnail` (perf fix) | Shows the pre-decoded `StageEntry.decodedThumbnail` (decodes once as fallback), binds `fitWidth`/`fitHeight` once in `setupCellLayout`, keeps the entry bound across GridRowSkin's `updateIndex(-1)` and only rebinds when the item changes | `// [AI-GENERATED METHOD]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/managers/imports/StagingArea.java` | extractor, `selectionListener`, `scheduleCountersUpdate`, `updateCounters` (perf fix) | `isSelected` removed from the list extractor (each update refilled all grid cells); one shared selection listener per entry; counters recomputed once per pulse instead of per change | file already `// [AI-GENERATED]` |
+| `src/main/java/hu/elte/ik/thesis/cinegrade/app/scope/CatalogScope.java`, `CatalogScopeFactory.java`, `app/main/App.java`, `javafx/ui/editing/ImportPanelController.java` | Wiring | `stagingArea` scope component; `ImportPanelController(ImportManager, StagingArea)` registered in the `ControllerFactory` | untagged (wiring) |
 
 ---
 

@@ -5,22 +5,22 @@ import hu.elte.ik.thesis.cinegrade.domain.editing.imports.FileProbeResult;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageEntry;
 import hu.elte.ik.thesis.cinegrade.domain.editing.imports.StageResult;
 import hu.elte.ik.thesis.cinegrade.domain.enums.PhotoExtensions;
-import hu.elte.ik.thesis.cinegrade.infra.services.libraw.LibrawService;
-import hu.elte.ik.thesis.cinegrade.infra.services.storage.StorageService;
 import hu.elte.ik.thesis.cinegrade.infra.utils.file.FileUtils;
 import hu.elte.ik.thesis.cinegrade.infra.utils.thumbnail.ThumbnailFactory;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import net.coobird.thumbnailator.Thumbnails;
+import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
@@ -63,9 +63,9 @@ public class ImportStageService extends Service<StageResult> {
      *
      * @param thumbnailFactory creates the staging thumbnails
      * @param cpuPool          pool the thumbnail jobs run on (one job per entry)
-     * @param probeResults   results describing the files selected for import
-     * @param stageEntries   entries already present in the staging area
-     * @param importedPhotos supplies the photos already imported into the catalog; read on the FX thread here
+     * @param probeResults     results describing the files selected for import
+     * @param stageEntries     entries already present in the staging area
+     * @param importedPhotos   supplies the photos already imported into the catalog; read on the FX thread here
      */
     public ImportStageService(ThumbnailFactory thumbnailFactory, ExecutorService cpuPool, List<FileProbeResult> probeResults, List<StageEntry> stageEntries, Supplier<List<PhotoEntry>> importedPhotos) {
         this.probeResults = probeResults;
@@ -73,6 +73,16 @@ public class ImportStageService extends Service<StageResult> {
         this.importedPhotos = importedPhotos.get();
         this.thumbnailFactory = thumbnailFactory;
         this.cpuPool = cpuPool;
+    }
+
+    private static boolean isJpeg(Path path) {
+        String name = path.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        if (dot < 0) {
+            return false;
+        }
+        String extension = name.substring(dot + 1).toUpperCase(Locale.ROOT);
+        return extension.equals(PhotoExtensions.JPG.getExtension()) || extension.equals(PhotoExtensions.JPEG.getExtension());
     }
 
     /**
@@ -164,7 +174,15 @@ public class ImportStageService extends Service<StageResult> {
                 // One job per photo on the cpu pool; a failed thumbnail leaves the entry without one
                 List<CompletableFuture<Void>> futures = finalNewEntries.stream()
                         .map(photo -> CompletableFuture
-                                .runAsync(() -> photo.thumbnail = createThumbnail(photo), cpuPool)
+                                .runAsync(() ->
+                                {
+                                    photo.thumbnail = createThumbnail(photo);
+                                    photo.setDecodedThumbnail(new Image(new ByteArrayInputStream(photo.thumbnail),
+                                            450,
+                                            300,
+                                            true,
+                                            true));
+                                }, cpuPool)
                                 .exceptionally(ex -> {
                                     logger.warn("Thumbnail failed for {}", photo.getFile(), ex);
                                     return null;
@@ -337,15 +355,5 @@ public class ImportStageService extends Service<StageResult> {
             logger.error("Error occurred while listing '{}' for companion JPEG files", folder, e);
         }
         return jpegs;
-    }
-
-    private static boolean isJpeg(Path path) {
-        String name = path.getFileName().toString();
-        int dot = name.lastIndexOf('.');
-        if (dot < 0) {
-            return false;
-        }
-        String extension = name.substring(dot + 1).toUpperCase(Locale.ROOT);
-        return extension.equals(PhotoExtensions.JPG.getExtension()) || extension.equals(PhotoExtensions.JPEG.getExtension());
     }
 }

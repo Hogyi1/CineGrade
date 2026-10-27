@@ -127,7 +127,7 @@ public class NavigationController {
 
     public void switchToPreviousPanel() {
         ViewHistory viewHistory = viewHistories.poll();
-        if (viewHistory == null || viewHistory.previous == null) {
+        if (viewHistory == null || viewHistory.previous == null || viewHistory.previous.current() == null) {
             logger.debug("No previous panel found in history, switching to fallback DEVELOPMENT panel");
             switchTo(WorkspacePanel.DEVELOPMENT);
             return;

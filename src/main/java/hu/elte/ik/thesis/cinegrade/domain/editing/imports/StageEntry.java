@@ -3,8 +3,10 @@ package hu.elte.ik.thesis.cinegrade.domain.editing.imports;
 import hu.elte.ik.thesis.cinegrade.domain.editing.Entry;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.image.Image;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.nio.file.Path;
 
@@ -15,6 +17,9 @@ public class StageEntry extends Entry {
     // Import panel duplication
     private final BooleanProperty isMaybeDuplicateProperty = new SimpleBooleanProperty(false);
     private final BooleanProperty isCompanionProperty = new SimpleBooleanProperty(false);
+
+    @Setter
+    private transient Image decodedThumbnail;
 
     // File specific
     public byte[] thumbnail;

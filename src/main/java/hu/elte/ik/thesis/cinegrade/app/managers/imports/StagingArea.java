@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -29,8 +30,10 @@ public class StagingArea {
 
     private static final Logger logger = LogManager.getLogger(StagingArea.class);
 
-    // Look at those properties and fire a change when these change inside
-    private final ObservableList<StageEntry> masterEntries = FXCollections.observableArrayList(e -> new Observable[]{e.getIsSelectedProperty(), e.getIsMaybeDuplicateProperty(), e.getIsCompanionProperty()});
+    // Fire an update when a property the filter predicate reads changes. isSelected is deliberately
+    // left out: every list update makes the GridView refill all visible cells, so a select-all would
+    // rebuild the grid once per entry. Selection is tracked by selectionListener instead.
+    private final ObservableList<StageEntry> masterEntries = FXCollections.observableArrayList(e -> new Observable[]{e.getIsMaybeDuplicateProperty(), e.getIsCompanionProperty()});
     private final ObservableList<StageEntry> readOnlyEntries = FXCollections.unmodifiableObservableList(masterEntries);
 
     // Filter on different predicates
@@ -47,14 +50,24 @@ public class StagingArea {
     private final BooleanProperty stagingProperty = new SimpleBooleanProperty(false);
     private final StringProperty nameProperty = new SimpleStringProperty("");
 
+    // One shared listener on every staged entry's isSelected
+    private final ChangeListener<Boolean> selectionListener = (obs, oldVal, newVal) -> scheduleCountersUpdate();
+    private boolean countersUpdateScheduled;
+
     /**
      * Creates an empty staging area and wires the filter, sort and counter bindings.
      */
     public StagingArea() {
+        masterEntries.addListener((ListChangeListener<StageEntry>) change -> {
+            while (change.next()) {
+                change.getRemoved().forEach(entry -> entry.getIsSelectedProperty().removeListener(selectionListener));
+                change.getAddedSubList().forEach(entry -> entry.getIsSelectedProperty().addListener(selectionListener));
+            }
+        });
+
         filteredEntries.addListener((ListChangeListener<StageEntry>) change -> {
             logger.debug("FilteredEntries changed: count = {}, masterEntries count = {}", filteredEntries.size(), masterEntries.size());
-            calculateStageSize();
-            updateSelectedCount();
+            scheduleCountersUpdate();
         });
 
         stagedFilesProperty.bind(Bindings.size(filteredEntries));
@@ -141,18 +154,34 @@ public class StagingArea {
     }
 
     /**
-     * Updates the count of selected files.
+     * Coalesces counter updates: any number of selection or list changes in the same pulse
+     * (e.g. selectAll over N entries) cause a single recount on the next pulse.
      */
-    private void updateSelectedCount() {
-        Platform.runLater(() -> selectedFilesProperty.set((int) filteredEntries.stream().filter(entry -> entry.getIsSelectedProperty().get()).count()));
+    private void scheduleCountersUpdate() {
+        if (countersUpdateScheduled) {
+            return;
+        }
+        countersUpdateScheduled = true;
+        Platform.runLater(() -> {
+            countersUpdateScheduled = false;
+            updateCounters();
+        });
     }
 
     /**
-     * Recalculates the total size of all currently selected staged files in bytes.
+     * Recounts the selected visible entries and their total size in bytes in one pass.
      */
-    private void calculateStageSize() {
-        long byteSize = filteredEntries.stream().filter(entry -> entry.getIsSelectedProperty().get()).mapToLong(entry -> entry.size).sum();
-        Platform.runLater(() -> stageSizeInBytes.set(byteSize));
-        logger.debug("Stage size updated: {} bytes across {} staged entries", byteSize, masterEntries.size());
+    private void updateCounters() {
+        int selected = 0;
+        long byteSize = 0;
+        for (StageEntry entry : filteredEntries) {
+            if (entry.getIsSelectedProperty().get()) {
+                selected++;
+                byteSize += entry.size;
+            }
+        }
+        selectedFilesProperty.set(selected);
+        stageSizeInBytes.set(byteSize);
+        logger.debug("Counters updated: {} selected, {} bytes across {} staged entries", selected, byteSize, masterEntries.size());
     }
 }

@@ -122,41 +122,55 @@ public class ImportPhotoCard extends GridCell<StageEntry> {
             thumbnailContainer.prefHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 4));
             thumbnailContainer.minHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 4));
             thumbnailContainer.maxHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 4));
+
+            // Bound once here, not per item
+            thumbnailImageView.fitWidthProperty().bind(parentGridView.cellWidthProperty().subtract(12));
+            thumbnailImageView.fitHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
         } else {
             cardRoot.setMaxWidth(Double.MAX_VALUE);
             cardRoot.setMaxHeight(Double.MAX_VALUE);
+            thumbnailImageView.setFitWidth(240);
+            thumbnailImageView.setFitHeight(160);
         }
     }
 
+    // [AI-GENERATED METHOD]
     @Override
     protected void updateItem(StageEntry item, boolean empty) {
         super.updateItem(item, empty);
 
-        // Clean up previous item bindings to prevent memory leaks and ghost toggles during scrolling
-        if (currentEntry != null) {
-            selectCheckBox.selectedProperty().unbindBidirectional(currentEntry.getIsSelectedProperty());
-            if (selectionListener != null) {
-                currentEntry.getIsSelectedProperty().removeListener(selectionListener);
-            }
-            if (duplicateListener != null) {
-                currentEntry.getIsMaybeDuplicateProperty().removeListener(duplicateListener);
-            }
-            currentEntry = null;
-        }
-
         if (empty || item == null) {
+            // GridRowSkin empties every cell (updateIndex(-1)) right before refilling it, usually with
+            // the same item, so the last entry stays bound here and is only swapped when a different one arrives
             setGraphic(null);
             setText(null);
-            thumbnailImageView.setImage(null);
             if (optionsMenu != null && optionsMenu.isShowing()) {
                 optionsMenu.hide();
             }
             return;
         }
 
-        currentEntry = item;
-        setupCard(item);
+        if (item != currentEntry) {
+            unbindCurrentEntry();
+            currentEntry = item;
+            setupCard(item);
+        }
         setGraphic(cardRoot);
+    }
+
+    // [AI-GENERATED METHOD]
+    private void unbindCurrentEntry() {
+        if (currentEntry == null) {
+            return;
+        }
+        selectCheckBox.selectedProperty().unbindBidirectional(currentEntry.getIsSelectedProperty());
+        if (selectionListener != null) {
+            currentEntry.getIsSelectedProperty().removeListener(selectionListener);
+        }
+        if (duplicateListener != null) {
+            currentEntry.getIsMaybeDuplicateProperty().removeListener(duplicateListener);
+        }
+        currentEntry = null;
     }
 
     // [AI-GENERATED METHOD]
@@ -182,31 +196,17 @@ public class ImportPhotoCard extends GridCell<StageEntry> {
         applyThumbnail(stageEntry);
     }
 
+    // [AI-GENERATED METHOD]
     private void applyThumbnail(StageEntry stageEntry) {
+        // Decoded once during staging on the cpu pool; here it is only displayed
+        Image decoded = stageEntry.getDecodedThumbnail();
         byte[] jpeg = stageEntry.thumbnail;
-        if (jpeg != null && jpeg.length > 0) {
-            Image image = new Image(new ByteArrayInputStream(jpeg),
-                    450,
-                    300,
-                    true,
-                    true);
-
-            thumbnailImageView.setImage(image);
-            thumbnailImageView.setRotate(0);
-
-            thumbnailImageView.fitWidthProperty().unbind();
-            thumbnailImageView.fitHeightProperty().unbind();
-
-            if (parentGridView != null) {
-                thumbnailImageView.fitWidthProperty().bind(parentGridView.cellWidthProperty().subtract(12));
-                thumbnailImageView.fitHeightProperty().bind(parentGridView.cellHeightProperty().subtract(FOOTER_HEIGHT + 12));
-            } else {
-                thumbnailImageView.setFitWidth(240);
-                thumbnailImageView.setFitHeight(160);
-            }
-        } else {
-            thumbnailImageView.setImage(null);
+        if (decoded == null && jpeg != null && jpeg.length > 0) {
+            // Fallback: decode on the FX thread once and keep it on the entry
+            decoded = new Image(new ByteArrayInputStream(jpeg), 450, 300, true, true);
+            stageEntry.setDecodedThumbnail(decoded);
         }
+        thumbnailImageView.setImage(decoded);
     }
 
     private void setupOptionsMenu() {

@@ -209,12 +209,7 @@ public class CatalogManager implements AutoCloseable {
     private void ensureDirectories(Path projectDirectory) {
         try {
             storageService.ensureDirectory(projectDirectory);
-            storageService.ensureDirectory(projectDirectory.resolve("temp"));
-            storageService.ensureDirectory(projectDirectory.resolve("temp").resolve("imports"));
-            storageService.ensureDirectory(projectDirectory.resolve("settings"));
-            storageService.ensureDirectory(projectDirectory.resolve("imports"));
-            storageService.ensureDirectory(projectDirectory.resolve("media"));
-            storageService.ensureDirectory(projectDirectory.resolve("cache").resolve("thumbnails"));
+            storageService.ensureDirectory(projectDirectory.resolve("media").resolve("imports"));
         } catch (CineGradeException ex) {
             throw new CineGradeException(ErrorCode.CATALOG_CREATE_FAILED, ex, projectDirectory.toString());
         }
